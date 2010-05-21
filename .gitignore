@@ -1,0 +1,6 @@
+target
+ivy-cache
+integration-repo
+*.iml
+*.iws
+*.ipr

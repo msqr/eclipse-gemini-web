@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="build-web-container" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+	<path id="unit.test.bundles">
+		<pathelement location="../org.eclipse.gemini.web.core"/>
+		<pathelement location="../org.eclipse.gemini.web.tomcat"/>
+		<pathelement location="../org.eclipse.gemini.web.extender"/>
+	</path>
+	
+	<path id="bundles">
+		<path refid="unit.test.bundles"/>
+		<pathelement location="../org.eclipse.gemini.web"/>
+		<pathelement location="../org.eclipse.gemini.web.test"/>
+	</path>
+
+	<property file="${basedir}/../build.properties"/>
+	<property file="${basedir}/../build.versions"/>
+	
+	<import file="${basedir}/../virgo-build/multi-bundle/default.xml"/>
+
+	<property name="collect.output.dir" value="${target.dir}/bundles"/>
+
+	<target name="precommit" depends="clean, clean-integration, test, findbugs"/>
+
+	<target name="collect" depends="ivy.init">
+		<mkdir dir="${collect.output.dir}"/>		
+		<ivy:retrieve organisation="org.eclipse.gemini.web" module="org.eclipse.gemini.web" inline="true" type="jar" pattern="${collect.output.dir}/[artifact]-[revision].[ext]"/>
+	</target>
+
+</project>

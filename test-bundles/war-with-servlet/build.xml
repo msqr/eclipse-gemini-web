@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="war-with-servlet">
+
+	<property file="${basedir}/../build.properties"/>
+	<property file="${basedir}/../../build.versions"/>
+	<property name="war.output.dir" value="${basedir}/../../org.eclipse.gemini.web.test/src/test/resources"/>
+	<import file="${basedir}/../../virgo-build/war/default.xml"/>
+
+</project>

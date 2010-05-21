@@ -1,0 +1,32 @@
+Manifest-Version: 1.0
+Export-Package: org.eclipse.gemini.web.tomcat.spi;version="1";uses:="o
+ rg.osgi.framework"
+Bundle-Version: 1
+Tool: Bundlor 1.0.0.M6
+Bundle-Name: SpringSource OSGi Web Container Tomcat Bootstrap
+Bundle-ManifestVersion: 2
+Bundle-Activator: org.eclipse.gemini.web.tomcat.internal.Activator
+Bundle-SymbolicName: org.eclipse.gemini.web.tomcat
+Import-Package: javax.management;version="0",javax.naming;version="0",
+ javax.naming.directory;version="0",javax.servlet;version="2.5",org.ap
+ ache.catalina;version="6.0.20.S2-r5956",org.apache.catalina.connector
+ ;version="6.0.20.S2-r5956",org.apache.catalina.core;version="6.0.20.S
+ 2-r5956",org.apache.catalina.deploy;version="6.0.20.S2-r5956",org.apa
+ che.catalina.startup;version="6.0.20.S2-r5956",org.apache.catalina.ut
+ il;version="6.0.20.S2-r5956",org.apache.juli.logging;version="6.0.20.
+ S2-r5956",org.apache.naming;version="6.0.20.S2-r5956",org.apache.nami
+ ng.resources;version="6.0.20.S2-r5956",org.apache.tomcat;version="6.0
+ .20.S2-r5956",org.apache.tomcat.util;version="6.0.20.S2-r5956",org.ap
+ ache.tomcat.util.digester;version="6.0.20.S2-r5956",org.apache.tomcat
+ .util.modeler;version="6.0.20.S2-r5956",org.eclipse.gemini.web.core;v
+ ersion="1.0",org.eclipse.gemini.web.core.spi;version="1.0",org.eclips
+ e.osgi.baseadaptor;version="0";resolution:="optional",org.eclipse.osg
+ i.baseadaptor.bundlefile;version="0";resolution:="optional",org.eclip
+ se.osgi.framework.adaptor;version="0";resolution:="optional",org.ecli
+ pse.osgi.framework.internal.core;version="0";resolution:="optional",o
+ rg.eclipse.virgo.util.io;version="2.0",org.eclipse.virgo.util.osgi;ve
+ rsion="2.0",org.osgi.framework;version="0",org.osgi.service.packagead
+ min;version="1.0",org.osgi.service.url;version="1.0",org.osgi.util.tr
+ acker;version="1.4.2",org.slf4j;version="1.5.10",org.springframework.
+ osgi.util;version="1.2.0",org.xml.sax;version="0"
+

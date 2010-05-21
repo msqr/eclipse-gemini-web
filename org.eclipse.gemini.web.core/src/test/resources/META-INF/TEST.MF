@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Import-Package: junit.framework,org.easymock,org.eclipse.gemini.web.in
+ ternal,org.eclipse.virgo.teststubs.osgi.framework,org.eclipse.virgo.t
+ eststubs.osgi.service.event,org.eclipse.virgo.teststubs.osgi.support,
+ org.junit
+

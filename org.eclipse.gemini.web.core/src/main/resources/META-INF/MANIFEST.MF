@@ -1,0 +1,25 @@
+Manifest-Version: 1
+Export-Package: org.eclipse.gemini.web.core;version="1.0";uses:="javax
+ .servlet,org.eclipse.virgo.util.osgi.manifest,org.osgi.framework",org
+ .eclipse.gemini.web.core.spi;version="1.0";uses:="javax.servlet,org.o
+ sgi.framework",org.eclipse.gemini.web.internal.template;version="1.0"
+ ;uses:="org.osgi.framework,org.osgi.util.tracker",org.eclipse.gemini.
+ web.internal.url;version="1.0";uses:="org.eclipse.gemini.web.core,org
+ .eclipse.virgo.util.io,org.eclipse.virgo.util.osgi.manifest,org.eclip
+ se.virgo.util.osgi.manifest.parse,org.osgi.framework,org.osgi.service
+ .url"
+Bundle-Version: 1.0
+Tool: Bundlor 1.0.0.M6
+Bundle-Name: SpringSource OSGi Web Container
+Bundle-ManifestVersion: 2
+Bundle-Activator: org.eclipse.gemini.web.internal.WebContainerActivato
+ r
+Bundle-SymbolicName: org.eclipse.gemini.web.core
+Import-Package: javax.servlet;version="2.5",org.eclipse.virgo.util.io;
+ version="2.0",org.eclipse.virgo.util.osgi;version="2.0",org.eclipse.v
+ irgo.util.osgi.manifest;version="2.0",org.eclipse.virgo.util.osgi.man
+ ifest.parse;version="2.0",org.osgi.framework;version="0",org.osgi.ser
+ vice.event;version="1.1";resolution:="optional",org.osgi.service.pack
+ ageadmin;version="1.2",org.osgi.service.url;version="1.0",org.osgi.ut
+ il.tracker;version="1.4.2",org.slf4j;version="1.5.0"
+
