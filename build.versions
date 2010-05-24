@@ -30,5 +30,5 @@ org.apache.tomcat=6.0.20.S2-r5956
 org.eclipse.jdt=3.3.0
 org.eclipse.osgi=3.5.1.R35x_v20091005
 org.slf4j=1.5.10
-org.springframework.osgi=1.2.0
+org.springframework.osgi=1.2.1
 org.springframework=3.0.0.RELEASE
