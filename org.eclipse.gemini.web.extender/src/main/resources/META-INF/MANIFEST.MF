@@ -1,11 +1,12 @@
 Manifest-Version: 1
 Export-Package: org.eclipse.gemini.web.extender;version="1";uses:="org
- .eclipse.gemini.web.core"
+ .eclipse.gemini.web.core,org.osgi.framework,org.osgi.util.tracker"
 Bundle-Version: 1
 Tool: Bundlor 1.0.0.M6
 Bundle-Name: SpringSource OSGi Web Container Extender
 Bundle-ManifestVersion: 2
 Bundle-Activator: org.eclipse.gemini.web.extender.ExtenderActivator
 Bundle-SymbolicName: org.eclipse.gemini.web.extender
-Import-Package: org.eclipse.gemini.web.core;version="1.0"
+Import-Package: org.eclipse.gemini.web.core;version="1.0",org.osgi.fra
+ mework;version="0",org.osgi.util.tracker;version="1.4.2"
 

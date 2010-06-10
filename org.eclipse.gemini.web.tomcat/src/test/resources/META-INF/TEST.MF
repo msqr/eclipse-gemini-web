@@ -1,3 +1,5 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
+Import-Package: org.easymock,org.eclipse.virgo.teststubs.osgi.framewor
+ k,org.junit
 
