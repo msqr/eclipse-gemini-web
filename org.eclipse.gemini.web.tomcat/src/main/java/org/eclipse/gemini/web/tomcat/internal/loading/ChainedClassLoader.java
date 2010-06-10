@@ -23,151 +23,155 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 
+/**
+ * <strong>Concurrent Semantics</strong><br />
+ * 
+ * This class is immutable and therefore thread safe.
+ */
 public final class ChainedClassLoader extends ClassLoader {
 
-    /** list of loaders */
-    private final List<ClassLoader> loaders = new ArrayList<ClassLoader>();
+	/** list of loaders */
+	private final List<ClassLoader> loaders;
 
-    /**
-     * Constructs a new <code>ChainedClassLoader</code> instance.
-     * 
-     * @param loaders array of non-null class loaders
-     * @param parent parent class loader (can be null)
-     */
-    ChainedClassLoader(ClassLoader... loaders) {
+	/**
+	 * Constructs a new <code>ChainedClassLoader</code> instance.
+	 * 
+	 * @param loaders
+	 *            array of non-null class loaders
+	 * @param parent
+	 *            parent class loader (can be null)
+	 */
+	ChainedClassLoader(ClassLoader... loaders) {
+		
+		List<ClassLoader> l = new ArrayList<ClassLoader>();
 
-        synchronized (this.loaders) {
-            for (int i = 0; i < loaders.length; i++) {
-                ClassLoader classLoader = loaders[i];
-                addLoader(classLoader);
-            }
-        }
-    }
+		for (int i = 0; i < loaders.length; i++) {
+			ClassLoader classLoader = loaders[i];
+			if (!l.contains(classLoader)) {
+				l.add(classLoader);
+			}
+		}
+		
+		this.loaders = Collections.unmodifiableList(l);
+	}
 
-    public static ChainedClassLoader create(final ClassLoader... loaders) {
-        return AccessController.doPrivileged(new PrivilegedAction<ChainedClassLoader>() {
+	public static ChainedClassLoader create(final ClassLoader... loaders) {
+		return AccessController
+				.doPrivileged(new PrivilegedAction<ChainedClassLoader>() {
 
-            public ChainedClassLoader run() {
-                return new ChainedClassLoader(loaders);
-            }
+					public ChainedClassLoader run() {
+						return new ChainedClassLoader(loaders);
+					}
 
-        });
-    }
+				});
+	}
 
-    @Override
-    public URL getResource(final String name) {
-        if (System.getSecurityManager() != null) {
-            return AccessController.doPrivileged(new PrivilegedAction<URL>() {
+	@Override
+	public URL getResource(final String name) {
+		if (System.getSecurityManager() != null) {
+			return AccessController.doPrivileged(new PrivilegedAction<URL>() {
 
-                public URL run() {
-                    return doGetResource(name);
-                }
-            });
-        } else {
-            return doGetResource(name);
-        }
-    }
+				public URL run() {
+					return doGetResource(name);
+				}
+			});
+		} else {
+			return doGetResource(name);
+		}
+	}
 
-    @Override
-    public Enumeration<URL> getResources(final String name) throws IOException {
-        if (System.getSecurityManager() != null) {
-            try {
-                return AccessController.doPrivileged(new PrivilegedExceptionAction<Enumeration<URL>>() {
+	@Override
+	public Enumeration<URL> getResources(final String name) throws IOException {
+		if (System.getSecurityManager() != null) {
+			try {
+				return AccessController
+						.doPrivileged(new PrivilegedExceptionAction<Enumeration<URL>>() {
 
-                    public Enumeration<URL> run() throws Exception {
-                        return doGetResources(name);
-                    }
+							public Enumeration<URL> run() throws Exception {
+								return doGetResources(name);
+							}
 
-                });
-            } catch (PrivilegedActionException e) {
-                Exception exception = e.getException();
-                if (exception instanceof RuntimeException) {
-                    throw (RuntimeException) exception;
-                } else if (exception instanceof IOException) {
-                    throw (IOException) exception;
-                } else {
-                    throw new IllegalStateException("Unexpected Exception from privileged action.", exception);
-                }
-            }
-        } else {
-            return doGetResources(name);
-        }
-    }
+						});
+			} catch (PrivilegedActionException e) {
+				Exception exception = e.getException();
+				if (exception instanceof RuntimeException) {
+					throw (RuntimeException) exception;
+				} else if (exception instanceof IOException) {
+					throw (IOException) exception;
+				} else {
+					throw new IllegalStateException(
+							"Unexpected Exception from privileged action.",
+							exception);
+				}
+			}
+		} else {
+			return doGetResources(name);
+		}
+	}
 
-    private Enumeration<URL> doGetResources(String name) throws IOException {
-        Vector<URL> urls = new Vector<URL>();
-        synchronized (this.loaders) {
-            for (ClassLoader loader : this.loaders) {
-                Enumeration<URL> resources = loader.getResources(name);
-                if (resources != null) {
-                    while (resources.hasMoreElements()) {
-                        URL url = (URL) resources.nextElement();
-                        urls.add(url);
-                    }
-                }
-            }
-        }
-        return urls.elements();
-    }
+	private Enumeration<URL> doGetResources(String name) throws IOException {
+		Vector<URL> urls = new Vector<URL>();
+		for (ClassLoader loader : this.loaders) {
+			Enumeration<URL> resources = loader.getResources(name);
+			if (resources != null) {
+				while (resources.hasMoreElements()) {
+					URL url = (URL) resources.nextElement();
+					urls.add(url);
+				}
+			}
+		}
+		return urls.elements();
+	}
 
-    private URL doGetResource(String name) {
-        URL url = null;
-        synchronized (loaders) {
-            for (int i = 0; i < loaders.size(); i++) {
-                ClassLoader loader = (ClassLoader) loaders.get(i);
-                url = loader.getResource(name);
-                if (url != null)
-                    return url;
-            }
-        }
-        return url;
-    }
+	private URL doGetResource(String name) {
+		URL url = null;
+		for (int i = 0; i < loaders.size(); i++) {
+			ClassLoader loader = (ClassLoader) loaders.get(i);
+			url = loader.getResource(name);
+			if (url != null)
+				return url;
+		}
+		return url;
+	}
 
-    public Class<?> loadClass(final String name) throws ClassNotFoundException {
+	public Class<?> loadClass(final String name) throws ClassNotFoundException {
 
-        if (System.getSecurityManager() != null) {
-            try {
-                return AccessController.doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
+		if (System.getSecurityManager() != null) {
+			try {
+				return AccessController
+						.doPrivileged(new PrivilegedExceptionAction<Class<?>>() {
 
-                    public Class<?> run() throws Exception {
-                        return doLoadClass(name);
-                    }
-                });
-            } catch (PrivilegedActionException pae) {
-                throw (ClassNotFoundException) pae.getException();
-            }
-        } else {
-            return doLoadClass(name);
-        }
-    }
+							public Class<?> run() throws Exception {
+								return doLoadClass(name);
+							}
+						});
+			} catch (PrivilegedActionException pae) {
+				throw (ClassNotFoundException) pae.getException();
+			}
+		} else {
+			return doLoadClass(name);
+		}
+	}
 
-    private Class<?> doLoadClass(String name) throws ClassNotFoundException {
-        Class<?> clazz = null;
+	private Class<?> doLoadClass(String name) throws ClassNotFoundException {
+		Class<?> clazz = null;
 
-        synchronized (loaders) {
-            for (int i = 0; i < loaders.size(); i++) {
-                ClassLoader loader = (ClassLoader) loaders.get(i);
-                try {
-                    clazz = loader.loadClass(name);
-                    return clazz;
-                } catch (ClassNotFoundException e) {
-                    // keep moving through the class loaders
-                }
-            }
-        }
+		for (int i = 0; i < loaders.size(); i++) {
+			ClassLoader loader = (ClassLoader) loaders.get(i);
+			try {
+				clazz = loader.loadClass(name);
+				return clazz;
+			} catch (ClassNotFoundException e) {
+				// keep moving through the class loaders
+			}
+		}
 
-        throw new ClassNotFoundException(name);
-    }
+		throw new ClassNotFoundException(name);
+	}
 
-    private void addLoader(ClassLoader classLoader) {
-        synchronized (loaders) {
-            if (!loaders.contains(classLoader)) {
-                loaders.add(classLoader);
-            }
-        }
-    }
 }
