@@ -3,7 +3,7 @@ Export-Package: org.eclipse.gemini.web.tomcat.spi;version="1";uses:="o
  rg.osgi.framework"
 Bundle-Version: 1
 Tool: Bundlor 1.0.0.M6
-Bundle-Name: SpringSource OSGi Web Container Tomcat Bootstrap
+Bundle-Name: Gemini Web Tomcat Bootstrap (incubation)
 Bundle-ManifestVersion: 2
 Bundle-Activator: org.eclipse.gemini.web.tomcat.internal.Activator
 Bundle-SymbolicName: org.eclipse.gemini.web.tomcat

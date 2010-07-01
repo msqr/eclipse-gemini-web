@@ -10,7 +10,7 @@ Export-Package: org.eclipse.gemini.web.core;version="1.0";uses:="javax
  .url"
 Bundle-Version: 1.0
 Tool: Bundlor 1.0.0.M6
-Bundle-Name: SpringSource OSGi Web Container
+Bundle-Name: Gemini Web Core (incubation)
 Bundle-ManifestVersion: 2
 Bundle-Activator: org.eclipse.gemini.web.internal.WebContainerActivato
  r

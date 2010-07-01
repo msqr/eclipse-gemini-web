@@ -2,7 +2,7 @@ Manifest-Version: 1
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.gemini.web.extender
 Bundle-Version: 1
-Bundle-Name: SpringSource OSGi Web Container Extender
+Bundle-Name: Gemini Web Extender (incubation)
 Bundle-Activator: org.eclipse.gemini.web.extender.ExtenderActivator
 Import-Template: org.eclipse.gemini.web.*;version="1.0",
  org.osgi.framework.*;version="0",
