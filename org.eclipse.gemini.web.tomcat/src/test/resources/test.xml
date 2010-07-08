@@ -1,0 +1,5 @@
+<Context crossContext="true" 
+         privileged="true"
+         reloadable="true"
+         useHTTPOnly="true"
+/>

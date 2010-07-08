@@ -68,6 +68,44 @@ final class TomcatConfigLocator {
         return is;
     }
 
+    /**
+     * Returns the directory where the Tomcat configuration files resides.
+     * 
+     * The location algorithm is as follows:
+     * <ol>
+     * <li>Check for <code>org.eclipse.gemini.web.tomcat.config.path</code>
+     * framework property, use if found</li>
+     * <li>Check for <code>config/tomcat-server.xml</code> in the current
+     * working directory, use if found</li>
+     * <li>If the previous checks do not return a result, return
+     * <code>null</code></li>
+     * </ol>
+     * 
+     * @param context
+     *            the bundle context
+     * @return the directory where the Tomcat configuration files resides.
+     */
+    public static File resolveConfigDir(BundleContext context) {
+        File configFile = null;
+
+        // Search for the property 'org.eclipse.gemini.web.tomcat.config.path'
+        String path = context.getProperty(TomcatConfigLocator.CONFIG_PATH_FRAMEWORK_PROPERTY);
+        if (path != null) {
+            configFile = new File(path);
+            if (configFile.exists()) {
+                return configFile.getParentFile();
+            }
+        }
+
+        // Search for the 'config' directory
+        configFile = new File(TomcatConfigLocator.DEFAULT_CONFIG_FILE_PATH);
+        if (configFile.exists()) {
+            return configFile.getParentFile();
+        }
+
+        return null;
+    }
+
     private static InputStream lookupConfigInFileSystem(BundleContext context) {
         InputStream result = null;
 

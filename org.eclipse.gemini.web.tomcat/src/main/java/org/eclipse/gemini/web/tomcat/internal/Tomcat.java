@@ -17,13 +17,8 @@
 package org.eclipse.gemini.web.tomcat.internal;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
 
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
@@ -45,7 +40,6 @@ import org.eclipse.gemini.web.core.spi.ServletContainerException;
 import org.eclipse.gemini.web.tomcat.internal.loading.ChainedClassLoader;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolverFactory;
 import org.eclipse.gemini.web.tomcat.internal.support.PackageAdminBundleDependencyDeterminer;
-import org.eclipse.virgo.util.io.IOUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
@@ -58,40 +52,22 @@ final class Tomcat extends Embedded {
     private static final String ROOT_CONTEXT_PATH = "";
 
     private static final String ROOT_PATH = "/";
-    
-    private static final String ROOT_CONTEXT_FILE = "ROOT";
-
-    private static final String CONTEXT_XML = "META-INF/context.xml";
-    
-    private static final String CONTEXT_PROPERTY = "Context";
-    
-    private static final String XML_EXTENSION = ".xml";
-    
-    private static final char SLASH_SEPARATOR = '/';
-    
-    private static final char HASH_SEPARATOR = '#';
-    
-    private static final String DEFAULT_CONFIG_DIRECTORY = "config";
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Tomcat.class);
 
     private final ExtendCatalina catalina = new ExtendCatalina();
 
     private final JarScanner jarScanner;
-
-    private Digester digester;
     
     private BundleContext bundleContext;
 
     Tomcat(BundleContext context, PackageAdmin packageAdmin) {
-    	this.bundleContext = context;
+        this.bundleContext = context;
         JarScanner bundleDependenciesJarScanner = new BundleDependenciesJarScanner(new PackageAdminBundleDependencyDeterminer(context, packageAdmin),
             BundleFileResolverFactory.createBundleFileResolver());
         JarScanner defaultJarScanner = new DefaultJarScanner();
 
         this.jarScanner = new ChainingJarScanner(bundleDependenciesJarScanner, defaultJarScanner);
-        
-        digester = createDigester();
     }
 
     public void start() throws LifecycleException {
@@ -165,14 +141,33 @@ final class Tomcat extends Embedded {
         }
         
         StandardContext context = new ExtendedStandardContext();
-        readContextXml(path, docBase, context);
+        
+        ExtendedContextConfig config = new ExtendedContextConfig();
+
+        // Allocate the tomcat's configuration directory
+        File configDir = TomcatConfigLocator.resolveConfigDir(bundleContext);
+        config.setConfigBase(configDir);
+
+        // If default context.xml is existing, set it to the ContextConfig
+        String defaultContextXml = WebappConfigLocator.resolveDefaultContextXml(configDir);
+        if (defaultContextXml != null) {
+            config.setDefaultContextXml(defaultContextXml);
+        }
+
+        // Allocate the web application's configuration directory
+        File configLocation = WebappConfigLocator.resolveWebappConfigDir(configDir, findHost());
+
+        // If web application's context.xml is existing, set it to the
+        // StandardContext
+        File contextXml = WebappConfigLocator.resolveWebappContextXml(path, docBase, configLocation);
+        if (contextXml != null) {
+            context.setConfigFile(contextXml.getAbsolutePath());
+        }
         
         context.setDocBase(docBase);        
         context.setPath(path.equals(ROOT_PATH) ? ROOT_CONTEXT_PATH : path);
 
         context.setJarScanner(this.jarScanner);
-
-        ContextConfig config = new ExtendedContextConfig();
 
         config.setCustomAuthenticators(this.authenticators);
         ((Lifecycle) context).addLifecycleListener(config);
@@ -238,133 +233,29 @@ final class Tomcat extends Embedded {
      * 
      */
     private static class ExtendedContextConfig extends ContextConfig {
-    }
-    
-    private Digester createDigester() {
-        Digester digester = new Digester();
-        ClassLoader[] loaders = new ClassLoader[] { Catalina.class.getClassLoader(), Tomcat.class.getClassLoader() };
-        digester.setClassLoader(ChainedClassLoader.create(loaders));
-        digester.setValidating(false);
-        digester.addSetProperties(CONTEXT_PROPERTY);
-        return (digester);
-    }
+        private File configDir;
 
-    private void readContextXml(String path, String docBase, StandardContext context) {
-        // Multi-level context paths may be defined using #, e.g. foo#bar.xml
-        // for a context path of /foo/bar.
-        if (path.equals(ROOT_PATH)) {
-            path = ROOT_CONTEXT_FILE;
-        } else if (SLASH_SEPARATOR == path.charAt(0)) {
-            path = path.substring(1);
-        }
-        path = path.replace(SLASH_SEPARATOR, HASH_SEPARATOR);
+        /**
+         * If there is not configuration directory, return custom configuration
+         * directory. It is used to resolve the context.xml.default
+         */
+        @Override
+        protected File getConfigBase() {
+            File configBase = super.getConfigBase();
+            if (configBase != null) {
+                return configBase;
+            }
 
-        // Initialize config directory location
-        File configLocation = new File(resolveConfigDir());
-        Host host = findHost();
-        Container parent = host.getParent();
-        if ((parent != null) && (parent instanceof Engine)) {
-            configLocation = new File(configLocation, parent.getName());
-        }
-        configLocation = new File(configLocation, host.getName());
+            if (configDir != null) {
+                return configDir;
+            }
 
-        // Try to find the context.xml in the Tomcat's configuration directory
-        File contextXml = new File(configLocation, path + XML_EXTENSION);
-        if (contextXml.exists()) {
-            configureWebContext(contextXml, context);
-            return;
+            return null;
         }
 
-        // Try to find the context.xml in docBase
-        File docBaseFile = new File(docBase);
-        if (docBaseFile.isDirectory()) {
-            contextXml = new File(docBaseFile, CONTEXT_XML);
-            if (contextXml.exists()) {
-                File destination = new File(configLocation, path + XML_EXTENSION);
-                try {
-                    copyFile(new FileInputStream(contextXml), destination);
-                } catch (IOException e) {
-                    throw new ServletContainerException("Cannot copy " + contextXml.getAbsolutePath() + " to "
-                            + destination.getAbsolutePath(), e);
-                }
-                configureWebContext(destination, context);
-            }
-        } else {
-            JarFile jar;
-            try {
-                jar = new JarFile(docBaseFile);
-            } catch (IOException e) {
-                throw new ServletContainerException("Cannot open for reading " + docBaseFile.getAbsolutePath(), e);
-            }
-            ZipEntry contextXmlEntry = jar.getEntry(CONTEXT_XML);
-            if (contextXmlEntry != null) {
-                File destination = new File(configLocation, path + XML_EXTENSION);
-                try {
-                    copyFile(jar.getInputStream(contextXmlEntry), destination);
-                } catch (IOException e) {
-                    throw new ServletContainerException("Cannot copy " + contextXml.getAbsolutePath() + " to "
-                            + destination.getAbsolutePath(), e);
-                }
-                configureWebContext(destination, context);
-            }
+        protected void setConfigBase(File configDir) {
+            this.configDir = configDir;
         }
     }
 
-    private String resolveConfigDir() {
-        File configFile = null;
-
-        // Search for the property 'org.eclipse.gemini.web.tomcat.config.path'
-        String path = bundleContext.getProperty(TomcatConfigLocator.CONFIG_PATH_FRAMEWORK_PROPERTY);
-        if (path != null) {
-            configFile = new File(path);
-            if (configFile.exists()) {
-                return configFile.getParent();
-            }
-        }
-
-        // Search for the 'config' directory
-        configFile = new File(TomcatConfigLocator.DEFAULT_CONFIG_FILE_PATH);
-        if (configFile.exists()) {
-            return configFile.getParent();
-        } else {
-            return DEFAULT_CONFIG_DIRECTORY;
-        }
-    }
-
-    private void configureWebContext(File contextXml, StandardContext context) {
-        synchronized (digester) {
-            try {
-                digester.push(context);
-                try {
-                    digester.parse(contextXml);
-                    context.setConfigFile(contextXml.getAbsolutePath());
-                } catch (IOException e) {
-                    throw new ServletContainerException("Cannot read " + contextXml.getAbsolutePath()
-                            + " for web application.", e);
-                } catch (SAXException e) {
-                    throw new ServletContainerException("Cannot parse " + contextXml.getAbsolutePath()
-                            + " for web application.", e);
-                }
-            } finally {
-                digester.reset();
-            }
-        }
-    }
-
-    private void copyFile(InputStream source, File destination) throws IOException {
-        destination.getParentFile().mkdirs();
-
-        OutputStream outputStream = null;
-        try {
-            outputStream = new FileOutputStream(destination);
-            byte[] buffer = new byte[1024];
-            int read;
-            while ((read = source.read(buffer)) > 0) {
-                outputStream.write(buffer, 0, read);
-            }
-        } finally {
-            IOUtils.closeQuietly(source);
-            IOUtils.closeQuietly(outputStream);
-        }
-    }
 }
