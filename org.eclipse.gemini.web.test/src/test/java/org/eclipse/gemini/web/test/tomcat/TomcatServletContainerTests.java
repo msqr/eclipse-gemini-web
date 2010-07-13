@@ -38,6 +38,7 @@ import java.util.Set;
 import javax.servlet.ServletContext;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.framework.Bundle;
@@ -87,6 +88,11 @@ public class TomcatServletContainerTests {
     private BundleContext bundleContext;
 
     private ServletContainer container;
+    
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        System.setProperty("org.eclipse.gemini.web.tomcat.config.path", "target/config");
+    }
 
     @Before
     public void before() throws Exception {
@@ -351,17 +357,17 @@ public class TomcatServletContainerTests {
     @Test
     public void testWarWithContextXml() throws Exception {
         // Copy default context.xml
-        File defaultContextXml = new File("config/context.xml");
+        File defaultContextXml = new File("target/config/context.xml");
         createFileWithContent(defaultContextXml, "<Context crossContext=\"true\"/>");
 
         // Copy default context.xml.default
-        File defaultHostContextXml = new File("config/Catalina/localhost/context.xml.default");
+        File defaultHostContextXml = new File("target/config/Catalina/localhost/context.xml.default");
         String content = "<Context>"
                 + "<Resource name=\"mail/Session1\" auth=\"Container\" type=\"javax.mail.Session\" mail.smtp.host=\"localhost\"/>"
                 + "</Context>";
         createFileWithContent(defaultHostContextXml, content);
 
-        File tomcatServerXml = new File("config/tomcat-server.xml");
+        File tomcatServerXml = new File("target/config/tomcat-server.xml");
         createFileWithContent(tomcatServerXml, "");
 
         String location1 = LOCATION_WAR_WITH_CONTEXT_XML_RESOURCES;
