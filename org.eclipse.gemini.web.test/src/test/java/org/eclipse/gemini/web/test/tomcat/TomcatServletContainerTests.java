@@ -91,7 +91,7 @@ public class TomcatServletContainerTests {
     
     @BeforeClass
     public static void beforeClass() throws Exception {
-        System.setProperty("org.eclipse.gemini.web.tomcat.config.path", "target/config");
+        System.setProperty("org.eclipse.gemini.web.tomcat.config.path", "target/config/tomcat-server.xml");
     }
 
     @Before
