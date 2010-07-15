@@ -29,6 +29,7 @@ import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
 import org.eclipse.gemini.web.core.spi.ServletContainerException;
 import org.eclipse.virgo.util.io.IOUtils;
+import org.eclipse.virgo.util.io.PathReference;
 
 public class WebappConfigLocator {
 
@@ -156,7 +157,8 @@ public class WebappConfigLocator {
     }
 
     private static void copyFile(InputStream source, File destination) throws IOException {
-        destination.getParentFile().mkdirs();
+        PathReference destinationRef = new PathReference(destination);
+        destinationRef.getParent().createDirectory();
 
         OutputStream outputStream = null;
         try {
