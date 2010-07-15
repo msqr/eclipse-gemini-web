@@ -26,5 +26,25 @@
 		<mkdir dir="${collect.output.dir}"/>		
 		<ivy:retrieve organisation="org.eclipse.gemini.web" module="org.eclipse.gemini.web" inline="true" type="jar" pattern="${collect.output.dir}/[artifact]-[revision].[ext]"/>
 	</target>
+	
+	<target name="package" depends="ivy.init">
+		<delete dir="${package.output.dir}" quiet="true"/>
+		<mkdir dir="${package.output.dir}"/>
+		
+		<ivy:resolve resolveId="copy.path" file="${basedir}/package-ivy.xml" transitive="false"/>
+		<ivy:retrieve resolveId="copy.path" pattern="${package.output.dir}/[artifact]-[revision].[ext]" conf="package" type="jar"/>
+		
+		<ivy:resolve resolveId="copy.path" file="${basedir}/dependencies-ivy.xml" transitive="false"/>
+		<ivy:retrieve resolveId="copy.path" pattern="${package.output.dir}/dep/[artifact]-[revision].[ext]" conf="dep" type="jar"/>
+
+		<copy todir="${package.output.dir}" failonerror="false">
+			<fileset dir="${basedir}/resources"/>
+		</copy>
+
+		<mkdir dir="${artifacts.dir}"/>
+		<zip destfile="${package.output.file}">
+			<zipfileset dir="${package.dir}"/>
+		</zip>
+	</target>
 
 </project>

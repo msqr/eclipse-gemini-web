@@ -1,6 +1,6 @@
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.gemini.web.test
-Bundle-Name: Web Container Tests
+Bundle-Name: Gemini Web Tests (incubation)
 Bundle-Version: 1.0
 Excluded-Exports: *
 Import-Template: 
