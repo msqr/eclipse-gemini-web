@@ -28,4 +28,4 @@ Import-Template: org.eclipse.gemini.web.*;version="1.0",
  org.w3c.dom.*;version="0"
 Import-Package: org.apache.catalina.deploy;version="6.0.20.S2-r5956"
 Bundle-Activator: org.eclipse.gemini.web.tomcat.internal.Activator
-Excluded-Exports: *.internal.*
+Excluded-Exports: *.internal.*,javax.*
