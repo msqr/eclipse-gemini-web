@@ -21,7 +21,10 @@ import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Vector;
 
@@ -77,6 +80,27 @@ public class TomcatConfigLocatorTests {
         replay(mockBundle, mockContext);
 
         TomcatConfigLocator.resolveConfigFile(mockContext);
+    }
+    
+    @Test
+    public void testResolveConfigDir() throws Exception {
+        URL existingUrl = new URL("file:src/test/resources/server.xml");
+        URL nonexistingUrl = new URL("file:src/test/resources/server1.xml");
+
+        BundleContext mockContext = createMock(BundleContext.class);
+        expect(mockContext.getProperty(TomcatConfigLocator.CONFIG_PATH_FRAMEWORK_PROPERTY)).andReturn(
+                (new File(existingUrl.getPath())).getAbsolutePath()).andReturn(
+                (new File(nonexistingUrl.getPath())).getAbsolutePath()).andReturn(null);
+
+        replay(mockContext);
+
+        String result = "src" + File.separator + "test" + File.separator + "resources";
+
+        assertTrue(TomcatConfigLocator.resolveConfigDir(mockContext).getAbsolutePath().endsWith(result));
+        assertEquals(null, TomcatConfigLocator.resolveConfigDir(mockContext));
+        assertEquals(null, TomcatConfigLocator.resolveConfigDir(mockContext));
+
+        verify(mockContext);
     }
 
     private BundleContext createMockBundleContext(Bundle mockBundle) {

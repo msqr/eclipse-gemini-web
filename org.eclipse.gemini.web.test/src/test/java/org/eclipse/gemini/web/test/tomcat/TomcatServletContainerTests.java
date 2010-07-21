@@ -23,6 +23,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -36,6 +38,7 @@ import java.util.Set;
 import javax.servlet.ServletContext;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.framework.Bundle;
@@ -47,6 +50,7 @@ import org.eclipse.gemini.web.core.spi.ServletContainer;
 import org.eclipse.gemini.web.core.spi.WebApplicationHandle;
 import org.eclipse.virgo.test.framework.OsgiTestRunner;
 import org.eclipse.virgo.test.framework.TestFrameworkUtils;
+import org.eclipse.virgo.util.io.IOUtils;
 import org.eclipse.virgo.util.io.PathReference;
 import org.eclipse.virgo.util.io.ZipUtils;
 
@@ -75,9 +79,20 @@ public class TomcatServletContainerTests {
     private static final String LOCATION_WAR_WITH_TLD_IMPORT_SYSTEM_PACKAGES = LOCATION_PREFIX
         + "../org.eclipse.gemini.web.test/src/test/resources/war-with-tld-import-system-packages.war?Web-ContextPath=/war-with-tld-import-system-packages";
 
+    private static final String LOCATION_WAR_WITH_CONTEXT_XML_RESOURCES = LOCATION_PREFIX
+        + "../org.eclipse.gemini.web.test/src/test/resources/war-with-context-xml-resources.war?Web-ContextPath=/war-with-context-xml-resources";
+
+    private static final String LOCATION_WAR_WITH_CONTEXT_XML_CROSS_CONTEXT = LOCATION_PREFIX
+        + "../org.eclipse.gemini.web.test/src/test/resources/war-with-context-xml-cross-context.war?Web-ContextPath=/war-with-context-xml-cross-context";
+    
     private BundleContext bundleContext;
 
     private ServletContainer container;
+    
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        System.setProperty("org.eclipse.gemini.web.tomcat.config.path", "target/config/tomcat-server.xml");
+    }
 
     @Before
     public void before() throws Exception {
@@ -336,6 +351,67 @@ public class TomcatServletContainerTests {
             assertTrue(lm != 0);
         } finally {
             this.container.stopWebApplication(handle);
+        }
+    }
+
+    @Test
+    public void testWarWithContextXml() throws Exception {
+        // Copy default context.xml
+        File defaultContextXml = new File("target/config/context.xml");
+        createFileWithContent(defaultContextXml, "<Context crossContext=\"true\"/>");
+
+        // Copy default context.xml.default
+        File defaultHostContextXml = new File("target/config/Catalina/localhost/context.xml.default");
+        String content = "<Context>"
+                + "<Resource name=\"mail/Session1\" auth=\"Container\" type=\"javax.mail.Session\" mail.smtp.host=\"localhost\"/>"
+                + "</Context>";
+        createFileWithContent(defaultHostContextXml, content);
+
+        File tomcatServerXml = new File("target/config/tomcat-server.xml");
+        createFileWithContent(tomcatServerXml, "");
+
+        String location1 = LOCATION_WAR_WITH_CONTEXT_XML_RESOURCES;
+        Bundle bundle1 = this.bundleContext.installBundle(location1);
+        bundle1.start();
+
+        String location2 = LOCATION_WAR_WITH_CONTEXT_XML_CROSS_CONTEXT;
+        Bundle bundle2 = this.bundleContext.installBundle(location2);
+        bundle2.start();
+
+        WebApplicationHandle handle1 = this.container.createWebApplication("/war-with-context-xml-resources", bundle1);
+        this.container.startWebApplication(handle1);
+
+        WebApplicationHandle handle2 = this.container.createWebApplication("/war-with-context-xml-cross-context",
+                bundle2);
+        this.container.startWebApplication(handle2);
+        try {
+            // tests JNDI resources
+            validateURL("http://localhost:8080/war-with-context-xml-resources/index.jsp");
+
+            // tests cross context functionality
+            validateURL("http://localhost:8080/war-with-context-xml-cross-context/index.jsp");
+        } finally {
+            this.container.stopWebApplication(handle1);
+            bundle1.uninstall();
+
+            this.container.stopWebApplication(handle2);
+            bundle2.uninstall();
+            
+            defaultContextXml.delete();
+            defaultHostContextXml.delete();
+            tomcatServerXml.delete();
+        }
+    }
+
+    private void createFileWithContent(File file, String content) throws Exception {
+        file.getParentFile().mkdirs();
+        FileWriter fWriter = null;
+        try {
+            fWriter = new FileWriter(file);
+            fWriter.write(content);
+            fWriter.flush();
+        } finally {
+            IOUtils.closeQuietly(fWriter);
         }
     }
 }
