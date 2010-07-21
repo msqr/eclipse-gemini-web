@@ -8,5 +8,5 @@ Bundle-ManifestVersion: 2
 Bundle-Activator: org.eclipse.gemini.web.extender.ExtenderActivator
 Bundle-SymbolicName: org.eclipse.gemini.web.extender
 Import-Package: org.eclipse.gemini.web.core;version="1.0",org.osgi.fra
- mework;version="0",org.osgi.util.tracker;version="1.4.2"
+ mework;version="0",org.osgi.util.tracker;version="1.4.0"
 
