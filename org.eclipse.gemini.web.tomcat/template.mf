@@ -1,5 +1,5 @@
 Bundle-ManifestVersion: 2
-Bundle-Name: SpringSource OSGi Web Container Tomcat Bootstrap
+Bundle-Name: Gemini Web Tomcat Bootstrap (incubation)
 Bundle-SymbolicName: org.eclipse.gemini.web.tomcat
 Bundle-Version: 1
 Import-Template: org.eclipse.gemini.web.*;version="1.0",
@@ -10,7 +10,7 @@ Import-Template: org.eclipse.gemini.web.*;version="1.0",
  org.apache.tomcat.*;version="6.0.20.S2-r5956",
  org.springframework.osgi.*;version="1.2.0",
  org.osgi.framework.*;version="0",
- org.osgi.util.tracker.*;version="1.4.2",
+ org.osgi.util.tracker.*;version="1.4.0",
  org.osgi.service.packageadmin.*;version="1.0",
  org.osgi.service.url.*;version="1.0",
  org.eclipse.osgi.*;version="0";resolution:="optional",
@@ -26,6 +26,7 @@ Import-Template: org.eclipse.gemini.web.*;version="1.0",
  javax.xml.transform.*;version="0",
  javax.xml.validation.*;version="0",
  org.w3c.dom.*;version="0"
-Import-Package: org.apache.catalina.deploy;version="6.0.20.S2-r5956"
+Import-Package: org.apache.catalina.deploy;version="6.0.20.S2-r5956",
+ org.apache.catalina.session;version="6.0.20.S2-r5956"
 Bundle-Activator: org.eclipse.gemini.web.tomcat.internal.Activator
-Excluded-Exports: *.internal.*
+Excluded-Exports: *.internal.*,javax.*

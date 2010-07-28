@@ -48,7 +48,7 @@ final class TomcatConfigLocator {
     private static final Logger LOGGER = LoggerFactory.getLogger(TomcatConfigLocator.class);
 
     static final String CONFIG_PATH_FRAMEWORK_PROPERTY = "org.eclipse.gemini.web.tomcat.config.path";
-    
+
     static final String DEFAULT_CONFIG_FILE_PATH = "config" + File.separator + "tomcat-server.xml";
 
     static final String CONFIG_PATH = "META-INF/tomcat";
@@ -68,15 +68,63 @@ final class TomcatConfigLocator {
         return is;
     }
 
+    /**
+     * Returns the directory where the Tomcat configuration files resides.
+     * 
+     * The location algorithm is as follows:
+     * <ol>
+     * <li>Check for <code>org.eclipse.gemini.web.tomcat.config.path</code> framework property, use if found</li>
+     * <li>Check for <code>config/tomcat-server.xml</code> in the current working directory, use if found</li>
+     * <li>If the previous checks do not return a result, return <code>null</code></li>
+     * </ol>
+     * 
+     * @param context the bundle context
+     * @return the directory where the Tomcat configuration files resides.
+     */
+    public static File resolveConfigDir(BundleContext context) {
+        File configFile = null;
+
+        /*
+         * Search for the framework property 'org.eclipse.gemini.web.tomcat.config.path'
+         * 
+         * Note: this is supposed to search framework and system properties but appears to ignore system properties which
+         * are set after the framework has initialised. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=319679.
+         */
+        String path = context.getProperty(TomcatConfigLocator.CONFIG_PATH_FRAMEWORK_PROPERTY);
+        if (path != null) {
+            configFile = new File(path);
+            if (configFile.exists()) {
+                return configFile.getParentFile();
+            }
+        }
+
+        // Search for the system property 'org.eclipse.gemini.web.tomcat.config.path'
+        path = System.getProperty(TomcatConfigLocator.CONFIG_PATH_FRAMEWORK_PROPERTY);
+        if (path != null) {
+            configFile = new File(path);
+            if (configFile.exists()) {
+                return configFile.getParentFile();
+            }
+        }
+
+        // Search for the 'config' directory
+        configFile = new File(TomcatConfigLocator.DEFAULT_CONFIG_FILE_PATH);
+        if (configFile.exists()) {
+            return configFile.getParentFile();
+        }
+
+        return null;
+    }
+
     private static InputStream lookupConfigInFileSystem(BundleContext context) {
         InputStream result = null;
 
         String path = context.getProperty(CONFIG_PATH_FRAMEWORK_PROPERTY);
-        if(path != null) {
+        if (path != null) {
             result = tryGetStreamForFilePath(path);
         }
-        
-        if(result == null) {
+
+        if (result == null) {
             result = tryGetStreamForFilePath(DEFAULT_CONFIG_FILE_PATH);
         }
         return result;
@@ -111,7 +159,7 @@ final class TomcatConfigLocator {
             entry = bundle.getEntry(DEFAULT_CONFIG_PATH);
             if (entry == null) {
                 throw new IllegalStateException("Unable to locate default Tomcat configuration. Is the '" + bundle + "' bundle corrupt?");
-            } else if(LOGGER.isInfoEnabled()) {
+            } else if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Configuring Tomcat from default config file");
             }
         }

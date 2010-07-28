@@ -58,8 +58,11 @@ final class Tomcat extends Embedded {
     private final ExtendCatalina catalina = new ExtendCatalina();
 
     private final JarScanner jarScanner;
+    
+    private BundleContext bundleContext;
 
     Tomcat(BundleContext context, PackageAdmin packageAdmin) {
+        this.bundleContext = context;
         JarScanner bundleDependenciesJarScanner = new BundleDependenciesJarScanner(new PackageAdminBundleDependencyDeterminer(context, packageAdmin),
             BundleFileResolverFactory.createBundleFileResolver());
         JarScanner defaultJarScanner = new DefaultJarScanner();
@@ -136,15 +139,35 @@ final class Tomcat extends Embedded {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Creating context '" + path + "' with docBase '" + docBase + "'");
         }
-
+        
         StandardContext context = new ExtendedStandardContext();
+        
+        ExtendedContextConfig config = new ExtendedContextConfig();
 
+        // Allocate the tomcat's configuration directory
+        File configDir = TomcatConfigLocator.resolveConfigDir(bundleContext);
+        config.setConfigBase(configDir);
+
+        // If default context.xml is existing, set it to the ContextConfig
+        String defaultContextXml = WebappConfigLocator.resolveDefaultContextXml(configDir);
+        if (defaultContextXml != null) {
+            config.setDefaultContextXml(defaultContextXml);
+        }
+
+        // Allocate the web application's configuration directory
+        File configLocation = WebappConfigLocator.resolveWebappConfigDir(configDir, findHost());
+
+        // If web application's context.xml is existing, set it to the
+        // StandardContext
+        File contextXml = WebappConfigLocator.resolveWebappContextXml(path, docBase, configLocation);
+        if (contextXml != null) {
+            context.setConfigFile(contextXml.getAbsolutePath());
+        }
+        
         context.setDocBase(docBase);        
         context.setPath(path.equals(ROOT_PATH) ? ROOT_CONTEXT_PATH : path);
 
         context.setJarScanner(this.jarScanner);
-
-        ContextConfig config = new ExtendedContextConfig();
 
         config.setCustomAuthenticators(this.authenticators);
         ((Lifecycle) context).addLifecycleListener(config);
@@ -210,5 +233,29 @@ final class Tomcat extends Embedded {
      * 
      */
     private static class ExtendedContextConfig extends ContextConfig {
+        private File configDir;
+
+        /**
+         * If there is not configuration directory, return custom configuration
+         * directory. It is used to resolve the context.xml.default
+         */
+        @Override
+        protected File getConfigBase() {
+            File configBase = super.getConfigBase();
+            if (configBase != null) {
+                return configBase;
+            }
+
+            if (configDir != null) {
+                return configDir;
+            }
+
+            return null;
+        }
+
+        protected void setConfigBase(File configDir) {
+            this.configDir = configDir;
+        }
     }
+
 }

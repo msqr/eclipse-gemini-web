@@ -48,7 +48,9 @@ final class EquinoxBundleFileResolver implements BundleFileResolver {
         try {
             EquinoxBundleFileResolver.class.getClassLoader().loadClass(BundleHost.class.getName());
             return true;
-        } catch (Exception ex) {
+        } catch (Exception _) {
+            return false;
+        } catch (LinkageError _) {
             return false;
         }
     }
