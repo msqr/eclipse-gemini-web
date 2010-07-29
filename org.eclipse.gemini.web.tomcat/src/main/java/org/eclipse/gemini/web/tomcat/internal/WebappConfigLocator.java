@@ -131,6 +131,7 @@ public class WebappConfigLocator {
      * configuration directory.
      * 
      * @param mainConfigDir the main Tomcat's configuration directory
+     * @param host host
      * @return the directory where the web applications' context.xml files are placed.
      */
     public static File resolveWebappConfigDir(File mainConfigDir, Host host) {
