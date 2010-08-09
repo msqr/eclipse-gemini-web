@@ -90,12 +90,12 @@ public class OverlappingWebContextPathsTests {
     }
 
     private void deployWar1() throws BundleException {
-        this.war1 = this.context.installBundle("webbundle:file:src/test/resources/war-with-servlet.war?Web-ContextPath=/overlap");
+        this.war1 = this.context.installBundle("webbundle:file:target/resources/war-with-servlet.war?Web-ContextPath=/overlap");
         this.war1.start();
     }
 
     private void deployWar2() throws BundleException {
-        this.war2 = this.context.installBundle("webbundle:file:src/test/resources/war-with-another-servlet.war?Web-ContextPath=/overlap");
+        this.war2 = this.context.installBundle("webbundle:file:target/resources/war-with-another-servlet.war?Web-ContextPath=/overlap");
         this.war2.start();
     }
 

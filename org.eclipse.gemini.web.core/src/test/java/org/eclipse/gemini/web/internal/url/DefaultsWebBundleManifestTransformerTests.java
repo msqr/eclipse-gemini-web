@@ -47,7 +47,7 @@ public class DefaultsWebBundleManifestTransformerTests {
     
     @Before
     public void before() throws MalformedURLException {
-        source = new URL("file:src/test/resources/simple-war.war");
+        source = new URL("file:target/resources/simple-war.war");
     }
     
     @Test
@@ -90,7 +90,7 @@ public class DefaultsWebBundleManifestTransformerTests {
         this.defaults.transform(manifest, source, options, WebContainerUtils.isWebApplicationBundle(manifest));
         List<String> bcp = manifest.getBundleClasspath();
         assertNotNull(bcp);
-        assertEquals(4, bcp.size());
+        assertEquals(2, bcp.size());
         assertEquals("WEB-INF/classes", bcp.get(0));
     }
     

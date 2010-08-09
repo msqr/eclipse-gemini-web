@@ -22,6 +22,23 @@
 
 	<target name="precommit" depends="clean, clean-integration, test, findbugs"/>
 
+	<path id="test.apps.bundles">
+		<pathelement location="../test-bundles/simple-manifest-only"/>
+		<pathelement location="../test-bundles/simple-war"/>
+		<pathelement location="../test-bundles/war-with-another-servlet"/>
+		<pathelement location="../test-bundles/war-with-jsp"/>
+		<pathelement location="../test-bundles/war-with-servlet"/>
+		<pathelement location="../test-bundles/war-with-tld"/>
+	</path>
+
+	<target name="test" depends="build-test-apps, quality-multi-bundle.test" description="Rebuild all the test apps before running the test suites">
+	</target>
+
+	<target name="build-test-apps" description="Build all of the test applications">
+		<all-bundles target="clean" buildpathRef="test.apps.bundles"></all-bundles>
+		<all-bundles target="jar" buildpathRef="test.apps.bundles"></all-bundles>
+	</target>
+
 	<target name="collect" depends="ivy.init">
 		<mkdir dir="${collect.output.dir}"/>		
 		<ivy:retrieve organisation="org.eclipse.gemini.web" module="org.eclipse.gemini.web" inline="true" type="jar" pattern="${collect.output.dir}/[artifact]-[revision].[ext]"/>

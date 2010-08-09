@@ -45,7 +45,7 @@ import org.eclipse.virgo.test.framework.TestFrameworkUtils;
 @RunWith(OsgiTestRunner.class)
 public class UrlBasedExtenderTests {
 
-    private static final String SIMPLE_WAR_WEB_BUNDLE_URL = "webbundle:file:../org.eclipse.gemini.web.core/src/test/resources/simple-war.war";
+    private static final String SIMPLE_WAR_WEB_BUNDLE_URL = "webbundle:file:../org.eclipse.gemini.web.core/target/resources/simple-war.war";
 
     private static final String EMPTY_WAR_WEB_BUNDLE_URL = "webbundle:file:src/test/resources/empty.war";
 

@@ -57,19 +57,19 @@ import org.eclipse.virgo.util.io.ZipUtils;
 @RunWith(OsgiTestRunner.class)
 public class TomcatServletContainerTests {
 
-    private static final String PATH_WAR_WITH_TLD_WAR = "../org.eclipse.gemini.web.test/src/test/resources/war-with-tld.war?Web-ContextPath=/war-with-tld";
+    private static final String PATH_WAR_WITH_TLD_WAR = "../org.eclipse.gemini.web.test/target/resources/war-with-tld.war?Web-ContextPath=/war-with-tld";
 
-    private static final String PATH_WAR_WITH_SERVLET = "../org.eclipse.gemini.web.test/src/test/resources/war-with-servlet.war?Web-ContextPath=/war-with-servlet";
+    private static final String PATH_WAR_WITH_SERVLET = "../org.eclipse.gemini.web.test/target/resources/war-with-servlet.war?Web-ContextPath=/war-with-servlet";
 
     private static final String LOCATION_PREFIX = "webbundle:file:";
 
     private static final String LOCATION_SIMPLE_WAR = LOCATION_PREFIX
-        + "../org.eclipse.gemini.web.core/src/test/resources/simple-war.war?Web-ContextPath=/simple-war";
+        + "../org.eclipse.gemini.web.core/target/resources/simple-war.war?Web-ContextPath=/simple-war";
 
     private static final String LOCATION_WAR_WITH_SERVLET = "webbundle:file:" + PATH_WAR_WITH_SERVLET;
 
     private static final String LOCATION_WAR_WITH_JSP = LOCATION_PREFIX
-        + "../org.eclipse.gemini.web.test/src/test/resources/war-with-jsp.war?Web-ContextPath=/war-with-jsp";
+        + "../org.eclipse.gemini.web.test/target/resources/war-with-jsp.war?Web-ContextPath=/war-with-jsp";
 
     private static final String LOCATION_WAR_WITH_TLD = LOCATION_PREFIX + PATH_WAR_WITH_TLD_WAR;
 

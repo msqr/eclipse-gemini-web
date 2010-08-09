@@ -3,7 +3,7 @@
 
 	<property file="${basedir}/../build.properties"/>
 	<property file="${basedir}/../build.versions"/>
-	<property name="jar.output.dir" value="${basedir}/../../org.eclipse.gemini.web.core/src/test/resources"/>
+	<property name="jar.output.dir" value="${basedir}/../../org.eclipse.gemini.web.core/target/resources"/>
 	<import file="${basedir}/../../virgo-build/standard/default.xml"/>
 
 </project>

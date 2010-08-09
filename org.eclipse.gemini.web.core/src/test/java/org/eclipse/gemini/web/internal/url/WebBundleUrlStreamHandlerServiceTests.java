@@ -39,7 +39,7 @@ public class WebBundleUrlStreamHandlerServiceTests {
 
     @Test
     public void testOpenWarConnection() throws Exception {
-        WebBundleUrl url = new TestWarUrl("file:src/test/resources/simple-war.war?Web-ContextPath=/", null);
+        WebBundleUrl url = new TestWarUrl("file:target/resources/simple-war.war?Web-ContextPath=/", null);
         URLConnection connection = url.toURL().openConnection();
         assertNotNull(connection);
         
