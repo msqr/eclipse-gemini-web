@@ -167,4 +167,4 @@ org.osgi.framework.executionenvironment = \
  J2SE-1.3,\
  J2SE-1.4,\
  J2SE-1.5
-osgi.java.profile.name = SpringSource-dm-Server-Java5
+osgi.java.profile.name = Virgo-Kernel-Java6

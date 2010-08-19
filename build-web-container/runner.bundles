@@ -41,4 +41,4 @@ file:target/bundles/org.eclipse.gemini.web.extender.jar
 file:target/bundles/org.eclipse.gemini.web.tomcat.jar
 
 -Dorg.ops4j.pax.runner.platform.clean=true
--Dosgi.java.profile=file:java5.profile
+-Dosgi.java.profile=file:java6.profile
