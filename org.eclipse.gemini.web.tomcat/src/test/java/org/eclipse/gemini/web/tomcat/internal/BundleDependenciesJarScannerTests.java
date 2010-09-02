@@ -60,6 +60,7 @@ public class BundleDependenciesJarScannerTests {
     
     private final Bundle dependency = createMock(Bundle.class);
     
+    @SuppressWarnings("unchecked")
     @Test
     public void noDependencies() {
         expect(bundle.getHeaders()).andReturn(new Hashtable());
@@ -74,6 +75,7 @@ public class BundleDependenciesJarScannerTests {
         verify(dependencyDeterminer, bundleFileResolver, bundle, callback);
     }
     
+    @SuppressWarnings("unchecked")
     @Test
     public void scanDirectory() throws IOException {
         expect(bundle.getHeaders()).andReturn(new Hashtable());
@@ -92,6 +94,7 @@ public class BundleDependenciesJarScannerTests {
         verify(dependencyDeterminer, bundleFileResolver, bundle, callback);
     }
     
+    @SuppressWarnings("unchecked")
     @Test
     public void scanFile() throws IOException {
         expect(bundle.getHeaders()).andReturn(new Hashtable());
@@ -110,6 +113,7 @@ public class BundleDependenciesJarScannerTests {
         verify(dependencyDeterminer, bundleFileResolver, bundle, callback);
     }
     
+    @SuppressWarnings("unchecked")
     @Test
     public void scanJarUrlConnection() throws IOException {
         expect(bundle.getHeaders()).andReturn(new Hashtable());
