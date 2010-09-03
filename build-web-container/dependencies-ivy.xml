@@ -30,9 +30,10 @@
 		<dependency org="org.apache.catalina.springsource" name="com.springsource.org.apache.catalina.tribes.springsource" rev="${org.apache.tomcat}" conf="dep->runtime"/>
 		<dependency org="org.apache.coyote.springsource" name="com.springsource.org.apache.coyote.springsource" rev="${org.apache.tomcat}" conf="dep->runtime"/>
 		<dependency org="org.apache.el.springsource" name="com.springsource.org.apache.el.springsource" rev="${org.apache.tomcat}" conf="dep->runtime"/>
-		<dependency org="org.apache.jasper.springsource" name="com.springsource.org.apache.jasper.org.eclipse.jdt.springsource" rev="${org.apache.tomcat}" conf="dep->runtime"/>
 		<dependency org="org.apache.jasper.springsource" name="com.springsource.org.apache.jasper.springsource" rev="${org.apache.tomcat}" conf="dep->runtime"/>
 		<dependency org="org.apache.juli.springsource" name="com.springsource.org.apache.juli.extras.springsource" rev="${org.apache.tomcat}" conf="dep->runtime"/>
+		
+		<dependency org="org.eclipse.jdt" name="com.springsource.org.eclipse.jdt.core.compiler.batch" rev="${org.eclipse.jdt}" conf="dep->runtime"/>
 		
 		<dependency org="org.apache.commons" name="com.springsource.org.apache.commons.logging" rev="${org.apache.commons.logging}" conf="dep->runtime"/>
 		<dependency org="javax.activation" name="com.springsource.javax.activation" rev="${javax.activation}" conf="dep->runtime"/>
