@@ -1,9 +1,6 @@
 Manifest-Version: 1.0
 Export-Package: org.eclipse.gemini.web.tomcat.spi;version="1";uses:="o
  rg.osgi.framework"
-Bundle-ClassPath: .,com.springsource.javax.xml.bind-2.1.7.jar,com.spri
- ngsource.javax.xml.soap-1.3.0.jar,com.springsource.javax.xml.stream-1
- .0.1.jar
 Bundle-Version: 1
 Tool: Bundlor 1.0.0.RELEASE
 Bundle-Name: Gemini Web Tomcat Bootstrap (incubation)
