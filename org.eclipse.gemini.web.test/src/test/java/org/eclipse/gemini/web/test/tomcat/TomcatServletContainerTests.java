@@ -50,6 +50,7 @@ import org.eclipse.gemini.web.core.spi.ServletContainer;
 import org.eclipse.gemini.web.core.spi.WebApplicationHandle;
 import org.eclipse.virgo.test.framework.OsgiTestRunner;
 import org.eclipse.virgo.test.framework.TestFrameworkUtils;
+import org.eclipse.virgo.util.io.FileSystemUtils;
 import org.eclipse.virgo.util.io.IOUtils;
 import org.eclipse.virgo.util.io.PathReference;
 import org.eclipse.virgo.util.io.ZipUtils;
@@ -400,6 +401,28 @@ public class TomcatServletContainerTests {
             defaultContextXml.delete();
             defaultHostContextXml.delete();
             tomcatServerXml.delete();
+        }
+    }
+
+    @Test
+    public void testInstallWebAppDir() throws Exception {
+        //Create web app dir
+        File webAppDir = new File("target/test-classes/simple-web-app-dir");
+        File indexHtml = new File(webAppDir, "index.html");
+        createFileWithContent(indexHtml, "Hello World!");
+
+        Bundle bundle = this.bundleContext.installBundle(LOCATION_PREFIX + webAppDir.getAbsolutePath() + "?Web-ContextPath=/simple-web-app-dir");
+        bundle.start();
+
+        WebApplicationHandle handle = this.container.createWebApplication("/simple-web-app-dir", bundle);
+        this.container.startWebApplication(handle);
+        try {
+            validateURL("http://localhost:8080/simple-web-app-dir/index.html");
+        } finally {
+            this.container.stopWebApplication(handle);
+            bundle.uninstall();
+            FileSystemUtils.deleteRecursively(webAppDir);
+            FileSystemUtils.deleteRecursively(new File("temp"));
         }
     }
 
