@@ -88,7 +88,7 @@ public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHan
 
         private final WebBundleUrl webBundleUrl;
 
-        public Callback(URL sourceURL, WebBundleUrl url, WebBundleManifestTransformer transformer) {
+        Callback(URL sourceURL, WebBundleUrl url, WebBundleManifestTransformer transformer) {
             this.sourceURL = sourceURL;
             this.webBundleUrl = url;
             this.transformer = transformer;

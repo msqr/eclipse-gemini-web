@@ -35,14 +35,14 @@ import org.eclipse.virgo.util.io.PathReference;
  * Files cannot be added, only changed or removed. Actual transformation of files is performed by an implementation of
  * the {@link DirTransformerCallback} interface.
  */
-public class DirTransformer {
+final class DirTransformer {
 
     /**
      * Callback interface used to transform files in a directory.
      * 
      * @see DirTransformer
      */
-    public static interface DirTransformerCallback {
+    static interface DirTransformerCallback {
 
         /**
          * Transform the supplied file.
@@ -75,7 +75,7 @@ public class DirTransformer {
      * 
      * @param callback the <code>DirTransformerCallback</code> to use for file transformation.
      */
-    public DirTransformer(DirTransformerCallback callback) {
+    DirTransformer(DirTransformerCallback callback) {
         if (callback == null) {
             throw new IllegalArgumentException("Callback must not be null");
         }
@@ -89,7 +89,7 @@ public class DirTransformer {
      * @param transformedUrl the {@link URL} to write the transformed directory to.
      * @throws IOException if the directory cannot be transformed.
      */
-    public void transform(URL url, URL transformedUrl) throws IOException {
+    void transform(URL url, URL transformedUrl) throws IOException {
         transform(url, transformedUrl, false);
     }
 
@@ -101,7 +101,7 @@ public class DirTransformer {
      * @param ensureManifestIsPresent if <code>true</code> ensures that the transformed directory contains a manifest.
      * @throws IOException if the directory cannot be transformed.
      */
-    public void transform(URL url, URL transformedUrl, boolean ensureManifestIsPresent) throws IOException {
+    void transform(URL url, URL transformedUrl, boolean ensureManifestIsPresent) throws IOException {
         PathReference fromDirectory = new PathReference(url.getPath());
         PathReference toDirectory = new PathReference(transformedUrl.getPath());
         transformDir(fromDirectory, toDirectory);

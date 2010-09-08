@@ -33,7 +33,7 @@ import org.eclipse.virgo.util.io.PathReference;
  * 
  * @see DirTransformer
  */
-public class DirTransformingURLConnection extends URLConnection {
+final class DirTransformingURLConnection extends URLConnection {
 
     private static final String TEMP_DIR = "file:temp/";
 
@@ -55,7 +55,7 @@ public class DirTransformingURLConnection extends URLConnection {
      *         be created.
      * @throws URISyntaxException
      */
-    public DirTransformingURLConnection(URL url, DirTransformer transformer) throws MalformedURLException {
+    DirTransformingURLConnection(URL url, DirTransformer transformer) throws MalformedURLException {
         this(url, transformer, false);
     }
 
@@ -71,7 +71,7 @@ public class DirTransformingURLConnection extends URLConnection {
      *         be created.
      * @throws URISyntaxException
      */
-    public DirTransformingURLConnection(URL url, DirTransformer transformer, boolean ensureManifestIsPresent) throws MalformedURLException {
+    DirTransformingURLConnection(URL url, DirTransformer transformer, boolean ensureManifestIsPresent) throws MalformedURLException {
         super(url);
         this.transformer = transformer;
         this.ensureManifestIsPresent = ensureManifestIsPresent;
