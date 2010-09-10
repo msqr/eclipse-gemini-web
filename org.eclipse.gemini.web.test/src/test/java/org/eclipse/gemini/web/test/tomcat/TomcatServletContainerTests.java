@@ -408,8 +408,12 @@ public class TomcatServletContainerTests {
     public void testInstallWebAppDir() throws Exception {
         //Create web app dir
         File webAppDir = new File("target/test-classes/simple-web-app-dir");
-        File indexHtml = new File(webAppDir, "index.html");
-        createFileWithContent(indexHtml, "Hello World!");
+        File indexJsp = new File(webAppDir, "index.jsp");
+        createFileWithContent(
+            indexJsp,
+            "Hello World!\n" +
+            "config.getServletContext().getResourcePaths(/): <%=config.getServletContext().getResourcePaths(\"/\")%>\n" +
+            "config.getServletContext().getRealPath(/): <%=config.getServletContext().getRealPath(\"/\")%>");
 
         Bundle bundle = this.bundleContext.installBundle(LOCATION_PREFIX + webAppDir.getAbsolutePath() + "?Web-ContextPath=/simple-web-app-dir");
         bundle.start();
@@ -417,7 +421,7 @@ public class TomcatServletContainerTests {
         WebApplicationHandle handle = this.container.createWebApplication("/simple-web-app-dir", bundle);
         this.container.startWebApplication(handle);
         try {
-            validateURL("http://localhost:8080/simple-web-app-dir/index.html");
+            validateURL("http://localhost:8080/simple-web-app-dir/index.jsp");
         } finally {
             this.container.stopWebApplication(handle);
             bundle.uninstall();
