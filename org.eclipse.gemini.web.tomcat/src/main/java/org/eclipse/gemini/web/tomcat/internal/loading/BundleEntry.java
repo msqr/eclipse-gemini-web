@@ -168,7 +168,8 @@ public final class BundleEntry {
 	}
 
 	public boolean isDirectory() {
-		return this.path.endsWith(PATH_SEPARATOR);
+	    URL entryFromBundle = getEntryFromBundle(this.path);
+	    return entryFromBundle.getFile().endsWith(PATH_SEPARATOR);
 	}
 
 	@Override
