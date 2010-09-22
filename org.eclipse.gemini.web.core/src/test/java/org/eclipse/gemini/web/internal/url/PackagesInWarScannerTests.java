@@ -34,12 +34,55 @@ public class PackagesInWarScannerTests {
         PackagesInWarScanner scanner = new PackagesInWarScanner();
         Set<String> packagesContainedInWar = scanner.getPackagesContainedInWar(new URL("file:target/resources/simple-war.war"));
         
-        assertEquals(4, packagesContainedInWar.size());
+        assertEquals(45, packagesContainedInWar.size());
         
         assertTrue(packagesContainedInWar.contains("org.slf4j"));
         assertTrue(packagesContainedInWar.contains("org.slf4j.helpers"));
         assertTrue(packagesContainedInWar.contains("org.slf4j.spi"));
         assertTrue(packagesContainedInWar.contains("foo.bar"));
 
+        assertTrue(packagesContainedInWar.contains("org.slf4j.impl"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.status"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.spi"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.util"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.db.dialect"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.joran.action"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.html"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.joran.spi"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.joran.action"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.pattern"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.net"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.log4j"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.joran.event"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.net"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.joran"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.boolex"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.rolling"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.turbo"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.jmx"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.sift"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.db"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.read"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.pattern"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.selector"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.pattern.parser"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.boolex"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.filter"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.joran"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.html"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.helpers"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.db"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.filter"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.layout"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.selector.servlet"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.sift"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.pattern.util"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.util"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.classic.spi"));
+        assertTrue(packagesContainedInWar.contains("ch.qos.logback.core.rolling.helper"));
+        
+        
     }
 }
