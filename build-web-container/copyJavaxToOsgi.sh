@@ -13,4 +13,3 @@ cp $SRC/com.springsource.javax.xml.bind-2.1.7.jar $REPO/com.springsource.javax.x
 cp $SRC/com.springsource.javax.xml.rpc-1.1.0.jar $REPO/com.springsource.javax.xml.rpc/com.springsource.javax.xml.rpc-1.1.0.jar
 cp $SRC/com.springsource.javax.xml.soap-1.3.0.jar $REPO/com.springsource.javax.xml.soap/com.springsource.javax.xml.soap-1.3.0.jar
 cp $SRC/com.springsource.javax.xml.stream-1.0.1.jar $REPO/com.springsource.javax.xml.stream/com.springsource.javax.xml.stream-1.0.1.jar
-cp $SRC/com.springsource.javax.xml.ws-2.1.1.jar $REPO/com.springsource.javax.xml.ws/com.springsource.javax.xml.ws-2.1.1.jar

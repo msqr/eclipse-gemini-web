@@ -49,7 +49,6 @@
 		<dependency org="javax.xml.rpc" name="com.springsource.javax.xml.rpc" rev="${javax.xml.rpc}" conf="dep->runtime"/>
 		<dependency org="javax.xml.soap" name="com.springsource.javax.xml.soap" rev="${javax.xml.soap}" conf="dep->runtime"/>
 		<dependency org="javax.xml.stream" name="com.springsource.javax.xml.stream" rev="${javax.xml.stream}" conf="dep->runtime"/>
-		<dependency org="javax.xml.ws" name="com.springsource.javax.xml.ws" rev="${javax.xml.ws}" conf="dep->runtime"/>	
 		
 		<dependency org="org.aopalliance" name="com.springsource.org.aopalliance" rev="${org.aopalliance}" conf="dep->runtime"/>
 		

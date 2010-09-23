@@ -32,7 +32,6 @@
             <dependency org="javax.persistence" name="com.springsource.javax.persistence" rev="${javax.persistence}" conf="compile->runtime"/>
             <dependency org="javax.servlet" name="com.springsource.javax.servlet.jsp" rev="${javax.servlet.jsp}" conf="compile->runtime"/>
             <dependency org="javax.servlet" name="com.springsource.javax.servlet" rev="${javax.servlet}" conf="compile->runtime"/>
-            <dependency org="javax.xml.ws" name="com.springsource.javax.xml.ws" rev="${javax.xml.ws}" conf="compile->runtime"/>
             <dependency org="javax.xml.soap" name="com.springsource.javax.xml.soap" rev="${javax.xml.soap}" />
             <dependency org="javax.xml.bind" name="com.springsource.javax.xml.bind" rev="${javax.xml.bind}" />
             <dependency org="javax.xml.stream" name="com.springsource.javax.xml.stream" rev="${javax.xml.stream}" />

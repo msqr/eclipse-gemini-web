@@ -85,11 +85,11 @@ public class TomcatServletContainerTests {
 
     private static final String LOCATION_WAR_WITH_CONTEXT_XML_CROSS_CONTEXT = LOCATION_PREFIX
         + "../org.eclipse.gemini.web.test/src/test/resources/war-with-context-xml-cross-context.war?Web-ContextPath=/war-with-context-xml-cross-context";
-    
+
     private BundleContext bundleContext;
 
     private ServletContainer container;
-    
+
     @BeforeClass
     public static void beforeClass() throws Exception {
         System.setProperty("org.eclipse.gemini.web.tomcat.config.path", "target/config/tomcat-server.xml");
@@ -191,18 +191,26 @@ public class TomcatServletContainerTests {
         String jstlLocation = "file:../ivy-cache/repository/javax.servlet/com.springsource.javax.servlet.jsp.jstl/1.2.0/com.springsource.javax.servlet.jsp.jstl-1.2.0.jar";
         Bundle jstlBundle = this.bundleContext.installBundle(jstlLocation);
 
-        Bundle bundle = this.bundleContext.installBundle(LOCATION_WAR_WITH_TLD_FROM_DEPENDENCY);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/war-with-tld-from-dependency", bundle);
-        this.container.startWebApplication(handle);
         try {
-            String realPath = handle.getServletContext().getRealPath("/");
-            System.out.println(realPath);
-            validateURL("http://localhost:8080/war-with-tld-from-dependency/test.jsp");
+            Bundle bundle = this.bundleContext.installBundle(LOCATION_WAR_WITH_TLD_FROM_DEPENDENCY);
+            
+            try {
+                bundle.start();
+
+                WebApplicationHandle handle = this.container.createWebApplication("/war-with-tld-from-dependency", bundle);
+                this.container.startWebApplication(handle);
+                
+                try {
+                    String realPath = handle.getServletContext().getRealPath("/");
+                    System.out.println(realPath);
+                    validateURL("http://localhost:8080/war-with-tld-from-dependency/test.jsp");
+                } finally {
+                    this.container.stopWebApplication(handle);
+                }
+            } finally {
+                bundle.uninstall();
+            }
         } finally {
-            this.container.stopWebApplication(handle);
-            bundle.uninstall();
             jstlBundle.uninstall();
         }
     }
@@ -216,16 +224,24 @@ public class TomcatServletContainerTests {
         String jstlLocation = "file:" + unzippedJstl.getAbsolutePath();
         Bundle jstlBundle = this.bundleContext.installBundle(jstlLocation);
 
-        Bundle bundle = this.bundleContext.installBundle(LOCATION_WAR_WITH_TLD_FROM_DEPENDENCY);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/war-with-tld-from-dependency", bundle);
-        this.container.startWebApplication(handle);
         try {
-            validateURL("http://localhost:8080/war-with-tld-from-dependency/test.jsp");
+            Bundle bundle = this.bundleContext.installBundle(LOCATION_WAR_WITH_TLD_FROM_DEPENDENCY);
+
+            try {
+                bundle.start();
+
+                WebApplicationHandle handle = this.container.createWebApplication("/war-with-tld-from-dependency", bundle);
+                this.container.startWebApplication(handle);
+                
+                try {
+                    validateURL("http://localhost:8080/war-with-tld-from-dependency/test.jsp");
+                } finally {
+                    this.container.stopWebApplication(handle);
+                }
+            } finally {
+                bundle.uninstall();
+            }
         } finally {
-            this.container.stopWebApplication(handle);
-            bundle.uninstall();
             jstlBundle.uninstall();
             unzippedJstl.delete(true);
         }
@@ -364,8 +380,7 @@ public class TomcatServletContainerTests {
         // Copy default context.xml.default
         File defaultHostContextXml = new File("target/config/Catalina/localhost/context.xml.default");
         String content = "<Context>"
-                + "<Resource name=\"mail/Session1\" auth=\"Container\" type=\"javax.mail.Session\" mail.smtp.host=\"localhost\"/>"
-                + "</Context>";
+            + "<Resource name=\"mail/Session1\" auth=\"Container\" type=\"javax.mail.Session\" mail.smtp.host=\"localhost\"/>" + "</Context>";
         createFileWithContent(defaultHostContextXml, content);
 
         File tomcatServerXml = new File("target/config/tomcat-server.xml");
@@ -382,8 +397,7 @@ public class TomcatServletContainerTests {
         WebApplicationHandle handle1 = this.container.createWebApplication("/war-with-context-xml-resources", bundle1);
         this.container.startWebApplication(handle1);
 
-        WebApplicationHandle handle2 = this.container.createWebApplication("/war-with-context-xml-cross-context",
-                bundle2);
+        WebApplicationHandle handle2 = this.container.createWebApplication("/war-with-context-xml-cross-context", bundle2);
         this.container.startWebApplication(handle2);
         try {
             // tests JNDI resources
@@ -397,7 +411,7 @@ public class TomcatServletContainerTests {
 
             this.container.stopWebApplication(handle2);
             bundle2.uninstall();
-            
+
             defaultContextXml.delete();
             defaultHostContextXml.delete();
             tomcatServerXml.delete();
@@ -406,14 +420,12 @@ public class TomcatServletContainerTests {
 
     @Test
     public void testInstallWebAppDir() throws Exception {
-        //Create web app dir
+        // Create web app dir
         File webAppDir = new File("target/test-classes/simple-web-app-dir");
         File indexJsp = new File(webAppDir, "index.jsp");
-        createFileWithContent(
-            indexJsp,
-            "Hello World!\n" +
-            "config.getServletContext().getResourcePaths(/): <%=config.getServletContext().getResourcePaths(\"/\")%>\n" +
-            "config.getServletContext().getRealPath(/): <%=config.getServletContext().getRealPath(\"/\")%>");
+        createFileWithContent(indexJsp, "Hello World!\n"
+            + "config.getServletContext().getResourcePaths(/): <%=config.getServletContext().getResourcePaths(\"/\")%>\n"
+            + "config.getServletContext().getRealPath(/): <%=config.getServletContext().getRealPath(\"/\")%>");
 
         Bundle bundle = this.bundleContext.installBundle(LOCATION_PREFIX + webAppDir.getAbsolutePath() + "?Web-ContextPath=/simple-web-app-dir");
         bundle.start();
