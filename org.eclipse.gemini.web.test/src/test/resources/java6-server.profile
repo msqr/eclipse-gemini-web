@@ -1,10 +1,11 @@
 org.osgi.framework.system.packages = \
- com.sun.org.apache.xalan.internal.res,\
- com.sun.org.apache.xml.internal.utils,\
- com.sun.org.apache.xpath.internal,\
- com.sun.org.apache.xpath.internal.jaxp,\
- com.sun.org.apache.xpath.internal.objects,\
  javax.accessibility,\
+ javax.activation,\
+ javax.activation;version="1.1.1",\
+ javax.activity,\
+ javax.annotation,\
+ javax.annotation;version="1.0.0",\
+ javax.annotation.processing,\
  javax.crypto,\
  javax.crypto.interfaces,\
  javax.crypto.spec,\
@@ -19,6 +20,10 @@ org.osgi.framework.system.packages = \
  javax.jws;version="2.0",\
  javax.jws.soap,\
  javax.jws.soap;version="2.0",\
+ javax.lang.model,\
+ javax.lang.model.element,\
+ javax.lang.model.type,\
+ javax.lang.model.util,\
  javax.management,\
  javax.management.loading,\
  javax.management.modelmbean,\
@@ -42,6 +47,8 @@ org.osgi.framework.system.packages = \
  javax.rmi,\
  javax.rmi.CORBA,\
  javax.rmi.ssl,\
+ javax.script,\
+ javax.script;version="1.1",\
  javax.security.auth,\
  javax.security.auth.callback,\
  javax.security.auth.kerberos,\
@@ -75,6 +82,7 @@ org.osgi.framework.system.packages = \
  javax.swing.text.rtf,\
  javax.swing.tree,\
  javax.swing.undo,\
+ javax.tools,\
  javax.transaction,\
  javax.transaction;version="1.0.1",\
  javax.transaction;version="1.1.0",\
@@ -95,6 +103,18 @@ org.osgi.framework.system.packages = \
  javax.xml.bind.helpers;version="2.0",\
  javax.xml.bind.util,\
  javax.xml.bind.util;version="2.0",\
+ javax.xml.crypto,\
+ javax.xml.crypto;version="1.0",\
+ javax.xml.crypto.dom,\
+ javax.xml.crypto.dom;version="1.0",\
+ javax.xml.crypto.dsig,\
+ javax.xml.crypto.dsig;version="1.0",\
+ javax.xml.crypto.dsig.dom,\
+ javax.xml.crypto.dsig.dom;version="1.0",\
+ javax.xml.crypto.dsig.keyinfo,\
+ javax.xml.crypto.dsig.keyinfo;version="1.0",\
+ javax.xml.crypto.dsig.spec,\
+ javax.xml.crypto.dsig.spec;version="1.0",\
  javax.xml.datatype,\
  javax.xml.namespace,\
  javax.xml.parsers,\
@@ -109,8 +129,21 @@ org.osgi.framework.system.packages = \
  javax.xml.transform,\
  javax.xml.transform.dom,\
  javax.xml.transform.sax,\
+ javax.xml.transform.stax,\
  javax.xml.transform.stream,\
  javax.xml.validation,\
+ javax.xml.ws,\
+ javax.xml.ws;version="2.1.1",\
+ javax.xml.ws.handler,\
+ javax.xml.ws.handler;version="2.1.1",\
+ javax.xml.ws.handler.soap,\
+ javax.xml.ws.handler.soap;version="2.1.1",\
+ javax.xml.ws.http,\
+ javax.xml.ws.http;version="2.1.1",\
+ javax.xml.ws.soap,\
+ javax.xml.ws.soap;version="2.1.1",\
+ javax.xml.ws.spi,\
+ javax.xml.ws.spi;version="2.1.1",\
  javax.xml.xpath,\
  org.ietf.jgss,\
  org.omg.CORBA,\
@@ -155,16 +188,20 @@ org.osgi.framework.system.packages = \
  org.xml.sax.ext,\
  org.xml.sax.helpers
 org.osgi.framework.bootdelegation = \
- com_cenqua_clover,\
- com.cenqua.*,\
- com.yourkit.*,\
+ org.eclipse.virgo.osgi.extensions.*,\
+ org.eclipse.virgo.osgi.launcher.*,\
+ org.eclipse.virgo.kernel.authentication,\
  com.sun.*,\
+ javax.xml.*,\
  org.apache.xerces.jaxp.*,\
+ org.w3c.*,\
+ org.xml.*,\
  sun.*
 org.osgi.framework.executionenvironment = \
  OSGi/Minimum-1.0,\
  OSGi/Minimum-1.1,\
  J2SE-1.3,\
  J2SE-1.4,\
- J2SE-1.5
+ J2SE-1.5,\
+ JavaSE-1.6
 osgi.java.profile.name = Virgo-Kernel-Java6
