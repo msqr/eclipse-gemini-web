@@ -26,6 +26,7 @@
            <dependency org="org.slf4j" name="com.springsource.slf4j.nop" rev="${org.slf4j}" conf="test->runtime"/>
            <dependency org="org.easymock" name="com.springsource.org.easymock" rev="${org.easymock}" conf="test->runtime"/>
            <dependency org="org.eclipse.virgo.test" name="org.eclipse.virgo.test.framework" rev="${org.eclipse.virgo.test}" conf="test->runtime"/>
+           <dependency org="org.eclipse.virgo.osgi" name="org.eclipse.virgo.osgi.launcher" rev="${org.eclipse.virgo.osgi}" conf="test->runtime"/>
            <dependency org="org.eclipse.gemini.web" name="org.eclipse.gemini.web.core" rev="latest.integration"/>
            <dependency org="org.eclipse.gemini.web" name="org.eclipse.gemini.web.tomcat" rev="latest.integration"/>
            
@@ -35,7 +36,7 @@
            
            <dependency org="org.apache.taglibs" name="com.springsource.org.apache.taglibs.standard" rev="1.1.2" conf="test->runtime"/>
            <dependency org="javax.servlet" name="com.springsource.javax.servlet.jsp.jstl" rev="1.2.0" conf="test->runtime"/>
-          
+           
     </dependencies>
 
 </ivy-module>

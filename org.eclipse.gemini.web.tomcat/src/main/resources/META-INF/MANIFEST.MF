@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Export-Package: org.eclipse.gemini.web.tomcat.spi;version="1";uses:="o
  rg.osgi.framework"
 Bundle-Version: 1
-Tool: Bundlor 1.0.0.RELEASE
+Tool: Bundlor 1.0.0.M6
 Bundle-Name: Gemini Web Tomcat Bootstrap (incubation)
 Bundle-ManifestVersion: 2
 Bundle-Activator: org.eclipse.gemini.web.tomcat.internal.Activator
