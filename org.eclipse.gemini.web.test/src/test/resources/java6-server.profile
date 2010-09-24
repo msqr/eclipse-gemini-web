@@ -1,4 +1,9 @@
 org.osgi.framework.system.packages = \
+ com.sun.org.apache.xalan.internal.res,\
+ com.sun.org.apache.xml.internal.utils,\
+ com.sun.org.apache.xpath.internal,\
+ com.sun.org.apache.xpath.internal.jaxp,\
+ com.sun.org.apache.xpath.internal.objects,\
  javax.accessibility,\
  javax.activation,\
  javax.activation;version="1.1.1",\
@@ -190,7 +195,6 @@ org.osgi.framework.system.packages = \
 org.osgi.framework.bootdelegation = \
  org.eclipse.virgo.osgi.extensions.*,\
  org.eclipse.virgo.osgi.launcher.*,\
- org.eclipse.virgo.kernel.authentication,\
  com.sun.*,\
  javax.xml.*,\
  org.apache.xerces.jaxp.*,\
