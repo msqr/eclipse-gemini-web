@@ -1,5 +1,5 @@
 Bundle-ManifestVersion: 2
-Bundle-Name: Gemini Web Tomcat Bootstrap (incubation)
+Bundle-Name: Gemini Web Tomcat Bootstrap
 Bundle-SymbolicName: org.eclipse.gemini.web.tomcat
 Bundle-Version: 1
 Import-Template: org.eclipse.gemini.web.*;version="1.0",
