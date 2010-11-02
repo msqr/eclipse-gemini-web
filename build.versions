@@ -1,12 +1,12 @@
 # Test
 org.junit=4.7.0
 org.easymock=2.3.0
-org.eclipse.virgo.teststubs=2.1.0.M03-incubation
-org.eclipse.virgo.test=2.1.0.M03-incubation
+org.eclipse.virgo.teststubs=2.2.0.M01
+org.eclipse.virgo.test=2.2.0.M01
 
 # Compile
-org.eclipse.virgo.osgi=2.1.0.M03-incubation
-org.eclipse.virgo.util=2.1.0.M03-incubation
+org.eclipse.virgo.osgi=2.2.0.M01
+org.eclipse.virgo.util=2.2.0.M01
 javax.activation=1.1.1
 javax.annotation=1.0.0
 javax.ejb=3.0.0
