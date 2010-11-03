@@ -2,7 +2,7 @@ Manifest-Version: 1
 Export-Package: org.eclipse.gemini.web.extender;version="1";uses:="org
  .eclipse.gemini.web.core,org.osgi.framework,org.osgi.util.tracker"
 Bundle-Version: 1
-Tool: Bundlor 1.0.0.M6
+Tool: Bundlor 1.0.0.RELEASE
 Bundle-Name: Gemini Web Extender
 Bundle-ManifestVersion: 2
 Bundle-Activator: org.eclipse.gemini.web.extender.ExtenderActivator
