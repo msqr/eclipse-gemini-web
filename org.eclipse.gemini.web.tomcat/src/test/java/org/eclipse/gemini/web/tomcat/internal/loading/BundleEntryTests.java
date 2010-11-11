@@ -104,9 +104,17 @@ public class BundleEntryTests {
         assertNotNull(entry.getEntry("sub/one.txt"));
         assertNotNull(entry.getEntry("sub/another.sub/"));
         assertNotNull(entry.getEntry("sub/another.sub/two.txt"));
+        assertNotNull(entry.getEntry("."));
+        assertNotNull(entry.getEntry("sub/."));
+        assertNotNull(entry.getEntry(""));
+        assertNotNull(entry.getEntry("/"));
 
         assertTrue(entry.getEntry("sub/").isDirectory());
         assertTrue(entry.getEntry("sub/another.sub/").isDirectory());
+        assertTrue(entry.getEntry(".").isDirectory());
+        assertTrue(entry.getEntry("sub/.").isDirectory());
+        assertTrue(entry.getEntry("").isDirectory());
+        assertTrue(entry.getEntry("/").isDirectory());
     }
 
     @Test

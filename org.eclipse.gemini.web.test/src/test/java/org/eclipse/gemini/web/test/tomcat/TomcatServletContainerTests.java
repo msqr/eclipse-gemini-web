@@ -425,7 +425,9 @@ public class TomcatServletContainerTests {
         File indexJsp = new File(webAppDir, "index.jsp");
         createFileWithContent(indexJsp, "Hello World!\n"
             + "config.getServletContext().getResourcePaths(/): <%=config.getServletContext().getResourcePaths(\"/\")%>\n"
-            + "config.getServletContext().getRealPath(/): <%=config.getServletContext().getRealPath(\"/\")%>");
+            + "config.getServletContext().getRealPath(/): <%=config.getServletContext().getRealPath(\"/\")%>\n"
+            + "**************  REAL PATH: <%=request.getRealPath(\".\")%>\n"
+            + "**************  REAL PATH: <%=request.getRealPath(\"META-INF/.\")%>\n");
 
         Bundle bundle = this.bundleContext.installBundle(LOCATION_PREFIX + webAppDir.getAbsolutePath() + "?Web-ContextPath=/simple-web-app-dir");
         bundle.start();

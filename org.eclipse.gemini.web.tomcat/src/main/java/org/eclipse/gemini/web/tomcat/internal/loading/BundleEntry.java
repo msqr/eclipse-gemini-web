@@ -28,6 +28,8 @@ import org.osgi.framework.Bundle;
 public final class BundleEntry {
 
 	private static final String PATH_SEPARATOR = "/";
+	
+	private static final String DOT = ".";
 
 	private final String path;
 
@@ -128,6 +130,11 @@ public final class BundleEntry {
 			searchPath = path.substring(0, lastSlashIndex);
 			searchFile = path.substring(lastSlashIndex + 1);
 		}
+		
+		if (searchFile.equals(DOT)) {
+		    return this.bundle.getEntry(path.substring(0, path.length() - 1));
+		}
+		
 		Enumeration<?> entries = this.bundle.findEntries(searchPath,
 				searchFile, false);
 
