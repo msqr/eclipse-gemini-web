@@ -21,6 +21,7 @@
             <dependency org="org.eclipse.virgo.util" name="org.eclipse.virgo.util.io" rev="${org.eclipse.virgo.util}" conf="compile->runtime"/>
             <dependency org="org.eclipse.osgi" name="org.eclipse.osgi" rev="${org.eclipse.osgi}" conf="compile->compile"/>
             <dependency org="javax.servlet" name="com.springsource.javax.servlet" rev="${javax.servlet}" conf="compile->runtime"/>
+            <dependency org="javax.servlet" name="com.springsource.javax.servlet.jsp" rev="${javax.servlet.jsp}" conf="compile->runtime"/>
 
 
             <dependency org="org.slf4j" name="com.springsource.slf4j.api" rev="${org.slf4j}" conf="compile->runtime"/>
@@ -30,8 +31,6 @@
             <dependency org="javax.ejb" name="com.springsource.javax.ejb" rev="${javax.ejb}" conf="compile->runtime,provided"/>
             <dependency org="javax.el" name="com.springsource.javax.el" rev="${javax.el}" conf="compile->runtime"/>
             <dependency org="javax.persistence" name="com.springsource.javax.persistence" rev="${javax.persistence}" conf="compile->runtime"/>
-            <dependency org="javax.servlet" name="com.springsource.javax.servlet.jsp" rev="${javax.servlet.jsp}" conf="compile->runtime"/>
-            <dependency org="javax.servlet" name="com.springsource.javax.servlet" rev="${javax.servlet}" conf="compile->runtime"/>
             <dependency org="javax.xml.soap" name="com.springsource.javax.xml.soap" rev="${javax.xml.soap}" />
             <dependency org="javax.xml.bind" name="com.springsource.javax.xml.bind" rev="${javax.xml.bind}" />
             <dependency org="javax.xml.stream" name="com.springsource.javax.xml.stream" rev="${javax.xml.stream}" />
