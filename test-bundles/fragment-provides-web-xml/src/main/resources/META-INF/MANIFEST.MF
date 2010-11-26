@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: fragment-provides-web-xml
+Fragment-Host: war-with-web-xml-from-fragment;bundle-version=1.0.0
+Bundle-Version: 1.0.0
+Bundle-Description: Fragment that provides web.xml
+
+

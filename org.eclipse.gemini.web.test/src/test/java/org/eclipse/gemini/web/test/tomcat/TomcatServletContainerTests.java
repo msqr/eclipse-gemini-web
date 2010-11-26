@@ -86,6 +86,10 @@ public class TomcatServletContainerTests {
     private static final String LOCATION_WAR_WITH_CONTEXT_XML_CROSS_CONTEXT = LOCATION_PREFIX
         + "../org.eclipse.gemini.web.test/src/test/resources/war-with-context-xml-cross-context.war?Web-ContextPath=/war-with-context-xml-cross-context";
 
+    private static final String LOCATION_WAR_WITH_WEB_XML_FROM_FRAGMENT = "file:../org.eclipse.gemini.web.test/target/resources/war-with-web-xml-from-fragment.war";
+
+    private static final String LOCATION_FRAGMENT_PROVIDES_WEB_XML = "file:../org.eclipse.gemini.web.test/target/resources/fragment-provides-web-xml.jar";
+
     private BundleContext bundleContext;
 
     private ServletContainer container;
@@ -441,6 +445,24 @@ public class TomcatServletContainerTests {
             bundle.uninstall();
             FileSystemUtils.deleteRecursively(webAppDir);
             FileSystemUtils.deleteRecursively(new File("temp"));
+        }
+    }
+
+    @Test
+    public void testWarWithWebXmlFromFragment() throws Exception {
+        Bundle bundle = this.bundleContext.installBundle(LOCATION_WAR_WITH_WEB_XML_FROM_FRAGMENT);
+        Bundle fragment = this.bundleContext.installBundle(LOCATION_FRAGMENT_PROVIDES_WEB_XML);
+
+        bundle.start();
+
+        WebApplicationHandle handle = this.container.createWebApplication("/war-with-web-xml-from-fragment", bundle);
+        this.container.startWebApplication(handle);
+        try {
+            validateURL("http://localhost:8080/war-with-web-xml-from-fragment");
+        } finally {
+            this.container.stopWebApplication(handle);
+            bundle.uninstall();
+            fragment.uninstall();
         }
     }
 

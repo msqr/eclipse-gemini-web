@@ -29,6 +29,8 @@
 		<pathelement location="../test-bundles/war-with-jsp"/>
 		<pathelement location="../test-bundles/war-with-servlet"/>
 		<pathelement location="../test-bundles/war-with-tld"/>
+		<pathelement location="../test-bundles/fragment-provides-web-xml"/>
+		<pathelement location="../test-bundles/war-with-web-xml-from-fragment"/>
 	</path>
 
 	<target name="test" depends="build-test-apps, quality-multi-bundle.test" description="Rebuild all the test apps before running the test suites">

@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: war-with-web-xml-from-fragment
+Bundle-Version: 1.0.0
+Web-ContextPath: /war-with-web-xml-from-fragment
+Import-Packages: javax.servlet,
+ javax.servlet.http,
+ javax.servlet.jsp,
+ javax.servlet.jsp.el,
+ javax.servlet.jsp.tagext,
+ javax.el
+Bundle-Description: Web application without web.xml
+
+
