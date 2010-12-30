@@ -4,6 +4,9 @@
 	<property file="${basedir}/../build.properties"/>
 	<property file="${basedir}/../../build.versions"/>
 	<property name="war.output.dir" value="${basedir}/../../org.eclipse.gemini.web.test/target/resources"/>
+	<property name="target.dir" value="${basedir}/target"/>
+	<property name="war.staging.dir" value="${target.dir}/war-expanded"/>
+	<property name="war.classes.dir" value="${war.staging.dir}/WEB-INF"/>
 	<import file="${basedir}/../../virgo-build/war/default.xml"/>
 
 </project>
