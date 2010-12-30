@@ -27,6 +27,9 @@ Import-Template: org.eclipse.gemini.web.*;version="1.0",
  javax.xml.validation.*;version="0",
  org.w3c.dom.*;version="0"
 Import-Package: org.apache.catalina.deploy;version="6.0.29.S2-r1559",
- org.apache.catalina.session;version="6.0.29.S2-r1559"
+ org.apache.catalina.session;version="6.0.29.S2-r1559",
+ org.apache.catalina.loader;version="6.0.29.S2-r1559",
+ org.apache.catalina.valves;version="6.0.29.S2-r1559",
+ org.apache.catalina.authenticator;version="6.0.29.S2-r1559"
 Bundle-Activator: org.eclipse.gemini.web.tomcat.internal.Activator
 Excluded-Exports: *.internal.*,javax.*

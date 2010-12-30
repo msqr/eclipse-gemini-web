@@ -1,0 +1,16 @@
+<Context>
+
+   <Loader class="org.apache.catalina.loader.WebappLoader"/>
+
+   <Valve
+        className="org.apache.catalina.valves.AccessLogValve"
+        directory="target/logs"
+        prefix="localhost_access_log."
+        suffix=".txt"
+        pattern="common"/>
+
+    <Valve
+        className="org.apache.catalina.authenticator.BasicAuthenticator"/>
+
+</Context>
+

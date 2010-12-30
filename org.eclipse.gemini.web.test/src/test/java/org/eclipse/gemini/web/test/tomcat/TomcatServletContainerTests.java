@@ -81,10 +81,10 @@ public class TomcatServletContainerTests {
         + "../org.eclipse.gemini.web.test/src/test/resources/war-with-tld-import-system-packages.war?Web-ContextPath=/war-with-tld-import-system-packages";
 
     private static final String LOCATION_WAR_WITH_CONTEXT_XML_RESOURCES = LOCATION_PREFIX
-        + "../org.eclipse.gemini.web.test/src/test/resources/war-with-context-xml-resources.war?Web-ContextPath=/war-with-context-xml-resources";
+        + "../org.eclipse.gemini.web.test/target/resources/war-with-context-xml-custom-classloader.war?Web-ContextPath=/war-with-context-xml-custom-classloader";
 
     private static final String LOCATION_WAR_WITH_CONTEXT_XML_CROSS_CONTEXT = LOCATION_PREFIX
-        + "../org.eclipse.gemini.web.test/src/test/resources/war-with-context-xml-cross-context.war?Web-ContextPath=/war-with-context-xml-cross-context";
+        + "../org.eclipse.gemini.web.test/target/resources/war-with-context-xml-cross-context.war?Web-ContextPath=/war-with-context-xml-cross-context";
 
     private static final String LOCATION_WAR_WITH_WEB_XML_FROM_FRAGMENT = "file:../org.eclipse.gemini.web.test/target/resources/war-with-web-xml-from-fragment.war";
 
@@ -398,17 +398,20 @@ public class TomcatServletContainerTests {
         Bundle bundle2 = this.bundleContext.installBundle(location2);
         bundle2.start();
 
-        WebApplicationHandle handle1 = this.container.createWebApplication("/war-with-context-xml-resources", bundle1);
+        WebApplicationHandle handle1 = this.container.createWebApplication("/war-with-context-xml-custom-classloader", bundle1);
         this.container.startWebApplication(handle1);
 
         WebApplicationHandle handle2 = this.container.createWebApplication("/war-with-context-xml-cross-context", bundle2);
         this.container.startWebApplication(handle2);
         try {
-            // tests JNDI resources
-            validateURL("http://localhost:8080/war-with-context-xml-resources/index.jsp");
+            // tests custom classloader, access log valve and basic authenticator
+            // all specified in context.xml
+            validateURL("http://localhost:8080/war-with-context-xml-custom-classloader/index.html");
 
+            // tests JNDI resources
             // tests cross context functionality
             validateURL("http://localhost:8080/war-with-context-xml-cross-context/index.jsp");
+            validateURL("http://localhost:8080/war-with-context-xml-cross-context/forward.jsp");
         } finally {
             this.container.stopWebApplication(handle1);
             bundle1.uninstall();
