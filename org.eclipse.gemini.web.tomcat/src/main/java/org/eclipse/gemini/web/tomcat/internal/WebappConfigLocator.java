@@ -37,6 +37,8 @@ public class WebappConfigLocator {
 
     private static final String DEFAULT_CONTEXT_XML = "context.xml";
 
+    private static final String DEFAULT_WEB_XML = "web.xml";
+
     private static final String CONTEXT_XML = "META-INF/context.xml";
 
     private static final String XML_EXTENSION = ".xml";
@@ -69,6 +71,29 @@ public class WebappConfigLocator {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Resolves the default web.xml and returns an absolute path to it, if it exists in the main Tomcat's configuration
+     * directory, otherwise returns <code>null</code>. The method returns <code>null</code> also in case main Tomcat's
+     * configuration directory does not exists. Note: If a default web.xml is not found then web-embed.xml will be used
+     * as default web.xml. (web-embed.xml is provided by this bundle)
+     * 
+     * @param configLocation the main Tomcat's configuration directory
+     * @return an absolute path to default web.xml file, if it exists in the main Tomcat's configuration directory,
+     *         otherwise returns <code>null</code>.
+     */
+    public static String resolveDefaultWebXml(File configLocation) {
+        if (configLocation == null) {
+            return null;
+        }
+
+        File defaultWebXml = new File(configLocation, DEFAULT_WEB_XML);
+        if (defaultWebXml.exists()) {
+            return defaultWebXml.getAbsolutePath();
+        }
+
+        return null;
     }
 
     /**

@@ -61,6 +61,10 @@ final class Tomcat extends Embedded {
     
     private BundleContext bundleContext;
 
+    private File configDir;
+
+    private String defaultWeb;
+
     Tomcat(BundleContext context, PackageAdmin packageAdmin) {
         this.bundleContext = context;
         JarScanner bundleDependenciesJarScanner = new BundleDependenciesJarScanner(new PackageAdminBundleDependencyDeterminer(context, packageAdmin),
@@ -144,9 +148,17 @@ final class Tomcat extends Embedded {
         
         ExtendedContextConfig config = new ExtendedContextConfig();
 
-        // Allocate the tomcat's configuration directory
-        File configDir = TomcatConfigLocator.resolveConfigDir(bundleContext);
+        if (configDir == null) {
+            // Allocate the tomcat's configuration directory
+            configDir = TomcatConfigLocator.resolveConfigDir(bundleContext);
+        }
         config.setConfigBase(configDir);
+
+        if (defaultWeb == null) {
+            // Allocate the default web.xml
+            defaultWeb = WebappConfigLocator.resolveDefaultWebXml(configDir);
+        }
+        config.setDefaultWebXml(defaultWeb);
 
         // If default context.xml is existing, set it to the ContextConfig
         String defaultContextXml = WebappConfigLocator.resolveDefaultContextXml(configDir);
@@ -189,6 +201,12 @@ final class Tomcat extends Embedded {
         } catch (SAXException e) {
             throw new ServletContainerException("Error parsing Tomcat XML configuration.", e);
         }
+
+        // Allocate the tomcat's configuration directory
+        configDir = TomcatConfigLocator.resolveConfigDir(bundleContext);
+
+        // Allocate the default web.xml
+        defaultWeb = WebappConfigLocator.resolveDefaultWebXml(configDir);
     }
 
     /**

@@ -17,6 +17,9 @@
 package org.eclipse.gemini.web.tomcat.internal;
 
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.FileInputStream;
@@ -34,8 +37,13 @@ public class TomcatServletContainerFactoryTests {
     @Test
     public void testCreateContainerWithConfigFile() throws Exception {
         TomcatServletContainerFactory factory = new TomcatServletContainerFactory();
-        TomcatServletContainer container = factory.createContainer(new FileInputStream("src/test/resources/server.xml"), createMock(BundleContext.class), null);
+        BundleContext bundleContext = createMock(BundleContext.class);
+        expect(bundleContext.getProperty(TomcatConfigLocator.CONFIG_PATH_FRAMEWORK_PROPERTY)).andReturn(null);
+        expect(bundleContext.createFilter("(objectClass=org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer)")).andReturn(null);
+        replay(bundleContext);
+        TomcatServletContainer container = factory.createContainer(new FileInputStream("src/test/resources/server.xml"), bundleContext, null);
         assertNotNull(container);
+        verify(bundleContext);
     }
     
     @Test(expected=ServletContainerException.class)

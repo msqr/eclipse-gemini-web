@@ -469,6 +469,39 @@ public class TomcatServletContainerTests {
         }
     }
 
+    @Test
+    public void testServletContainerWithCustomDefaultWebXml() throws Exception {
+        File tomcatServerXml = new File("target/config/tomcat-server.xml");
+        createFileWithContent(tomcatServerXml, "");
+
+        // In this custom default web.xml the directory listing is enabled
+        // Thus we will ensure that a custom default web.xml is used
+        File defaultWebXml = new File("target/config/web.xml");
+        createFileWithContent(defaultWebXml, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
+            + "<web-app xmlns=\"http://java.sun.com/xml/ns/javaee\"\nxmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+            + "xsi:schemaLocation=\"http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd\"\nversion=\"2.5\">\n"
+            + "<servlet>\n<servlet-name>default</servlet-name>\n<servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>\n"
+            + "<init-param><param-name>debug</param-name><param-value>0</param-value></init-param>\n"
+            + "<init-param><param-name>listings</param-name><param-value>true</param-value></init-param>\n"
+            + "<load-on-startup>1</load-on-startup>\n</servlet>\n"
+            + "<servlet-mapping><servlet-name>default</servlet-name><url-pattern>/</url-pattern></servlet-mapping></web-app>");
+
+        Bundle bundle = this.bundleContext.installBundle(LOCATION_WAR_WITH_TLD);
+        bundle.start();
+
+        WebApplicationHandle handle = this.container.createWebApplication("/war-with-tld", bundle);
+        this.container.startWebApplication(handle);
+        try {
+            validateURL("http://localhost:8080/war-with-tld");
+        } finally {
+            this.container.stopWebApplication(handle);
+            bundle.uninstall();
+
+            tomcatServerXml.delete();
+            defaultWebXml.delete();
+        }
+    }
+
     private void createFileWithContent(File file, String content) throws Exception {
         file.getParentFile().mkdirs();
         FileWriter fWriter = null;

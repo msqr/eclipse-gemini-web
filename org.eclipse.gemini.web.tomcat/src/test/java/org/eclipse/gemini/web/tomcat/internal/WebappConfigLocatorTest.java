@@ -206,4 +206,15 @@ public class WebappConfigLocatorTest {
         assertEquals(null, WebappConfigLocator.resolveDefaultContextXml(new File(urlFile.getPath()).getParentFile()
                 .getParentFile()));
     }
+
+    public void testResolveDefaultWebXml() throws Exception {
+        assertEquals(null, WebappConfigLocator.resolveDefaultWebXml(null));
+
+        URL configDir = new URL(CONFIG_DIR_LOCATION_1);
+        assertEquals(configDir.getPath(), WebappConfigLocator.resolveDefaultContextXml(
+            new File(configDir.getPath()).getParentFile()));
+
+        assertEquals(null, WebappConfigLocator.resolveDefaultContextXml(
+            new File(configDir.getPath()).getParentFile().getParentFile()));
+    }
 }
