@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
+<chapter id="introduction">
+	<title>Overview</title>
+	<section id="intro">
+		<title>Introduction</title>
+		<para>
+			@product.name@ implements the Web Container defined by the Web Applications Specification chapter of the OSGi Service Platform Release 4 Version 4.2 Enterprise Specification. 
+			This specification may be downloaded <ulink url="http://www.osgi.org/Download/Release4V42">here</ulink>.
+		</para>
+	</section>
+	<section id="about-this-guide">
+		<title>About This Guide</title>
+		<para>
+			This User Guide contains step-by-step instructions on how to use @product.name@. This User Guide will enable you to:
+			<itemizedlist>
+				<listitem>
+					<para>
+						Install @product.name@
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Deploy and request a simple web application
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Configure Tomcat
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Configure OSGi Framework
+					</para>
+				</listitem>
+			</itemizedlist>
+		</para>
+	</section>
+</chapter>

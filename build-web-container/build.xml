@@ -35,6 +35,11 @@
 		<pathelement location="../test-bundles/war-with-context-xml-cross-context"/>
 	</path>
 
+	<path id="doc.bundles">
+		<pathelement location="../org.eclipse.gemini.web.documentation/user-guide"/>
+		<pathelement location="../org.eclipse.gemini.web.documentation/programmer-guide"/>
+	</path>
+
 	<target name="test" depends="build-test-apps, quality-multi-bundle.test" description="Rebuild all the test apps before running the test suites">
 	</target>
 
@@ -62,10 +67,22 @@
 			<fileset dir="${basedir}/resources"/>
 		</copy>
 
+		<all-bundles target="package" buildpathRef="doc.bundles">
+			<property name="package.output.dir" value="${package.output.dir}"/>
+		</all-bundles>
+
 		<mkdir dir="${artifacts.dir}"/>
 		<zip destfile="${package.output.file}">
 			<zipfileset dir="${package.dir}"/>
 		</zip>
+	</target>
+
+	<target name="doc">
+		<all-bundles target="doc" buildpathRef="doc.bundles"/>
+	</target>
+
+	<target name="doc-html">
+		<all-bundles target="doc-html" buildpathRef="doc.bundles"/>
 	</target>
 
 </project>
