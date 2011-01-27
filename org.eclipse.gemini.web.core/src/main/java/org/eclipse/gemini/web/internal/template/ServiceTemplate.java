@@ -24,10 +24,10 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 public class ServiceTemplate<S> {
 
-    private final ServiceTracker tracker;
+    private final ServiceTracker<S, Object> tracker;
     
     public ServiceTemplate(BundleContext context, Class<S> clazz) {
-        this.tracker = new ServiceTracker(context, clazz.getName(), new ServiceTemplateCustomizer(context));
+        this.tracker = new ServiceTracker(context, clazz, new ServiceTemplateCustomizer(context));
     }
     
     public void start() {

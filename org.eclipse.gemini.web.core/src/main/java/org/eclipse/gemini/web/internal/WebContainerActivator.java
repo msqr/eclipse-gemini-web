@@ -20,6 +20,8 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 
+import javax.servlet.ServletContext;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -48,7 +50,7 @@ public class WebContainerActivator implements BundleActivator {
 
     private volatile EventManager eventManager;
     
-    private ServiceTracker serviceTracker;
+    private ServiceTracker<ServletContainer, WebContainer> serviceTracker;
 
     public void start(BundleContext context) throws Exception {
         WebBundleManifestTransformer transformer = registerWebBundleManifestTransformer(context);
@@ -58,7 +60,7 @@ public class WebContainerActivator implements BundleActivator {
         this.eventManager = new EventManager(context);
         this.eventManager.start();
         
-        this.serviceTracker = new ServiceTracker(context, ServletContainer.class.getName(), new ServletContainerTracker(context, this.eventManager));
+        this.serviceTracker = new ServiceTracker(context, ServletContainer.class, new ServletContainerTracker(context, this.eventManager));
         this.serviceTracker.open();
     }
 
@@ -77,7 +79,7 @@ public class WebContainerActivator implements BundleActivator {
         
         WebBundleManifestTransformer chainingTransformer = new ChainingWebBundleManifestTransformer(specTransformer, defaultsTransformer, systemBundleExportImportingWebBundleManifestTransformer);
                 
-        ServiceRegistration reg = context.registerService(WebBundleManifestTransformer.class.getName(), chainingTransformer, null);
+        ServiceRegistration<WebBundleManifestTransformer> reg = context.registerService(WebBundleManifestTransformer.class, chainingTransformer, null);
         this.regTracker.track(reg);
         
         return chainingTransformer;
@@ -88,11 +90,11 @@ public class WebContainerActivator implements BundleActivator {
         Dictionary<String, Object> props = new Hashtable<String, Object>();
         props.put(URLConstants.URL_HANDLER_PROTOCOL, WebBundleUrl.SCHEME);
 
-        ServiceRegistration reg = context.registerService(URLStreamHandlerService.class.getName(), new WebBundleUrlStreamHandlerService(transformer), props);
+        ServiceRegistration<URLStreamHandlerService> reg = context.registerService(URLStreamHandlerService.class, new WebBundleUrlStreamHandlerService(transformer), props);
         this.regTracker.track(reg);
     }
 
-    private static final class ServletContainerTracker implements ServiceTrackerCustomizer {
+    private static final class ServletContainerTracker implements ServiceTrackerCustomizer<ServletContext, WebContainer> {
 
         private final ServiceRegistrationTracker regTracker = new ServiceRegistrationTracker();
 
@@ -105,21 +107,21 @@ public class WebContainerActivator implements BundleActivator {
             this.eventManager = eventManager;
         }
 
-        public Object addingService(ServiceReference reference) {
+        public WebContainer addingService(ServiceReference<ServletContext> reference) {
             ServletContainer container = (ServletContainer) this.context.getService(reference);
             
             WebContainer webContainer = new StandardWebContainer(container, this.eventManager);
             
-            ServiceRegistration reg = context.registerService(WebContainer.class.getName(), webContainer, null);
+            ServiceRegistration<WebContainer> reg = context.registerService(WebContainer.class, webContainer, null);
             this.regTracker.track(reg);
             
             return webContainer;
         }
 
-        public void modifiedService(ServiceReference reference, Object service) {
+        public void modifiedService(ServiceReference<ServletContext> reference, WebContainer service) {
         }
 
-        public void removedService(ServiceReference reference, Object service) {
+        public void removedService(ServiceReference<ServletContext> reference, WebContainer service) {
             this.regTracker.unregisterAll();
             if (service instanceof WebContainer) {
                 ((WebContainer)service).halt();

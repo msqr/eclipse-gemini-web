@@ -30,10 +30,10 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 public final class ExtenderActivator implements BundleActivator {
 
-    private ServiceTracker serviceTracker;
+    private ServiceTracker<WebContainer, String> serviceTracker;
     
     public void start(BundleContext context) {
-        this.serviceTracker = new ServiceTracker(context, WebContainer.class.getName(), new ExtendedWebContainerTracker(context));
+        this.serviceTracker = new ServiceTracker(context, WebContainer.class, new ExtendedWebContainerTracker(context));
         this.serviceTracker.open();
     }
 
@@ -41,17 +41,17 @@ public final class ExtenderActivator implements BundleActivator {
         this.serviceTracker.close();
     }
     
-    private static final class ExtendedWebContainerTracker implements ServiceTrackerCustomizer {
+    private static final class ExtendedWebContainerTracker implements ServiceTrackerCustomizer<WebContainer, String> {
 
         private final BundleContext context;
         
-        private BundleTracker bundleTracker;
+        private BundleTracker<String> bundleTracker;
         
         public ExtendedWebContainerTracker(BundleContext context) {
             this.context = context;
         }
 
-        public Object addingService(ServiceReference reference) {
+        public String addingService(ServiceReference<WebContainer> reference) {
             if(this.bundleTracker == null) {
                 WebContainer container = (WebContainer) this.context.getService(reference);
                 this.bundleTracker = new BundleTracker(this.context, Bundle.ACTIVE, new WebContainerBundleCustomizer(container, context.getBundle()));
@@ -60,10 +60,10 @@ public final class ExtenderActivator implements BundleActivator {
             return reference.getBundle().getSymbolicName();
         }
 
-        public void modifiedService(ServiceReference reference, Object service) {
+        public void modifiedService(ServiceReference<WebContainer> reference, String service) {
         }
 
-        public void removedService(ServiceReference reference, Object service) {
+        public void removedService(ServiceReference<WebContainer> reference, String service) {
             this.bundleTracker.close();
         }
         
