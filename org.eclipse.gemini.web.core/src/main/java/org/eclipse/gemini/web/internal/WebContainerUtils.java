@@ -17,8 +17,8 @@
 package org.eclipse.gemini.web.internal;
 
 import java.net.URL;
+import java.util.Dictionary;
 import java.util.Locale;
-import java.util.Properties;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
@@ -153,21 +153,21 @@ public final class WebContainerUtils {
         return result;
     }
 
-    public static void setServletContextBundleProperties(Properties properties, Bundle bundle) {
+    public static void setServletContextBundleProperties(Dictionary<String, String> properties, Bundle bundle) {
         setServletContextOsgiWebSymbolicNameProperty(properties, bundle);
         setServletContextOsgiWebVersionProperty(properties, bundle);
     }
 
-    private static void setServletContextOsgiWebVersionProperty(Properties properties, Bundle bundle) {
+    private static void setServletContextOsgiWebVersionProperty(Dictionary<String, String> properties, Bundle bundle) {
         if (bundle.getHeaders().get(BUNDLE_VERSION_HEADER) != null) {
-            properties.setProperty(OSGI_WEB_VERSION, bundle.getVersion().toString());
+            properties.put(OSGI_WEB_VERSION, bundle.getVersion().toString());
         }
     }
 
-    private static void setServletContextOsgiWebSymbolicNameProperty(Properties properties, Bundle bundle) {
+    private static void setServletContextOsgiWebSymbolicNameProperty(Dictionary<String, String> properties, Bundle bundle) {
         String symbolicName = bundle.getSymbolicName();
         if (symbolicName != null) {
-            properties.setProperty(OSGI_WEB_SYMBOLICNAME, symbolicName);
+            properties.put(OSGI_WEB_SYMBOLICNAME, symbolicName);
         }
     }
 

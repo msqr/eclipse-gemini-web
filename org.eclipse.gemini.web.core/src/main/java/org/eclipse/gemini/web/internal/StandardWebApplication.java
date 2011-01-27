@@ -16,8 +16,9 @@
 
 package org.eclipse.gemini.web.internal;
 
+import java.util.Dictionary;
 import java.util.HashSet;
-import java.util.Properties;
+import java.util.Hashtable;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -137,8 +138,8 @@ final class StandardWebApplication implements WebApplication {
     }
 
     private void publishServletContext() {
-        Properties properties = constructServletContextProperties();
-        this.tracker.track(this.bundleContext.registerService(ServletContext.class.getName(), getServletContext(), properties));
+        Dictionary<String, String> properties = constructServletContextProperties();
+        this.tracker.track(this.bundleContext.registerService(ServletContext.class, getServletContext(), properties));
     }
 
     String getContextPath() {
@@ -149,11 +150,11 @@ final class StandardWebApplication implements WebApplication {
         return this.bundleContext.getBundle();
     }
 
-    private Properties constructServletContextProperties() {
-        Properties properties = new Properties();
+    private Dictionary<String, String> constructServletContextProperties() {
+        Dictionary<String, String> properties = new Hashtable<String, String>();
         Bundle bundle = getBundle();
         WebContainerUtils.setServletContextBundleProperties(properties, bundle);
-        properties.setProperty("osgi.web.contextpath", getServletContext().getContextPath());
+        properties.put("osgi.web.contextpath", getServletContext().getContextPath());
         return properties;
     }
 

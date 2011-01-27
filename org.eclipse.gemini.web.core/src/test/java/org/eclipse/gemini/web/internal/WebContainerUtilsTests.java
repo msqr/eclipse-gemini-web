@@ -21,11 +21,13 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Properties;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import org.eclipse.gemini.web.internal.WebContainerUtils;
 import org.junit.Test;
@@ -36,7 +38,7 @@ public class WebContainerUtilsTests {
 
 	private static final Version TEST_BUNDLE_VERSION = new Version("467");
 	private static final String TEST_SYMBOLIC_NAME = "a";
-	private static final Properties EMPTY_PROPERTIES = new Properties();
+	private static final Dictionary<String, String> EMPTY_PROPERTIES = new Hashtable<String, String>();
 
 	@Test
 	public void testGetBaseNameFilePath() {
@@ -101,8 +103,8 @@ public class WebContainerUtilsTests {
 	@Test
 	public void testIsWebBundleWithWebContextPath()
 			throws Exception {
-		Properties p = new Properties();
-		p.setProperty(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/foo");
+		Dictionary<String, String> p = new Hashtable<String, String>();
+		p.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/foo");
 
 		Bundle bundle = createNiceMock(Bundle.class);
 		expect(bundle.getLocation()).andReturn("file:foo.jar").anyTimes();
@@ -115,7 +117,7 @@ public class WebContainerUtilsTests {
 	public void testIsWebBundleWithWebXml() throws MalformedURLException {
 		Bundle bundle = createNiceMock(Bundle.class);
 		expect(bundle.getLocation()).andReturn("file:foo.jar").anyTimes();
-		expect(bundle.getHeaders()).andReturn(new Properties()).anyTimes();
+		expect(bundle.getHeaders()).andReturn(new Hashtable<String, String>()).anyTimes();
 		expect(bundle.getEntry(WebContainerUtils.ENTRY_WEB_XML)).andReturn(
 				new URL("file:foo.txt")).anyTimes();
 		replay(bundle);
@@ -126,7 +128,7 @@ public class WebContainerUtilsTests {
 	public void testNotWebBundle() throws Exception {
 		Bundle bundle = createNiceMock(Bundle.class);
 		expect(bundle.getLocation()).andReturn("file:foo.jar").anyTimes();
-		expect(bundle.getHeaders()).andReturn(new Properties()).anyTimes();
+		expect(bundle.getHeaders()).andReturn(new Hashtable<String, String>()).anyTimes();
 		expect(bundle.getEntry(WebContainerUtils.ENTRY_WEB_XML))
 				.andReturn(null).anyTimes();
 		replay(bundle);
@@ -135,8 +137,8 @@ public class WebContainerUtilsTests {
 
 	@Test
 	public void testContextPathSupplied() throws Exception {
-		Properties p = new Properties();
-		p.setProperty(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/foo");
+        Dictionary<String, String> p = new Hashtable<String, String>();
+		p.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/foo");
 
 		Bundle bundle = createNiceMock(Bundle.class);
 		expect(bundle.getHeaders()).andReturn(p).anyTimes();
@@ -147,7 +149,7 @@ public class WebContainerUtilsTests {
 
 	@Test
 	public void testContextPathDefaulted() throws Exception {
-		Properties p = new Properties();
+        Dictionary<String, String> p = new Hashtable<String, String>();
 
 		Bundle bundle = createNiceMock(Bundle.class);
 		expect(bundle.getLocation()).andReturn("file:bar.war").anyTimes();
@@ -159,7 +161,7 @@ public class WebContainerUtilsTests {
 
 	@Test
 	public void testContextPathDefaultedWindowsPath() throws Exception {
-		Properties p = new Properties();
+        Dictionary<String, String> p = new Hashtable<String, String>();
 
 		Bundle bundle = createNiceMock(Bundle.class);
 		expect(bundle.getLocation()).andReturn("file:/C:\\bar\\app.war")
@@ -172,7 +174,7 @@ public class WebContainerUtilsTests {
 
 	@Test
 	public void testContextPathDefaultedComplexPath() throws Exception {
-		Properties p = new Properties();
+        Dictionary<String, String> p = new Hashtable<String, String>();
 
 		Bundle bundle = createNiceMock(Bundle.class);
 		expect(bundle.getLocation()).andReturn(
@@ -185,7 +187,7 @@ public class WebContainerUtilsTests {
 
 	@Test
 	public void testServletContextOsgiWebSymbolicNamePropertyDefault() {
-		Properties p = new Properties();
+        Dictionary<String, String> p = new Hashtable<String, String>();
 
 		Bundle bundle = createNiceMock(Bundle.class);
 		expect(bundle.getSymbolicName()).andReturn(null).anyTimes();
@@ -194,7 +196,7 @@ public class WebContainerUtilsTests {
 
 		WebContainerUtils.setServletContextBundleProperties(p, bundle);
 
-		assertFalse(p.containsKey(WebContainerUtils.OSGI_WEB_SYMBOLICNAME));
+		assertNull(p.get(WebContainerUtils.OSGI_WEB_SYMBOLICNAME));
 	}
 
 	@Test
@@ -205,12 +207,11 @@ public class WebContainerUtilsTests {
 		expect(bundle.getHeaders()).andReturn(EMPTY_PROPERTIES).anyTimes();
 		replay(bundle);
 
-		Properties p = new Properties();
+        Dictionary<String, String> p = new Hashtable<String, String>();
 
 		WebContainerUtils.setServletContextBundleProperties(p, bundle);
 
-		assertEquals(TEST_SYMBOLIC_NAME, p
-				.get(WebContainerUtils.OSGI_WEB_SYMBOLICNAME));
+		assertEquals(TEST_SYMBOLIC_NAME, p.get(WebContainerUtils.OSGI_WEB_SYMBOLICNAME));
 	}
 
 	@Test
@@ -220,11 +221,11 @@ public class WebContainerUtilsTests {
 		expect(bundle.getHeaders()).andReturn(EMPTY_PROPERTIES).anyTimes();
 		replay(bundle);
 
-		Properties p = new Properties();
+        Dictionary<String, String> p = new Hashtable<String, String>();
 
 		WebContainerUtils.setServletContextBundleProperties(p, bundle);
 
-		assertFalse(p.containsKey(WebContainerUtils.OSGI_WEB_VERSION));
+		assertNull(p.get(WebContainerUtils.OSGI_WEB_VERSION));
 	}
 
 	@Test
@@ -232,19 +233,17 @@ public class WebContainerUtilsTests {
 		Bundle bundle = createNiceMock(Bundle.class);
 		expect(bundle.getVersion()).andReturn(TEST_BUNDLE_VERSION).anyTimes();
 
-		Properties headers = new Properties();
-		headers.put(WebContainerUtils.BUNDLE_VERSION_HEADER,
-				TEST_BUNDLE_VERSION.toString());
+        Dictionary<String, String> headers = new Hashtable<String, String>();
+		headers.put(WebContainerUtils.BUNDLE_VERSION_HEADER, TEST_BUNDLE_VERSION.toString());
 		expect(bundle.getHeaders()).andReturn(headers).anyTimes();
 
 		replay(bundle);
 
-		Properties p = new Properties();
+        Dictionary<String, String> p = new Hashtable<String, String>();
 
 		WebContainerUtils.setServletContextBundleProperties(p, bundle);
 
-		String stringVersion = (String) p
-				.get(WebContainerUtils.OSGI_WEB_VERSION);
+		String stringVersion = (String) p.get(WebContainerUtils.OSGI_WEB_VERSION);
 		assertEquals(TEST_BUNDLE_VERSION, new Version(stringVersion));
 	}
 

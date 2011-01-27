@@ -20,6 +20,6 @@ Import-Package: javax.servlet;version="2.5",org.eclipse.virgo.util.io;
  irgo.util.osgi.manifest;version="2.0",org.eclipse.virgo.util.osgi.man
  ifest.parse;version="2.0",org.osgi.framework;version="0",org.osgi.ser
  vice.event;version="1.1";resolution:="optional",org.osgi.service.pack
- ageadmin;version="1.2",org.osgi.service.url;version="1.0",org.osgi.ut
- il.tracker;version="1.4.0",org.slf4j;version="1.5.0"
+ ageadmin;version="0",org.osgi.service.url;version="0",org.osgi.util.t
+ racker;version="0",org.slf4j;version="1.5.0"
 

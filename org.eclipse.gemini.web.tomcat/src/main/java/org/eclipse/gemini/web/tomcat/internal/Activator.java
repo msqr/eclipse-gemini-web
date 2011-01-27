@@ -17,6 +17,8 @@
 package org.eclipse.gemini.web.tomcat.internal;
 
 import java.io.InputStream;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Properties;
 
 import org.osgi.framework.BundleActivator;
@@ -50,7 +52,7 @@ public class Activator implements BundleActivator {
         TomcatServletContainer container = createContainer(context);
         container.start();
 
-        ServiceRegistration sr = context.registerService(ServletContainer.class.getName(), container, null);
+        ServiceRegistration<ServletContainer> sr = context.registerService(ServletContainer.class, container, null);
         this.tracker.track(sr);
 
         synchronized (this.monitor) {
@@ -60,16 +62,16 @@ public class Activator implements BundleActivator {
     
     private void registerConnectorDescriptors(BundleContext context) {
         TomcatWebContainerProperties tomcatWebContainerProperties = new TomcatWebContainerProperties();
-        ServiceRegistration registration = context.registerService(WebContainerProperties.class.getName(), tomcatWebContainerProperties, null);
+        ServiceRegistration<WebContainerProperties> registration = context.registerService(WebContainerProperties.class, tomcatWebContainerProperties, null);
         this.tracker.track(registration);
     }
 
     private void registerURLStreamHandler(BundleContext context) {
-        Properties properties = new Properties();
+        Dictionary<String, Object> properties = new Hashtable<String, Object>();
         properties.put(URLConstants.URL_HANDLER_PROTOCOL, "jndi");
 
         DirContextURLStreamHandlerService handler = new DirContextURLStreamHandlerService();
-        ServiceRegistration reg = context.registerService(URLStreamHandlerService.class.getName(), handler, properties);
+        ServiceRegistration<URLStreamHandlerService> reg = context.registerService(URLStreamHandlerService.class, handler, properties);
         this.tracker.track(reg);
     }
 
@@ -100,7 +102,7 @@ public class Activator implements BundleActivator {
     }
     
     private PackageAdmin getPackageAdmin(BundleContext bundleContext) {
-        ServiceReference serviceReference = bundleContext.getServiceReference(PackageAdmin.class.getName());
+        ServiceReference<PackageAdmin> serviceReference = bundleContext.getServiceReference(PackageAdmin.class);
         if (serviceReference != null) {
             PackageAdmin packageAdmin = (PackageAdmin) bundleContext.getService(serviceReference);
             if (packageAdmin != null) {
