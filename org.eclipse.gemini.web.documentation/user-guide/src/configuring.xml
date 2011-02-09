@@ -52,7 +52,7 @@
 					<para>The <literal>&lt;Listener&gt;</literal> XML elements specify the list of lifecycle listeners that monitor and manage the embedded Tomcat servlet container. Each listener class is a Java Management Extensions (JMX) MBean that listens to a specific component of the servlet container and has been programmed to do something at certain lifecycle events of the component, such as before starting up, after stopping, and so on.</para>
 				</listitem>
 				<listitem>
-					<para>The <literal>&lt;Service&gt;</literal> XML element groups together one or more connectors and a single engine. Connectors define a transport mechanism, such as HTTP, that clients use to to send and receive messages to and from the associated service. There are many transports that a client can use, which is why a <literal>&lt;Service&gt;</literal> element can have many <literal>&lt;Connector&gt;</literal> elements. The engine then defines how these requests and responses that the connector receives and sends are in turn handled by the servlet container; you can define only a single <literal>&lt;Engine&gt;</literal> element for any given <literal>&lt;Service&gt;</literal> element.</para>
+					<para>The <literal>&lt;Service&gt;</literal> XML element groups together one or more connectors and a single engine. Connectors define a transport mechanism, such as HTTP, that clients use to send and receive messages to and from the associated service. There are many transports that a client can use, which is why a <literal>&lt;Service&gt;</literal> element can have many <literal>&lt;Connector&gt;</literal> elements. The engine then defines how these requests and responses that the connector receives and sends are in turn handled by the servlet container; you can define only a single <literal>&lt;Engine&gt;</literal> element for any given <literal>&lt;Service&gt;</literal> element.</para>
 					<para>The sample <literal>tomcat-server.xml</literal> file above includes two <literal>&lt;Connector&gt;</literal> elements: one for the HTTP transport, and one for the AJP transport. The file also includes a single <literal>&lt;Engine&gt;</literal> element, as required.</para>
 				</listitem>
 				<listitem>
@@ -89,6 +89,138 @@
 				@product.name@ supports standard Apache Tomcat cluster configuration.
 				By default, clustering of the embedded servlet container is disabled, and the default configuration does not include any clustering information.  
 				See <ulink url="http://tomcat.apache.org/tomcat-6.0-doc/cluster-howto.html">Tomcat Clustering/Session Replication HOW-TO</ulink> for detailed information about enabling and configuring clustering.
+			</para>
+		</section>
+		<section id="configuring-default-web-xml">
+			<title>Default web.xml Configuration</title>
+			<para>
+				Java Servlet specification enables web applications to provide deployment descriptor (<literal>web.xml</literal>) in the <literal>WEB-INF</literal> directory.
+				Apache Tomcat introduces a default <literal>web.xml</literal> which is similar to web application's <literal>web.xml</literal>, but provides configurations that are applied to all web applications.
+				When deploying a web application, Apache Tomcat uses the default <literal>web.xml</literal> file as a base configuration. 
+				If the web application provides its own configurations via <literal>web.xml</literal> (the one located in the web application's <literal>WEB-INF</literal>) or annotations, they overwrite the default ones.
+				In @product.name@ you can also provide default configurations for all web applications.
+				If you want to change/extend the default configurations, you can provide the default <literal>web.xml</literal> file located in the <literal>$GW_HOME/config</literal> directory. 
+			</para>
+			<para>
+				<tip>Be careful when changing/extending the default <literal>web.xml</literal> as this will affect all web applications.</tip>
+			</para>
+			<para>
+				Here's an extract of the default configuration distributed with the @short.product.name@.
+			</para>
+			<programlisting language="xml"><![CDATA[<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+    version="2.5">
+
+    <servlet>
+        <servlet-name>default</servlet-name>
+        <servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>0</param-value>
+        </init-param>
+        <init-param>
+            <param-name>listings</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>jsp</servlet-name>
+        <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
+        <init-param>
+            <param-name>fork</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>xpoweredBy</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>jsp</servlet-name>
+        <url-pattern>*.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>jsp</servlet-name>
+        <url-pattern>*.jspx</url-pattern>
+    </servlet-mapping>
+
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+
+    <mime-mapping>
+        <extension>abs</extension>
+        <mime-type>audio/x-mpeg</mime-type>
+    </mime-mapping>
+    ......
+    <mime-mapping>
+        <extension>ppt</extension>
+        <mime-type>application/vnd.ms-powerpoint</mime-type>
+    </mime-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+        <welcome-file>index.htm</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+
+</web-app>
+]]></programlisting>
+			<para>
+				The following bullets describe the main elements in the default <literal>web.xml</literal> file.
+				<itemizedlist>
+					<listitem>
+						<para>The <literal>&lt;Servlet&gt;</literal> XML element declares a given servlet and its configurations. The sample <literal>web.xml</literal> file above includes two &lt;Servlet&gt; elements.</para>
+						<itemizedlist>
+							<listitem>
+								<para>
+									The default servlet serves static resources and processes the requests that are not mapped to any servlet.
+									For details about default servlet configuration, see the <ulink url="http://tomcat.apache.org/tomcat-6.0-doc/default-servlet.html">Apache Tomcat Default Servlet Reference.</ulink>.
+								</para>
+							</listitem>
+							<listitem>
+								<para>
+									The jsp servlet serves the requests to JavaServer Pages. It is mapped to the URL pattern "*.jsp" and "*.jspx".
+									For details about jsp servlet configuration, see the <ulink url="http://tomcat.apache.org/tomcat-6.0-doc/jasper-howto.html">Apache Tomcat Jasper 2 JSP Engine.</ulink>.
+								</para>
+							</listitem>
+						</itemizedlist>
+					</listitem>
+					<listitem>
+						<para>The <literal>&lt;servlet-mapping&gt;</literal> XML element specifies the mapping between the servlet and URL pattern.</para>
+					</listitem>
+					<listitem>
+						<para>
+							The <literal>&lt;session-config&gt;</literal> XML element defines the session configuration for one web application. 
+							The sample <literal>web.xml</literal> file above specifies that the session timeout for all web applications will be 30 minutes by default.
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							The <literal>&lt;mime-mapping&gt;</literal> XML element defines a mapping between a filename extension and a mime type. 
+							When serving static resources, a "Content-Type" header will be generated based on these mappings.
+						</para>
+					</listitem>
+					<listitem>
+						<para>
+							The <literal>&lt;welcome-file-list&gt;</literal> XML element specifies a list of welcome files. 
+							When a request URI refers to a directory, the default servlet looks for a "welcome file" within that directory.
+							If the "welcome file" exists it will be served, otherwise 404 status or directory listing will be returned, depending on the default servlet configuration.
+						</para>
+					</listitem>
+				</itemizedlist>
 			</para>
 		</section>
 		<section id="configuring-tomcat-contexts">
@@ -135,7 +267,7 @@
 						<para>Custom class loaders.</para>
 					</listitem>
 					<listitem>
-						<para>Specifying the context path. This is specified using the <literal>Web-ContextPath</literal> header in the web application's<literal>MANIFEST.MF</literal> file.</para>
+						<para>Specifying the context path. This is specified using the <literal>Web-ContextPath</literal> header in the web application's <literal>MANIFEST.MF</literal> file.</para>
 					</listitem>
 					<listitem>
 						<para>Specifying the document base directory.</para>
