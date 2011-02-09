@@ -1,39 +1,12 @@
 Manifest-Version: 1.0
-Bundle-ClassPath: .,com.springsource.javax.activation-1.1.1.jar,org.ec
- lipse.gemini.web.core-1.2.0.BUILD-20110127170325.jar,org.eclipse.equinox.event-1.
- 2.100.v20101208.jar,org.eclipse.gemini.web.tomcat-1.2.0.BUILD-2011012
- 7170325.jar,com.springsource.javax.xml.bind-2.1.7.jar,com.springsourc
- e.javax.xml.soap-1.3.0.jar,com.springsource.javax.xml.stream-1.0.1.ja
- r
 Bundle-Version: 1.0
 Tool: Bundlor 1.0.0.RELEASE
 Bundle-Name: Gemini Web Tests
 Bundle-ManifestVersion: 2
-Import-Package: javax.management;version="0",javax.naming;version="0",
- javax.naming.directory;version="0",javax.servlet;version="0",javax.xm
- l.datatype;version="0",javax.xml.parsers;version="0",javax.xml.transf
- orm;version="0",javax.xml.transform.dom;version="0",javax.xml.transfo
- rm.sax;version="0",javax.xml.transform.stream;version="0",javax.xml.v
- alidation;version="0",junit.framework;version="0",org.apache.catalina
- ;version="0",org.apache.catalina.connector;version="0",org.apache.cat
- alina.core;version="0",org.apache.catalina.startup;version="0",org.ap
- ache.catalina.util;version="0",org.apache.juli.logging;version="0",or
- g.apache.naming;version="0",org.apache.naming.resources;version="0",o
- rg.apache.tomcat;version="0",org.apache.tomcat.util;version="0",org.a
- pache.tomcat.util.digester;version="0",org.apache.tomcat.util.modeler
- ;version="0",org.eclipse.osgi.baseadaptor;version="0",org.eclipse.osg
- i.baseadaptor.bundlefile;version="0",org.eclipse.osgi.framework.adapt
- or;version="0",org.eclipse.osgi.framework.eventmgr;version="0",org.ec
- lipse.osgi.framework.internal.core;version="0",org.eclipse.osgi.util;
- version="0",org.eclipse.virgo.test.framework;version="0",org.eclipse.
- virgo.util.io;version="0",org.eclipse.virgo.util.osgi;version="0",org
- .eclipse.virgo.util.osgi.manifest;version="0",org.eclipse.virgo.util.
- osgi.manifest.parse;version="0",org.junit;version="0",org.junit.runne
- r;version="0",org.osgi.framework;version="0",org.osgi.service.event;v
- ersion="0",org.osgi.service.log;version="0",org.osgi.service.packagea
- dmin;version="0",org.osgi.service.url;version="0",org.osgi.util.track
- er;version="0",org.slf4j;version="0",org.springframework.osgi.util;ve
- rsion="0",org.w3c.dom;version="0",org.xml.sax;version="0",org.xml.sax
- .ext;version="0",org.xml.sax.helpers;version="0"
+Import-Package: javax.servlet;version="0",junit.framework;version="0",
+ org.eclipse.gemini.web.core.spi;version="0",org.eclipse.virgo.test.fr
+ amework;version="0",org.eclipse.virgo.util.io;version="0",org.junit;v
+ ersion="0",org.junit.runner;version="0",org.osgi.framework;version="0
+ "
 Bundle-SymbolicName: org.eclipse.gemini.web.test
 
