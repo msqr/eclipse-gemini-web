@@ -4,8 +4,8 @@ Bundle-SymbolicName: org.eclipse.gemini.web.extender
 Bundle-Version: 1
 Bundle-Name: Gemini Web Extender
 Bundle-Activator: org.eclipse.gemini.web.extender.ExtenderActivator
-Import-Template: org.eclipse.gemini.web.*;version="1.0",
+Import-Template: org.eclipse.gemini.web.*;version="${version}",
  org.osgi.framework.*;version="0",
- org.osgi.util.tracker.*;version="1.4.0",
- javax.servlet;version="2.5"
+ org.osgi.util.tracker.*;version="0",
+ javax.servlet;version="${javax.servlet}"
 
