@@ -123,9 +123,7 @@ public class WebContainerActivator implements BundleActivator {
 
         public void removedService(ServiceReference<ServletContext> reference, WebContainer service) {
             this.regTracker.unregisterAll();
-            if (service instanceof WebContainer) {
-                ((WebContainer)service).halt();
-            }
+            service.halt();
         }
 
     }
