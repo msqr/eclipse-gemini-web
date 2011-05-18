@@ -20,25 +20,18 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-import javax.management.MBeanRegistration;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-
 import org.apache.catalina.Container;
 import org.apache.catalina.Context;
-import org.apache.catalina.Engine;
-import org.apache.catalina.Lifecycle;
-import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Loader;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.loader.Constants;
-import org.apache.catalina.util.LifecycleSupport;
-import org.apache.catalina.util.StringManager;
+import org.apache.catalina.mbeans.MBeanUtils;
+import org.apache.catalina.util.LifecycleMBeanBase;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
-import org.apache.tomcat.util.modeler.Registry;
+import org.apache.tomcat.util.res.StringManager;
 
-abstract class BaseWebappLoader implements Loader, Lifecycle, PropertyChangeListener, MBeanRegistration {
+abstract class BaseWebappLoader extends LifecycleMBeanBase implements Loader, PropertyChangeListener {
 
     /**
      * The string manager for this package.
@@ -46,11 +39,6 @@ abstract class BaseWebappLoader implements Loader, Lifecycle, PropertyChangeList
     protected static final StringManager sm = StringManager.getManager(Constants.Package);
 
     protected final Log log = LogFactory.getLog(getClass());
-
-    /**
-     * The lifecycle event support for this Loader.
-     */
-    protected final LifecycleSupport lifecycle = new LifecycleSupport(this);
 
     /**
      * The property change support for this Loader.
@@ -67,74 +55,43 @@ abstract class BaseWebappLoader implements Loader, Lifecycle, PropertyChangeList
      */
     private Container container = null;
 
-    private boolean initialized = false;
-
-    private ObjectName controller;
-
-    private ObjectName objectName;
-
     /**
      * The reloadable flag for this Loader.
      */
     private boolean reloadable = false;
-    
 
-    /**
-     * Ensures that the grandparent {@link Container} of the supplied {@link StandardContext context} is an
-     * {@link Engine}.
-     * 
-     * @throws IllegalStateException if the grandparent is not an <code>Engine</code>
-     */
-    protected final void ensureGrandparentIsAnEngine(StandardContext standardContext) {
-        if (!(standardContext.getParent().getParent() instanceof Engine)) {
-            throw new IllegalStateException("Grandparent of [" + standardContext + "] is not an instanceof [" + Engine.class.getName() + "].");
+    protected String getCatalinaContextPath(Context context) {
+        String contextName = context.getName();
+        if (!contextName.startsWith("/")) {
+            contextName = "/";
         }
+        return contextName;
     }
 
-    protected String getCatalinaContextPath(StandardContext context) {
-        String contextPath = context.getPath();
-        if (contextPath.equals("")) {
-            contextPath = "/";
+    // -------------------------------------------------------------------------
+    // --- LifecycleMBeanBase
+    // -------------------------------------------------------------------------
+
+    @Override
+    protected String getObjectNameKeyProperties() {
+        StringBuilder name = new StringBuilder("type=Loader");
+
+        if (this.container instanceof Context) {
+            name.append(",context=");
+            Context context = (Context) this.container;
+
+            name.append(getCatalinaContextPath(context));
+
+            name.append(",host=");
+            name.append(context.getParent().getName());
         }
-        return contextPath;
+
+        return name.toString();
     }
 
-    protected void init() {
-        if (this.initialized) {
-            return;
-        }
-
-        this.initialized = true;
-
-        if (this.objectName == null) {
-            // not registered yet - stand-alone or API
-            if (this.container instanceof StandardContext) {
-                // Register ourself. The container must be a webapp
-                try {
-                    StandardContext ctx = (StandardContext) this.container;
-                    ensureGrandparentIsAnEngine(ctx);
-                    this.objectName = new ObjectName(ctx.getEngineName() + ":type=Loader,path=" + getCatalinaContextPath(ctx) + ",host="
-                        + ctx.getParent().getName());
-                    Registry.getRegistry(null, null).registerComponent(this, this.objectName, null);
-                    this.controller = this.objectName;
-                } catch (Exception e) {
-                    log.error("Error registering loader", e);
-                }
-            }
-        }
-    }
-
-    protected void destroy() {
-        if (this.controller == this.objectName) {
-            // Self-registration, undo it
-            Registry.getRegistry(null, null).unregisterComponent(this.objectName);
-            this.objectName = null;
-        }
-        this.initialized = false;
-    }
-
-    protected final ObjectName getObjectName() {
-        return this.objectName;
+    @Override
+    protected String getDomainInternal() {
+        return MBeanUtils.getDomain(this.container);
     }
 
     // -------------------------------------------------------------------------
@@ -260,68 +217,8 @@ abstract class BaseWebappLoader implements Loader, Lifecycle, PropertyChangeList
             try {
                 setReloadable(((Boolean) event.getNewValue()).booleanValue());
             } catch (Exception e) {
-                log.error(sm.getString("webappLoader.reloadable", event.getNewValue().toString()));
+                this.log.error(sm.getString("webappLoader.reloadable", event.getNewValue().toString()));
             }
         }
     }
-    
-    // -------------------------------------------------------------------------
-    // --- Lifecycle
-    // -------------------------------------------------------------------------
-
-    /**
-     * {@inheritDoc}
-     */
-    public void addLifecycleListener(LifecycleListener listener) {
-        this.lifecycle.addLifecycleListener(listener);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public LifecycleListener[] findLifecycleListeners() {
-        return this.lifecycle.findLifecycleListeners();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void removeLifecycleListener(LifecycleListener listener) {
-        this.lifecycle.removeLifecycleListener(listener);
-    }
-
-    // -------------------------------------------------------------------------
-    // --- MBeanRegistration
-    // -------------------------------------------------------------------------
-
-    /**
-     * {@inheritDoc}
-     */
-    public void postDeregister() {
-        /* no-op */
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void postRegister(Boolean registrationDone) {
-        /* no-op */
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void preDeregister() throws Exception {
-        /* no-op */
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public ObjectName preRegister(MBeanServer mBeanServer, ObjectName objectName) throws Exception {
-        this.objectName = objectName;
-        return objectName;
-    }
-
-    // -------------------------------------------------------------------------
 }

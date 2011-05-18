@@ -17,7 +17,7 @@ Import-Template: org.eclipse.gemini.web.*;version="${version}",
  org.xml.*;version="0",
  org.slf4j.*;version="${org.slf4j}",
  javax.activation.*;version="0",
- javax.servlet.*;version="${javax.servlet}",
+ javax.servlet.*;version="3.0.0",
  javax.el.*;version="${javax.el}",
  javax.management;version="0",
  javax.naming.*;version="0",
@@ -30,6 +30,7 @@ Import-Package: org.apache.catalina.deploy;version="${org.apache.tomcat}",
  org.apache.catalina.session;version="${org.apache.tomcat}",
  org.apache.catalina.loader;version="${org.apache.tomcat}",
  org.apache.catalina.valves;version="${org.apache.tomcat}",
- org.apache.catalina.authenticator;version="${org.apache.tomcat}"
+ org.apache.catalina.authenticator;version="${org.apache.tomcat}",
+ org.apache.catalina.servlets;version="${org.apache.tomcat}"
 Bundle-Activator: org.eclipse.gemini.web.tomcat.internal.Activator
 Excluded-Exports: *.internal.*,javax.*

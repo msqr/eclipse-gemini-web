@@ -29,7 +29,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
-
 import org.eclipse.gemini.web.core.spi.ContextPathExistsException;
 import org.eclipse.gemini.web.core.spi.ServletContainer;
 import org.eclipse.gemini.web.core.spi.ServletContainerException;
@@ -47,7 +46,7 @@ final class TomcatServletContainer implements ServletContainer {
 
     private final TomcatMBeanManager mbeanManager;
 
-    private final Tomcat tomcat;
+    private final OsgiAwareEmbeddedTomcat tomcat;
 
     private final DelegatingClassLoaderCustomizer classLoaderCustomizer;
 
@@ -55,11 +54,15 @@ final class TomcatServletContainer implements ServletContainer {
 
     private final BundleContext context;
 
-    public TomcatServletContainer(Tomcat tomcat, BundleContext context) {
+    public TomcatServletContainer(OsgiAwareEmbeddedTomcat tomcat, BundleContext context) {
         this.classLoaderCustomizer = new DelegatingClassLoaderCustomizer(context);
         this.tomcat = tomcat;
-        this.tomcat.init();
-        this.mbeanManager = new TomcatMBeanManager(tomcat.findEngine().getName());
+        try {
+            this.tomcat.init();
+        } catch (LifecycleException e) {
+            throw new ServletContainerException("Unable to initialize Tomcat.", e);
+        }
+        this.mbeanManager = new TomcatMBeanManager(tomcat.getEngine().getName());
         this.context = context;
     }
 
@@ -95,7 +98,7 @@ final class TomcatServletContainer implements ServletContainer {
         try {
             String docBase = determineDocBase(bundle);
 
-            StandardContext context = (StandardContext) this.tomcat.createContext(contextPath, docBase);
+            StandardContext context = (StandardContext) this.tomcat.addWebapp(contextPath, docBase);
 
             BundleWebappLoader loader = new BundleWebappLoader(bundle, this.classLoaderCustomizer);
             context.setLoader(loader);
@@ -111,18 +114,17 @@ final class TomcatServletContainer implements ServletContainer {
 
     public void startWebApplication(WebApplicationHandle handle) {
         String contextPath = handle.getServletContext().getContextPath();
-        Host host = this.tomcat.findHost();
+        Host host = this.tomcat.getHost();
 
         checkContextPathIsFree(contextPath, host);
 
         StandardContext context = extractTomcatContext(handle);
 
         host.addChild(context);
-        if (!context.getAvailable()) {
+        if (!context.getState().isAvailable()) {
             host.removeChild(context);
             throw new ServletContainerException("Web application at '" + contextPath + "' failed to start. Check the logs for more details.");
         }
-
     }
 
     public void stopWebApplication(WebApplicationHandle handle) {
@@ -164,29 +166,30 @@ final class TomcatServletContainer implements ServletContainer {
 
     private void removeContext(StandardContext context) {
         try {
-            Host host = this.tomcat.findHost();
+            Host host = this.tomcat.getHost();
             host.removeChild(context);
         } catch (Exception e) {
-            throw new ServletContainerException("Unable to remove web application with context path '" + context.getServletContext().getContextPath()
-                + "'");
+            throw new ServletContainerException("Unable to remove web application with context path '" + context.getName() + "'", e);
         }
     }
 
     private void stopContext(StandardContext context) {
         try {
-            context.stop();
+            if (context.getState().isAvailable()) {
+                context.stop();
+            }
         } catch (Exception e) {
-            throw new ServletContainerException("Error stopping web application with context path '" + context.getServletContext().getContextPath()
-                + "'");
+            throw new ServletContainerException("Error stopping web application with context path '" + context.getName() + "'", e);
         }
     }
 
     private void destroyContext(StandardContext context) {
         try {
-            context.destroy();
+            if (context.getState().isAvailable()) {
+                context.destroy();
+            }
         } catch (Exception e) {
-            throw new ServletContainerException("Error destroying web application with context path '" + context.getServletContext().getContextPath()
-                + "'");
+            throw new ServletContainerException("Error destroying web application with context path '" + context.getName() + "'", e);
         }
     }
 
@@ -230,7 +233,7 @@ final class TomcatServletContainer implements ServletContainer {
         private final ServletContext servletContext;
 
         private final StandardContext context;
-        
+
         private final BundleWebappLoader webappLoader;
 
         private TomcatWebApplicationHandle(ServletContext servletContext, StandardContext context, BundleWebappLoader webappLoader) {
@@ -244,9 +247,9 @@ final class TomcatServletContainer implements ServletContainer {
         }
 
         public StandardContext getContext() {
-            return context;
+            return this.context;
         }
-        
+
         public ClassLoader getClassLoader() {
             return this.webappLoader.getClassLoader();
         }

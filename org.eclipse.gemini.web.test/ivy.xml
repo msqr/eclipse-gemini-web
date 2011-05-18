@@ -21,7 +21,7 @@
            <dependency org="org.eclipse.virgo.util" name="org.eclipse.virgo.util.io" rev="${org.eclipse.virgo.util}" conf="compile->runtime"/>
            <dependency org="org.eclipse.osgi" name="org.eclipse.osgi" rev="${org.eclipse.osgi}" conf="compile->compile"/>
 		   <dependency org="org.eclipse.osgi" name="org.eclipse.osgi.services" rev="${org.eclipse.osgi.services}" conf="compile->runtime"/>
-           <dependency org="javax.servlet" name="com.springsource.javax.servlet" rev="${javax.servlet}" conf="compile->runtime"/>
+           <dependency org="javax.servlet" name="javax.servlet" rev="${javax.servlet}" conf="compile->runtime"/>
            <dependency org="org.junit" name="com.springsource.org.junit" rev="${org.junit}" conf="test->runtime"/>
            <dependency org="org.slf4j" name="com.springsource.slf4j.api" rev="${org.slf4j}" conf="compile->runtime"/>
            <dependency org="org.slf4j" name="com.springsource.slf4j.nop" rev="${org.slf4j}" conf="test->runtime"/>
@@ -35,8 +35,8 @@
            
            <dependency org="javax.activation" name="com.springsource.javax.activation" rev="${javax.activation}" />
            
-           <dependency org="org.apache.taglibs" name="com.springsource.org.apache.taglibs.standard" rev="1.1.2" conf="test->runtime"/>
-           <dependency org="javax.servlet" name="com.springsource.javax.servlet.jsp.jstl" rev="1.2.0" conf="test->runtime"/>
+           <dependency org="org.apache.taglibs" name="com.springsource.org.apache.taglibs.standard" rev="${org.apache.taglibs}" conf="test->runtime"/>
+           <dependency org="javax.servlet" name="com.springsource.javax.servlet.jsp.jstl" rev="${javax.servlet.jstl}" conf="test->runtime"/>
            
     </dependencies>
 

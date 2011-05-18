@@ -16,9 +16,10 @@
   limitations under the License.
 -->
 <web-app xmlns="http://java.sun.com/xml/ns/javaee"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-    version="2.5">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+  version="3.0"> 
 
   <!-- ======================== Introduction ============================== -->
   <!-- This document defines default values for *all* web applications      -->
@@ -37,7 +38,7 @@
   <!-- The default servlet for all web applications, that serves static     -->
   <!-- resources.  It processes all requests that are not mapped to other   -->
   <!-- servlets with servlet mappings (defined either here or in your own   -->
-  <!-- web.xml file.  This servlet supports the following initialization    -->
+  <!-- web.xml file).  This servlet supports the following initialization   -->
   <!-- parameters (default values are in square brackets):                  -->
   <!--                                                                      -->
   <!--   debug               Debugging detail level for messages logged     -->
@@ -62,7 +63,7 @@
   <!--                       commands like PUT and DELETE are               -->
   <!--                       rejected?  [true]                              -->
   <!--                                                                      -->
-  <!--   readmeFile          File name to display with the directory        -->
+  <!--   readmeFile          File to display together with the directory    -->
   <!--                       contents. [null]                               -->
   <!--                                                                      -->
   <!--   sendfileSize        If the connector used supports sendfile, this  -->
@@ -70,13 +71,21 @@
   <!--                       which sendfile will be used. Use a negative    -->
   <!--                       value to always disable sendfile.  [48]        -->
   <!--                                                                      -->
+  <!--   useAcceptRanges     Should the Accept-Ranges header be included    -->
+  <!--                       in responses where appropriate? [true]         -->
+  <!--                                                                      -->
   <!--  For directory listing customization. Checks localXsltFile, then     -->
   <!--  globalXsltFile, then defaults to original behavior.                 -->
   <!--                                                                      -->
   <!--   localXsltFile       Make directory listings an XML doc and         -->
   <!--                       pass the result to this style sheet residing   -->
   <!--                       in that directory. This overrides              -->
-  <!--                        globalXsltFile[null]                          -->
+  <!--                       contextXsltFile and globalXsltFile[null]       -->
+  <!--                                                                      -->
+  <!--   contextXsltFile     Make directory listings an XML doc and         -->
+  <!--                       pass the result to this style sheet which is   -->
+  <!--                       relative to the context root. This overrides   -->
+  <!--                       globalXsltFile[null]                           -->
   <!--                                                                      -->
   <!--   globalXsltFile      Site wide configuration version of             -->
   <!--                       localXsltFile This argument is expected        -->
@@ -97,34 +106,6 @@
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
-
-
-  <!-- The "invoker" servlet, which executes anonymous servlet classes      -->
-  <!-- that have not been defined in a web.xml file.  Traditionally, this   -->
-  <!-- servlet is mapped to the URL pattern "/servlet/*", but you can map   -->
-  <!-- it to other patterns as well.  The extra path info portion of such a -->
-  <!-- request must be the fully qualified class name of a Java class that  -->
-  <!-- implements Servlet (or extends HttpServlet), or the servlet name     -->
-  <!-- of an existing servlet definition.     This servlet supports the     -->
-  <!-- following initialization parameters (default values are in square    -->
-  <!-- brackets):                                                           -->
-  <!--                                                                      -->
-  <!--   debug               Debugging detail level for messages logged     -->
-  <!--                       by this servlet.  [0]                          -->
-
-<!--
-    <servlet>
-        <servlet-name>invoker</servlet-name>
-        <servlet-class>
-          org.apache.catalina.servlets.InvokerServlet
-        </servlet-class>
-        <init-param>
-            <param-name>debug</param-name>
-            <param-value>0</param-value>
-        </init-param>
-        <load-on-startup>2</load-on-startup>
-    </servlet>
--->
 
 
   <!-- The JSP page compiler and execution servlet, which is the mechanism  -->
@@ -150,15 +131,9 @@
   <!--                       pages.  See the jasper documentation for more  -->
   <!--                       information.                                   -->
   <!--                                                                      -->
-  <!--   compilerSourceVM    Compiler source VM                             -->
-  <!--                       default is System.properties                   -->
-  <!--                        java.specification.version > 1.4              -->
-  <!--                        [1.5] else [1.4]                              -->
+  <!--   compilerSourceVM    Compiler source VM. [1.6]                      -->
   <!--                                                                      -->
-  <!--   compilerTargetVM    Compiler target VM                             -->  
-  <!--                       default is System.properties                   -->
-  <!--                        java.specification.version > 1.4              -->
-  <!--                        [1.5] else [1.4]                              -->
+  <!--   compilerTargetVM    Compiler target VM. [1.6]                      -->
   <!--                                                                      -->
   <!--   development         Is Jasper used in development mode? If true,   -->
   <!--                       the frequency at which JSPs are checked for    -->
@@ -174,7 +149,9 @@
   <!--                       False if suppressSmap is true                  -->
   <!--                                                                      -->
   <!--   enablePooling       Determines whether tag handler pooling is      -->
-  <!--                       enabled  [true]                                -->
+  <!--                       enabled. This is a compilation option. It will -->
+  <!--                       not alter the behaviour of JSPs that have      -->
+  <!--                       already been compiled. [true]                  -->
   <!--                                                                      -->
   <!--   engineOptionsClass  Allows specifying the Options class used to    -->
   <!--                       configure Jasper. If not present, the default  -->
@@ -189,7 +166,8 @@
   <!--                       a separate JVM is used for JSP page compiles   -->
   <!--                       from the one Tomcat is running in. [true]      -->
   <!--                                                                      -->
-  <!--   genStrAsCharArray   Should text strings be generated as char       -->
+  <!--   genStringAsCharArray                                               -->
+  <!--                       Should text strings be generated as char       -->
   <!--                       arrays, to improve performance in some cases?  -->
   <!--                       [false]                                        -->
   <!--                                                                      -->
@@ -207,6 +185,18 @@
   <!--                       print statement per input line, to ease        -->
   <!--                       debugging?  [true]                             -->
   <!--                                                                      -->
+  <!--   maxLoadedJsps       The maximum number of JSPs that will be loaded -->
+  <!--                       for a web application. If more than this       -->
+  <!--                       number of JSPs are loaded, the least recently  -->
+  <!--                       used JSPs will be unloaded so that the number  -->
+  <!--                       of JSPs loaded at any one time does not exceed -->
+  <!--                       this limit. A value of zero or less indicates  -->
+  <!--                       no limit. [-1]                                 -->
+  <!--                                                                      -->
+  <!--   jspIdleTimeout      The amount of time in seconds a JSP can be     -->
+  <!--                       idle before it is unloaded. A value of zero    -->
+  <!--                       or less indicates never unload. [-1]           -->
+  <!--                                                                      -->
   <!--   modificationTestInterval                                           -->
   <!--                       Causes a JSP (and its dependent files) to not  -->
   <!--                       be checked for modification during the         -->
@@ -215,6 +205,14 @@
   <!--                       modification. A value of 0 will cause the JSP  -->
   <!--                       to be checked on every access.                 -->
   <!--                       Used in development mode only. [4]             -->
+  <!--                                                                      -->
+  <!--   recompileOnFail     If a JSP compilation fails should the          -->
+  <!--                       modificationTestInterval be ignored and the    -->
+  <!--                       next access trigger a re-compilation attempt?  -->
+  <!--                       Used in development mode only and is disabled  -->
+  <!--                       by default as compilation may be expensive and -->
+  <!--                       could lead to excessive resource usage.        -->
+  <!--                       [false]                                        -->
   <!--                                                                      -->
   <!--   scratchdir          What scratch directory should we use when      -->
   <!--                       compiling JSP pages?  [default work directory  -->
@@ -227,11 +225,7 @@
   <!--                       actions or directives be trimmed?  [false]     -->
   <!--                                                                      -->
   <!--   xpoweredBy          Determines whether X-Powered-By response       -->
-  <!--                       header is added by generated servlet  [false]  -->
-  <!--                                                                      -->
-  <!-- If you wish to use Jikes to compile JSP pages:                       -->
-  <!--   Please see the "Using Jikes" section of the Jasper-HowTo           -->
-  <!--   page in the Tomcat documentation.                                  -->
+  <!--                       header is added by generated servlet.  [false] -->
 
     <servlet>
         <servlet-name>jsp</servlet-name>
@@ -277,6 +271,8 @@
   <!--                                                                      -->
   <!--   outputEncoding      The encoding to use for the page that results  -->
   <!--                       from the SSI processing. [UTF-8]               -->
+  <!--                                                                      -->
+  <!--   allowExec           Is use of the exec command enabled? [false]    -->
 
 <!--
     <servlet>
@@ -320,7 +316,7 @@
   <!--   debug                Debugging detail level for messages logged    -->
   <!--                        by this servlet.  [0]                         -->
   <!--                                                                      -->
-  <!--   executable           Name of the exectuable used to run the        -->
+  <!--   executable           Name of the executable used to run the        -->
   <!--                        script. [perl]                                -->
   <!--                                                                      -->
   <!--   parameterEncoding    Name of parameter encoding to be used with    -->
@@ -329,6 +325,10 @@
   <!--                                                                      -->
   <!--   passShellEnvironment Should the shell environment variables (if    -->
   <!--                        any) be passed to the CGI script? [false]     -->
+  <!--                                                                      -->
+  <!--   stderrTimeout        The time (in milliseconds) to wait for the    -->
+  <!--                        reading of stderr to complete before          -->
+  <!--                        terminating the CGI process. [2000]           -->
 
 <!--
     <servlet>
@@ -361,15 +361,7 @@
         <url-pattern>/</url-pattern>
     </servlet-mapping>
 
-    <!-- The mapping for the invoker servlet -->
-<!--
-    <servlet-mapping>
-        <servlet-name>invoker</servlet-name>
-        <url-pattern>/servlet/*</url-pattern>
-    </servlet-mapping>
--->
-
-    <!-- The mapping for the JSP servlet -->
+    <!-- The mappings for the JSP servlet -->
     <servlet-mapping>
         <servlet-name>jsp</servlet-name>
         <url-pattern>*.jsp</url-pattern>
@@ -429,6 +421,8 @@
   <!--                       Should "virtual" paths be interpreted as       -->
   <!--                       relative to the context root, instead of       -->
   <!--                       the server root?  (0=false, 1=true) [0]        -->
+  <!--                                                                      -->
+  <!--   allowExec           Is use of the exec command enabled? [false]    -->
 
 <!--
     <filter>
@@ -705,7 +699,7 @@
     </mime-mapping>
     <mime-mapping>
         <extension>mathml</extension>
-        <mime-type>application/mathml+xml</mime-type> 
+        <mime-type>application/mathml+xml</mime-type>
     </mime-mapping>
     <mime-mapping>
         <extension>me</extension>
@@ -829,12 +823,8 @@
         <mime-type>application/vnd.oasis.opendocument.text</mime-type>
     </mime-mapping>
     <mime-mapping>
-        <extension>ogg</extension>
-        <mime-type>application/ogg</mime-type>
-    </mime-mapping>
-    <mime-mapping>
         <!-- OpenDocument Drawing Template -->
-        <extension>otg </extension>
+        <extension>otg</extension>
         <mime-type>application/vnd.oasis.opendocument.graphics-template</mime-type>
     </mime-mapping>
     <mime-mapping>
@@ -850,12 +840,53 @@
     <mime-mapping>
         <!-- OpenDocument Spreadsheet Template -->
         <extension>ots</extension>
-        <mime-type>application/vnd.oasis.opendocument.spreadsheet-template </mime-type>
+        <mime-type>application/vnd.oasis.opendocument.spreadsheet-template</mime-type>
     </mime-mapping>
     <mime-mapping>
         <!-- OpenDocument Text Template -->
         <extension>ott</extension>
         <mime-type>application/vnd.oasis.opendocument.text-template</mime-type>
+    </mime-mapping>
+    <!-- xiph mime types -->
+    <mime-mapping>
+        <extension>ogx</extension>
+        <mime-type>application/ogg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>ogv</extension>
+        <mime-type>video/ogg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>oga</extension>
+        <mime-type>audio/ogg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>ogg</extension>
+        <mime-type>audio/ogg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>spx</extension>
+        <mime-type>audio/ogg</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>flac</extension>
+        <mime-type>audio/flac</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>anx</extension>
+        <mime-type>application/annodex</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>axa</extension>
+        <mime-type>audio/annodex</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>axv</extension>
+        <mime-type>video/annodex</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>xspf</extension>
+        <mime-type>application/xspf+xml</mime-type>
     </mime-mapping>
     <mime-mapping>
         <extension>pbm</extension>
@@ -903,7 +934,11 @@
     </mime-mapping>
     <mime-mapping>
         <extension>ppt</extension>
-        <mime-type>application/powerpoint</mime-type>
+        <mime-type>application/vnd.ms-powerpoint</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>pps</extension>
+        <mime-type>application/vnd.ms-powerpoint</mime-type>
     </mime-mapping>
     <mime-mapping>
         <extension>ps</extension>
@@ -992,6 +1027,14 @@
         <mime-type>application/x-sv4crc</mime-type>
     </mime-mapping>
     <mime-mapping>
+        <extension>svg</extension>
+        <mime-type>image/svg+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>svgz</extension>
+        <mime-type>image/svg+xml</mime-type>
+    </mime-mapping>
+    <mime-mapping>
         <extension>swf</extension>
         <mime-type>application/x-shockwave-flash</mime-type>
     </mime-mapping>
@@ -1064,6 +1107,10 @@
         <mime-type>application/xhtml+xml</mime-type>
     </mime-mapping>
     <mime-mapping>
+        <extension>xls</extension>
+        <mime-type>application/vnd.ms-excel</mime-type>
+    </mime-mapping>
+    <mime-mapping>
         <extension>xml</extension>
         <mime-type>application/xml</mime-type>
     </mime-mapping>
@@ -1088,20 +1135,12 @@
         <mime-type>image/x-xwindowdump</mime-type>
     </mime-mapping>
     <mime-mapping>
-        <extension>wav</extension>
-        <mime-type>audio/x-wav</mime-type>
-    </mime-mapping>
-    <mime-mapping>
-        <extension>svg</extension>
-        <mime-type>image/svg+xml</mime-type>
-    </mime-mapping>
-    <mime-mapping>
-        <extension>svgz</extension>
-        <mime-type>image/svg+xml</mime-type>
-    </mime-mapping>
-    <mime-mapping>
         <extension>vsd</extension>
         <mime-type>application/x-visio</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>wav</extension>
+        <mime-type>audio/x-wav</mime-type>
     </mime-mapping>
     <mime-mapping>
         <!-- Wireless Bitmap -->
@@ -1152,30 +1191,20 @@
         <extension>zip</extension>
         <mime-type>application/zip</mime-type>
     </mime-mapping>
-    <mime-mapping>
-        <extension>xls</extension>
-        <mime-type>application/vnd.ms-excel</mime-type>
-    </mime-mapping>
-    <mime-mapping>
-        <extension>doc</extension>
-        <mime-type>application/vnd.ms-word</mime-type>
-    </mime-mapping>
-    <mime-mapping>
-        <extension>ppt</extension>
-        <mime-type>application/vnd.ms-powerpoint</mime-type>
-    </mime-mapping>
 
   <!-- ==================== Default Welcome File List ===================== -->
   <!-- When a request URI refers to a directory, the default servlet looks  -->
-  <!-- for a "welcome file" within that directory and, if present,          -->
-  <!-- to the corresponding resource URI for display.  If no welcome file   -->
-  <!-- is present, the default servlet either serves a directory listing,   -->
-  <!-- or returns a 404 status, depending on how it is configured.          -->
+  <!-- for a "welcome file" within that directory and, if present, to the   -->
+  <!-- corresponding resource URI for display.                              -->
+  <!-- If no welcome files are present, the default servlet either serves a -->
+  <!-- directory listing (see default servlet configuration on how to       -->
+  <!-- customize) or returns a 404 status, depending on the value of the    -->
+  <!-- listings setting.                                                    -->
   <!--                                                                      -->
   <!-- If you define welcome files in your own application's web.xml        -->
   <!-- deployment descriptor, that list *replaces* the list configured      -->
-  <!-- here, so be sure that you include any of the default values that     -->
-  <!-- you wish to include.                                                 -->
+  <!-- here, so be sure to include any of the default values that you wish  -->
+  <!-- to use within your application.                                       -->
 
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

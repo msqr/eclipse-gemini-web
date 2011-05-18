@@ -21,6 +21,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -67,7 +69,7 @@ public class WebappConfigLocator {
 
         File defaultContextXml = new File(configLocation, DEFAULT_CONTEXT_XML);
         if (defaultContextXml.exists()) {
-            return getRelativePath(defaultContextXml);
+            return defaultContextXml.getAbsolutePath();
         } else {
             return null;
         }
@@ -113,14 +115,15 @@ public class WebappConfigLocator {
      * @param docBase the root directory/file for the web application
      * @param configLocation Host's configuration directory
      * @return the context.xml if it is found following the algorithm above, otherwise <code>null</code>
+     * @throws MalformedURLException
      */
-    public static File resolveWebappContextXml(String path, String docBase, File configLocation) {
+    public static URL resolveWebappContextXml(String path, String docBase, File configLocation) throws MalformedURLException {
         path = formatContextPath(path);
 
         // Try to find the context.xml in the Tomcat's configuration directory
         File contextXml = new File(configLocation, path + XML_EXTENSION);
         if (contextXml.exists()) {
-            return contextXml;
+            return contextXml.toURI().toURL();
         }
 
         // Try to find the context.xml in docBase
@@ -128,7 +131,7 @@ public class WebappConfigLocator {
         if (docBaseFile.isDirectory()) {
             contextXml = new File(docBaseFile, CONTEXT_XML);
             if (contextXml.exists()) {
-                return contextXml;
+                return contextXml.toURI().toURL();
             }
         } else {
             JarFile jar;
@@ -139,13 +142,15 @@ public class WebappConfigLocator {
             }
             ZipEntry contextXmlEntry = jar.getEntry(CONTEXT_XML);
             if (contextXmlEntry != null) {
+                // TODO do not copy context.xml, use URL to the file inside the jar file
+                // Bug 328683 - Context configuration should not be copied to configuration directory
                 File destination = new File(configLocation, path + XML_EXTENSION);
                 try {
                     copyFile(jar.getInputStream(contextXmlEntry), destination);
                 } catch (IOException e) {
                     throw new ServletContainerException("Cannot copy " + contextXml.getAbsolutePath() + " to " + destination.getAbsolutePath(), e);
                 }
-                return destination;
+                return destination.toURI().toURL();
             }
         }
         return null;
@@ -198,9 +203,5 @@ public class WebappConfigLocator {
             IOUtils.closeQuietly(source);
             IOUtils.closeQuietly(outputStream);
         }
-    }
-
-    private static String getRelativePath(File file) {
-        return new File(".").toURI().relativize(file.toURI()).toString();
     }
 }

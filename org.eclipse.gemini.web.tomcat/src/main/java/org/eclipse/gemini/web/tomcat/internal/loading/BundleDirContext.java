@@ -20,21 +20,17 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.Binding;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
-import org.apache.naming.NamingContextBindingsEnumeration;
 import org.apache.naming.NamingContextEnumeration;
 import org.apache.naming.NamingEntry;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolver;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolverFactory;
 import org.osgi.framework.Bundle;
 
-
-@SuppressWarnings("unchecked")
 public final class BundleDirContext extends AbstractReadOnlyDirContext {
 
     private volatile BundleEntry bundleEntry;
@@ -54,13 +50,16 @@ public final class BundleDirContext extends AbstractReadOnlyDirContext {
         return new NamingContextEnumeration(resources.iterator());
     }
 
-    public NamingEnumeration<Binding> listBindings(String name) throws NamingException {
-        List<NamingEntry> resources = doSafeList(name);
-        return new NamingContextBindingsEnumeration(resources.iterator(), this);
+    public List<NamingEntry> doListBindings(String name) throws NamingException {
+        return doSafeList(name);
     }
 
-    public Object doLookup(String name) throws NamingException {
-        return entryToResult(getNamedEntry(name));
+    public Object doLookup(String name) {
+        try {
+            return entryToResult(getNamedEntry(name));
+        } catch (NamingException e) {
+            return null;
+        }
     }
 
     private List<NamingEntry> doSafeList(String name) throws NamingException {

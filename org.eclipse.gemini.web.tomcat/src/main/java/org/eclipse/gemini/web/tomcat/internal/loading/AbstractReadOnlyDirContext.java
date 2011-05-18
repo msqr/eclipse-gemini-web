@@ -31,8 +31,6 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.naming.resources.BaseDirContext;
 
-
-@SuppressWarnings("unchecked")
 abstract class AbstractReadOnlyDirContext extends BaseDirContext {
 
     public void bind(String name, Object obj, Attributes attrs) throws NamingException {
@@ -119,7 +117,7 @@ abstract class AbstractReadOnlyDirContext extends BaseDirContext {
         throw new UnsupportedOperationException();
     }
 
-    public Hashtable<?, ?> getEnvironment() throws NamingException {
+    public Hashtable<String, Object> getEnvironment() throws NamingException {
         throw new UnsupportedOperationException();
     }
 

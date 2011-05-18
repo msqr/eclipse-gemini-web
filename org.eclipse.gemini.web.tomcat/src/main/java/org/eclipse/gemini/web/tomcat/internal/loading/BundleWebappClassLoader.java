@@ -33,13 +33,13 @@ import org.apache.catalina.Context;
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
+import org.apache.catalina.LifecycleState;
 import org.apache.catalina.loader.Constants;
-import org.apache.catalina.util.StringManager;
 import org.apache.tomcat.util.IntrospectionUtils;
+import org.apache.tomcat.util.res.StringManager;
 import org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer;
 import org.osgi.framework.Bundle;
 import org.springframework.osgi.util.BundleDelegatingClassLoader;
-
 
 public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle {
 
@@ -60,7 +60,7 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
      */
     private final ClassLoader bundleDelegatingClassLoader;
 
-    private final ClassLoaderCustomizer classLoaderCustomizer;    
+    private final ClassLoaderCustomizer classLoaderCustomizer;
 
     private final Bundle bundle;
 
@@ -82,12 +82,12 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
         ClassLoader[] loaders = { 
             BundleDelegatingClassLoader.createBundleClassLoaderFor(bundle), 
             Context.class.getClassLoader() // catalina classloader
-        };        
+        };
 
         ClassLoader[] chainExtensions = this.classLoaderCustomizer.extendClassLoaderChain(bundle);
 
         ClassLoader[] finalLoaders;
-        if(chainExtensions != null && chainExtensions.length > 0) {
+        if (chainExtensions != null && chainExtensions.length > 0) {
             finalLoaders = new ClassLoader[loaders.length + chainExtensions.length];
             System.arraycopy(loaders, 0, finalLoaders, 0, loaders.length);
             System.arraycopy(chainExtensions, 0, finalLoaders, loaders.length, chainExtensions.length);
@@ -96,9 +96,9 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
         }
         return ChainedClassLoader.create(finalLoaders);
     }
-    
+
     private void addBundleClassPathURLs(Bundle bundle) {
-        Set<URI> uris = BundleClassPathURLExtractor.extractBundleClassPathURLs(bundle);        
+        Set<URI> uris = BundleClassPathURLExtractor.extractBundleClassPathURLs(bundle);
         for (URI uri : uris) {
             try {
                 addURL(uri.toURL());
@@ -142,6 +142,26 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
      * {@inheritDoc}
      */
     public void removeLifecycleListener(LifecycleListener listener) {
+        /* no-op */
+    }
+
+    @Override
+    public void destroy() throws LifecycleException {
+        /* no-op */
+    }
+
+    @Override
+    public LifecycleState getState() {
+        return LifecycleState.NEW;
+    }
+
+    @Override
+    public String getStateName() {
+        return getState().toString();
+    }
+
+    @Override
+    public void init() throws LifecycleException {
         /* no-op */
     }
 
@@ -294,6 +314,8 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
      * Clear references.
      */
     protected void clearReferences() {
+        // TODO think about more references that have to be cleared
+        // Bug 345938 - BundleWebappClassLoader.clearReferences() - extend current functionality
 
         // Unregister any JDBC drivers loaded by this classloader
         Enumeration<Driver> drivers = DriverManager.getDrivers();
@@ -319,7 +341,7 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
         // Clear the classloader reference in the VM's bean introspector
         java.beans.Introspector.flushCaches();
     }
-    
+
     public Bundle getBundle() {
         return this.bundle;
     }

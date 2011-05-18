@@ -22,7 +22,6 @@
 <Server port="8005" shutdown="SHUTDOWN">
 
 	<Listener className="org.apache.catalina.core.JasperListener" />
-  	<Listener className="org.apache.catalina.mbeans.ServerLifecycleListener" />
   
 	<Service name="Catalina">
 

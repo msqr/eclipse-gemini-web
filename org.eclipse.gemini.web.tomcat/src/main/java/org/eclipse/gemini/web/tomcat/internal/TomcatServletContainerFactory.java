@@ -24,7 +24,7 @@ import org.osgi.service.packageadmin.PackageAdmin;
 final class TomcatServletContainerFactory {
 
     public TomcatServletContainer createContainer(InputStream configuration, BundleContext context, PackageAdmin packageAdmin) {
-        Tomcat catalina = new Tomcat(context, packageAdmin);
+        OsgiAwareEmbeddedTomcat catalina = new OsgiAwareEmbeddedTomcat(context, packageAdmin);
         catalina.configure(configuration);
         
         return new TomcatServletContainer(catalina, context);

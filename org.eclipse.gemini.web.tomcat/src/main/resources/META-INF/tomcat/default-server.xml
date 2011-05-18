@@ -21,13 +21,13 @@
  -->
 <Server port="8005" shutdown="SHUTDOWN">
 
- 
-  <!--Initialize Jasper prior to webapps are loaded. Documentation at /docs/jasper-howto.html
--->
+  <!--APR library loader. Documentation at /docs/apr.html 
+  <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />-->
+  <!--Initialize Jasper prior to webapps are loaded. Documentation at /docs/jasper-howto.html -->
   <Listener className="org.apache.catalina.core.JasperListener" />
-  <!-- JMX Support for the Tomcat server. Documentation at /docs/non-existent.html
--->
-  <Listener className="org.apache.catalina.mbeans.ServerLifecycleListener" />
+  <!-- Prevent memory leaks due to use of particular java/javax APIs-->
+  <!-- Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" /
+  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />-->
 
   <!-- A "Service" is a collection of one or more "Connectors" that share
        a single "Container" Note:  A "Service" is not itself a "Container", 
@@ -68,7 +68,7 @@
            Note: XML Schema validation will not work with Xerces 2.2.
        -->
       <Host name="localhost" deployOnStartup="false" autoDeploy="false"
-            unpackWARs="true" xmlValidation="false" xmlNamespaceAware="false">
+            unpackWARs="false" createDirs="false">
 
       </Host>
     </Engine>

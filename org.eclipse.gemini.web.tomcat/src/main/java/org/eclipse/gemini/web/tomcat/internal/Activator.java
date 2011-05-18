@@ -19,7 +19,6 @@ package org.eclipse.gemini.web.tomcat.internal;
 import java.io.InputStream;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.Properties;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -39,13 +38,21 @@ import org.eclipse.virgo.util.osgi.ServiceRegistrationTracker;
 
 public class Activator implements BundleActivator {
 
+    private static final String EXPRESSION_FACTORY = "javax.el.ExpressionFactory";
+
+    private static final String EXPRESSION_FACTORY_IMPL = "org.apache.el.ExpressionFactoryImpl";
+
     private final Object monitor = new Object();
 
     private final ServiceRegistrationTracker tracker = new ServiceRegistrationTracker();
 
     private TomcatServletContainer container;
 
+    private String oldExpressionFactory;
+
     public void start(BundleContext context) throws Exception {
+        oldExpressionFactory = System.setProperty(EXPRESSION_FACTORY, EXPRESSION_FACTORY_IMPL);
+
         registerURLStreamHandler(context);
         registerConnectorDescriptors(context);
         
@@ -85,6 +92,10 @@ public class Activator implements BundleActivator {
             container.stop();
         }
         this.tracker.unregisterAll();
+
+        if (oldExpressionFactory != null) {
+            System.setProperty(EXPRESSION_FACTORY, oldExpressionFactory);
+        }
     }
 
     private TomcatServletContainer createContainer(BundleContext context) throws BundleException {
