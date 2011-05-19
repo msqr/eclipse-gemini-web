@@ -17,10 +17,7 @@
 package org.eclipse.gemini.web.tomcat.internal;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.jar.JarFile;
@@ -30,8 +27,6 @@ import org.apache.catalina.Container;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
 import org.eclipse.gemini.web.core.spi.ServletContainerException;
-import org.eclipse.virgo.util.io.IOUtils;
-import org.eclipse.virgo.util.io.PathReference;
 
 public class WebappConfigLocator {
 
@@ -41,7 +36,7 @@ public class WebappConfigLocator {
 
     private static final String DEFAULT_WEB_XML = "web.xml";
 
-    private static final String CONTEXT_XML = "META-INF/context.xml";
+    static final String CONTEXT_XML = "META-INF/context.xml";
 
     private static final String XML_EXTENSION = ".xml";
 
@@ -52,6 +47,10 @@ public class WebappConfigLocator {
     private static final char SLASH_SEPARATOR = '/';
 
     private static final char HASH_SEPARATOR = '#';
+
+    static final String JAR_SCHEMA = "jar:";
+
+    static final String JAR_TO_ENTRY_SEPARATOR = "!/";
 
     /**
      * Resolves the default context.xml and returns a relative path to it, if it exists in the main Tomcat's
@@ -142,15 +141,7 @@ public class WebappConfigLocator {
             }
             ZipEntry contextXmlEntry = jar.getEntry(CONTEXT_XML);
             if (contextXmlEntry != null) {
-                // TODO do not copy context.xml, use URL to the file inside the jar file
-                // Bug 328683 - Context configuration should not be copied to configuration directory
-                File destination = new File(configLocation, path + XML_EXTENSION);
-                try {
-                    copyFile(jar.getInputStream(contextXmlEntry), destination);
-                } catch (IOException e) {
-                    throw new ServletContainerException("Cannot copy " + contextXml.getAbsolutePath() + " to " + destination.getAbsolutePath(), e);
-                }
-                return destination.toURI().toURL();
+                return new URL(JAR_SCHEMA + docBaseFile.toURI().toString() + JAR_TO_ENTRY_SEPARATOR + CONTEXT_XML);
             }
         }
         return null;
@@ -170,7 +161,7 @@ public class WebappConfigLocator {
         File configLocation = mainConfigDir;
 
         Container parent = host.getParent();
-        if ((parent != null) && (parent instanceof Engine)) {
+        if (parent != null && parent instanceof Engine) {
             configLocation = new File(configLocation, parent.getName());
         }
 
@@ -185,23 +176,5 @@ public class WebappConfigLocator {
             contextPath = contextPath.substring(1);
         }
         return contextPath.replace(SLASH_SEPARATOR, HASH_SEPARATOR);
-    }
-
-    private static void copyFile(InputStream source, File destination) throws IOException {
-        PathReference destinationRef = new PathReference(destination);
-        destinationRef.getParent().createDirectory();
-
-        OutputStream outputStream = null;
-        try {
-            outputStream = new FileOutputStream(destination);
-            byte[] buffer = new byte[1024];
-            int read;
-            while ((read = source.read(buffer)) > 0) {
-                outputStream.write(buffer, 0, read);
-            }
-        } finally {
-            IOUtils.closeQuietly(source);
-            IOUtils.closeQuietly(outputStream);
-        }
     }
 }

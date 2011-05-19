@@ -56,8 +56,6 @@ public class WebappConfigLocatorTest {
 
     private static final String CONFIG_FILE_LOCATION_2 = "file:src/test/resources/META-INF/context.xml";
 
-    private static final String CONFIG_FILE_LOCATION_3 = "file:target/test-classes/test1.xml";
-
     private static final String CONFIG_FILE_LOCATION_4 = "file:target/test-classes/ROOT.xml";
 
     private static final String CONFIG_FILE_LOCATION_5 = "file:target/test-classes/test%23test.xml";
@@ -151,12 +149,12 @@ public class WebappConfigLocatorTest {
         URL jarFile1 = new URL(JAR_NAME_1);
         URL jarFile2 = new URL(JAR_NAME_2);
         URL urlDir3 = new URL(CONFIG_DIR_LOCATION_3);
-        URL urlFile3 = new URL(CONFIG_FILE_LOCATION_3);
         // context.xml does not exist in the configuration directory, but exists
         // in doc base
         // doc base is jar
-        // copy will be performed
-        assertEquals(new File(urlFile3.getPath()).getAbsoluteFile().toURI().toURL(),
+        // context.xml will be read from the jar
+        assertEquals(new URL(WebappConfigLocator.JAR_SCHEMA + new File(jarFile1.getPath()).getAbsoluteFile().toURI().toString()
+            + WebappConfigLocator.JAR_TO_ENTRY_SEPARATOR + WebappConfigLocator.CONTEXT_XML),
             WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, jarFile1.getPath(), new File(urlDir3.getPath())));
         // context.xml does not exist in the configuration directory and in doc
         // base
