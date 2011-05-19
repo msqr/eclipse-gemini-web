@@ -16,7 +16,6 @@
 		<programlisting language="xml"><![CDATA[<?xml version='1.0' encoding='utf-8'?>
 <Server port="8005" shutdown="SHUTDOWN">
   <Listener className="org.apache.catalina.core.JasperListener" />
-  <Listener className="org.apache.catalina.mbeans.ServerLifecycleListener" />
 
   <Service name="Catalina">
     
@@ -29,7 +28,7 @@
     <Engine name="Catalina" defaultHost="localhost">
 
       <Host name="localhost" deployOnStartup="false" autoDeploy="false"
-            unpackWARs="true" xmlValidation="false" xmlNamespaceAware="false">
+            unpackWARs="false" createDirs="false">
 
       </Host>
     </Engine>
@@ -38,7 +37,7 @@
 		<section id="overview-tomcat-servlet-container">
 			<title>Description of the Default Apache Tomcat Configuration</title>
 			<para>
-				The following bullets describe the main elements and attributes in the default <literal>tomcat-server.xml</literal> file; for details about updating this file to further configure the embedded Apache Tomcat server, see the <ulink url="http://tomcat.apache.org/tomcat-6.0-doc/config/index.html">Apache Tomcat Configuration Reference</ulink>.
+				The following bullets describe the main elements and attributes in the default <literal>tomcat-server.xml</literal> file; for details about updating this file to further configure the embedded Apache Tomcat server, see the <ulink url="http://tomcat.apache.org/tomcat-7.0-doc/config/index.html">Apache Tomcat Configuration Reference</ulink>.
 			</para>
 			<tip>
 				<title>Relative paths</title>
@@ -70,8 +69,6 @@
 				<listitem>
 					<para>
 						The <literal>&lt;Host&gt;</literal> child element represents a virtual host, which is an association of a network name for a server (such as <literal>www.mycompany.com</literal>) with the particular server on which Catalina is running.  
-						The <literal>xmlValidation</literal> attribute specifies that the servlet container does not validate XML files when parsing them, or in other words, it accepts invalid XML. 
-						The <literal>xmlNamespaceAware</literal> attribute specifies that the servlet container does not take namespaces into account when reading XML files. 
 					</para>
 				</listitem>
 			</itemizedlist>
@@ -79,8 +76,8 @@
 		<section id="configuring-tomcat-connectors">
 			<title>Connector Configuration</title>
 			<para>The @product.name@ supports the configuration of any connector supported by Apache Tomcat. 
-				See the default configuration above for syntax examples, and for further details of the configuration properties supported for various <literal>&lt;Connector&gt;</literal> implementations, consult the official <ulink url="http://tomcat.apache.org/tomcat-6.0-doc/config/http.html">Tomcat HTTP Connector</ulink> documentation.
-				For detailed instructions on how to configure Tomcat's SSL support, consult the official <ulink url="http://tomcat.apache.org/tomcat-6.0-doc/ssl-howto.html">Tomcat SSL Configuration HOW-TO</ulink>.
+				See the default configuration above for syntax examples, and for further details of the configuration properties supported for various <literal>&lt;Connector&gt;</literal> implementations, consult the official <ulink url="http://tomcat.apache.org/tomcat-7.0-doc/config/http.html">Tomcat HTTP Connector</ulink> documentation.
+				For detailed instructions on how to configure Tomcat's SSL support, consult the official <ulink url="http://tomcat.apache.org/tomcat-7.0-doc/ssl-howto.html">Tomcat SSL Configuration HOW-TO</ulink>.
 			</para>
 		</section>
 		<section id="configuring-tomcat-clustering">
@@ -88,7 +85,7 @@
 			<para>
 				@product.name@ supports standard Apache Tomcat cluster configuration.
 				By default, clustering of the embedded servlet container is disabled, and the default configuration does not include any clustering information.  
-				See <ulink url="http://tomcat.apache.org/tomcat-6.0-doc/cluster-howto.html">Tomcat Clustering/Session Replication HOW-TO</ulink> for detailed information about enabling and configuring clustering.
+				See <ulink url="http://tomcat.apache.org/tomcat-7.0-doc/cluster-howto.html">Tomcat Clustering/Session Replication HOW-TO</ulink> for detailed information about enabling and configuring clustering.
 			</para>
 		</section>
 		<section id="configuring-default-web-xml">
@@ -110,8 +107,8 @@
 			<programlisting language="xml"><![CDATA[<?xml version="1.0" encoding="ISO-8859-1"?>
 <web-app xmlns="http://java.sun.com/xml/ns/javaee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-    version="2.5">
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+    version="3.0">
 
     <servlet>
         <servlet-name>default</servlet-name>
@@ -187,13 +184,13 @@
 							<listitem>
 								<para>
 									The default servlet serves static resources and processes the requests that are not mapped to any servlet.
-									For details about default servlet configuration, see the <ulink url="http://tomcat.apache.org/tomcat-6.0-doc/default-servlet.html">Apache Tomcat Default Servlet Reference.</ulink>.
+									For details about default servlet configuration, see the <ulink url="http://tomcat.apache.org/tomcat-7.0-doc/default-servlet.html">Apache Tomcat Default Servlet Reference.</ulink>.
 								</para>
 							</listitem>
 							<listitem>
 								<para>
 									The jsp servlet serves the requests to JavaServer Pages. It is mapped to the URL pattern "*.jsp" and "*.jspx".
-									For details about jsp servlet configuration, see the <ulink url="http://tomcat.apache.org/tomcat-6.0-doc/jasper-howto.html">Apache Tomcat Jasper 2 JSP Engine.</ulink>.
+									For details about jsp servlet configuration, see the <ulink url="http://tomcat.apache.org/tomcat-7.0-doc/jasper-howto.html">Apache Tomcat Jasper 2 JSP Engine.</ulink>.
 								</para>
 							</listitem>
 						</itemizedlist>
@@ -227,8 +224,8 @@
 			<title>Context Configuration</title>
 			<para>
 				@product.name@ supports standard Apache Tomcat web application context configuration.
-				The <ulink url="http://tomcat.apache.org/tomcat-6.0-doc/config/index.html">Apache Tomcat Configuration Reference</ulink> has a section on
-				<ulink url="http://tomcat.apache.org/tomcat-6.0-doc/config/context.html">The Context Container</ulink> which describes the mechanism that
+				The <ulink url="http://tomcat.apache.org/tomcat-7.0-doc/config/index.html">Apache Tomcat Configuration Reference</ulink> has a section on
+				<ulink url="http://tomcat.apache.org/tomcat-7.0-doc/config/context.html">The Context Container</ulink> which describes the mechanism that
 				is used in @short.product.name@ for searching context configuration files and details the context configuration properties.
 			</para>
 			<para>
