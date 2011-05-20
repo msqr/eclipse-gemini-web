@@ -153,8 +153,6 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
     public void init() throws LifecycleException {
         getServer();
 
-        initBaseDir();
-
         enableNaming();
         // TODO introduce property for disabling the naming.
         // Bug 328174 - Provide ability to turn off tomcat naming (jndi) support
@@ -229,6 +227,8 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
     }
 
     public void configure(InputStream configuration) {
+        initBaseDir();
+
         Digester digester = this.catalina.createStartDigester();
         digester.push(this);
 
