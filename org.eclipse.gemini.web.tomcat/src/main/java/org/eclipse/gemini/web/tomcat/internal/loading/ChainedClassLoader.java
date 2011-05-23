@@ -25,8 +25,9 @@ import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
+import java.util.Map;
 
 /**
  * <strong>Concurrent Semantics</strong><br />
@@ -115,17 +116,17 @@ public final class ChainedClassLoader extends ClassLoader {
 	}
 
 	private Enumeration<URL> doGetResources(String name) throws IOException {
-		Vector<URL> urls = new Vector<URL>();
+		Map<String, URL> urls = new HashMap<String, URL>();
 		for (ClassLoader loader : this.loaders) {
 			Enumeration<URL> resources = loader.getResources(name);
 			if (resources != null) {
 				while (resources.hasMoreElements()) {
 					URL url = (URL) resources.nextElement();
-					urls.add(url);
+					urls.put(url.getFile(), url);
 				}
 			}
 		}
-		return urls.elements();
+		return Collections.enumeration(urls.values());
 	}
 
 	private URL doGetResource(String name) {
