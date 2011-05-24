@@ -57,12 +57,13 @@ final class TomcatServletContainer implements ServletContainer {
     public TomcatServletContainer(OsgiAwareEmbeddedTomcat tomcat, BundleContext context) {
         this.classLoaderCustomizer = new DelegatingClassLoaderCustomizer(context);
         this.tomcat = tomcat;
+        this.mbeanManager = new TomcatMBeanManager(tomcat.getEngine().getName());
+        this.mbeanManager.start();
         try {
             this.tomcat.init();
         } catch (LifecycleException e) {
             throw new ServletContainerException("Unable to initialize Tomcat.", e);
         }
-        this.mbeanManager = new TomcatMBeanManager(tomcat.getEngine().getName());
         this.context = context;
     }
 
@@ -73,8 +74,6 @@ final class TomcatServletContainer implements ServletContainer {
             WebBundleClassLoaderFactory classLoaderFactory = new StandardWebBundleClassLoaderFactory(this.classLoaderCustomizer);
             ServiceRegistration registration = this.context.registerService(WebBundleClassLoaderFactory.class.getName(), classLoaderFactory, null);
             this.registrationTracker.track(registration);
-
-            this.mbeanManager.start();
             doStart();
         } catch (LifecycleException e) {
             throw new ServletContainerException("Unable to start Tomcat.", e);
@@ -155,6 +154,7 @@ final class TomcatServletContainer implements ServletContainer {
         try {
             Thread.currentThread().setContextClassLoader(createThreadContextClassLoader());
             this.tomcat.stop();
+            this.tomcat.destroy();
         } finally {
             Thread.currentThread().setContextClassLoader(current);
         }
