@@ -32,4 +32,4 @@ org.apache.tomcat=7.0.12
 org.eclipse.jdt=3.6.1
 org.slf4j=1.6.1
 org.springframework.osgi=1.2.1
-org.springframework=3.0.0.RELEASE
+org.springframework=3.0.5.RELEASE
