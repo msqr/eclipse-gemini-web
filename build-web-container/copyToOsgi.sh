@@ -22,6 +22,6 @@ cp $SRC/com.springsource.org.apache.juli.extras-7.0.12.jar $REPO/com.springsourc
 cp $SRC/com.springsource.org.apache.tomcat.api-7.0.12.jar $REPO/com.springsource.org.apache.tomcat.api/com.springsource.org.apache.tomcat.api-7.0.12.jar
 cp $SRC/com.springsource.org.apache.tomcat.util-7.0.12.jar $REPO/com.springsource.org.apache.tomcat.util/com.springsource.org.apache.tomcat.util-7.0.12.jar
 cp $SRC/com.springsource.org.apache.commons.logging-1.1.1.jar $REPO/com.springsource.org.apache.commons.logging/com.springsource.org.apache.commons.logging-1.1.1.jar
-cp $SRC/org.eclipse.gemini.web.core-1.2.0.*.jar $REPO/org.eclipse.gemini.web.core/org.eclipse.gemini.web.core-1.2.0.jar
-cp $SRC/org.eclipse.gemini.web.extender-1.2.0.*.jar $REPO/org.eclipse.gemini.web.extender/org.eclipse.gemini.web.extender-1.2.0.jar
-cp $SRC/org.eclipse.gemini.web.tomcat-1.2.0.*.jar $REPO/org.eclipse.gemini.web.tomcat/org.eclipse.gemini.web.tomcat-1.2.0.jar
+cp $SRC/org.eclipse.gemini.web.core-2.0.0.*.jar $REPO/org.eclipse.gemini.web.core/org.eclipse.gemini.web.core-2.0.0.jar
+cp $SRC/org.eclipse.gemini.web.extender-2.0.0.*.jar $REPO/org.eclipse.gemini.web.extender/org.eclipse.gemini.web.extender-2.0.0.jar
+cp $SRC/org.eclipse.gemini.web.tomcat-2.0.0.*.jar $REPO/org.eclipse.gemini.web.tomcat/org.eclipse.gemini.web.tomcat-2.0.0.jar
