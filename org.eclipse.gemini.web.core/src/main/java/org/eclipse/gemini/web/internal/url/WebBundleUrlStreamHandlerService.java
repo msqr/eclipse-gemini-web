@@ -35,7 +35,6 @@ import java.util.zip.ZipEntry;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.osgi.service.url.URLStreamHandlerService;
 
-
 import org.eclipse.gemini.web.core.InstallationOptions;
 import org.eclipse.gemini.web.core.WebBundleManifestTransformer;
 import org.eclipse.gemini.web.internal.WebContainerUtils;
@@ -56,8 +55,9 @@ import org.eclipse.virgo.util.osgi.manifest.BundleManifestFactory;
  * @see WebBundleManifestTransformer
  */
 public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHandlerService {
+
     private static final String FILE_PROTOCOL = "file";
-    
+
     private final WebBundleManifestTransformer transformer;
 
     public WebBundleUrlStreamHandlerService(WebBundleManifestTransformer transformer) {
@@ -68,7 +68,7 @@ public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHan
     public URLConnection openConnection(URL u) throws IOException {
         WebBundleUrl url = new WebBundleUrl(u);
         URL actualUrl = new URL(url.getLocation());
-        
+
         if (FILE_PROTOCOL.equals(actualUrl.getProtocol()) && new File(actualUrl.getPath()).isDirectory()) {
             DirTransformer dirTransformer = new DirTransformer(new Callback(actualUrl, url, this.transformer));
             return new DirTransformingURLConnection(actualUrl, dirTransformer, true);
@@ -79,9 +79,11 @@ public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHan
     }
 
     private static final class Callback implements JarTransformerCallback, DirTransformerCallback {
+
         private static final String META_INF = "META-INF";
+
         private static final String MANIFEST_MF = "MANIFEST.MF";
-        
+
         private final WebBundleManifestTransformer transformer;
 
         private final URL sourceURL;
@@ -110,7 +112,7 @@ public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHan
             InputStreamReader reader = new InputStreamReader(inputStream);
             BundleManifest manifest = BundleManifestFactory.createBundleManifest(reader);
             InstallationOptions options = new InstallationOptions(this.webBundleUrl.getOptions());
-            if (manifest.getHeader(WebContainerUtils.HEADER_SPRINGSOURCE_DEFAULT_WAB_HEADERS) != null) {
+            if (manifest.getHeader(WebContainerUtils.HEADER_DEFAULT_WAB_HEADERS) != null) {
                 options.setDefaultWABHeaders(true);
             }
 
@@ -119,7 +121,7 @@ public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHan
 
             toManifest(manifest.toDictionary()).write(outputStream);
         }
-        
+
         private boolean isSignatureFile(String entryName) {
             String[] entryNameComponents = entryName.split("/");
             if (entryNameComponents.length == 2) {

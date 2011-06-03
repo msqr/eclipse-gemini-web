@@ -35,10 +35,10 @@ public final class WebContainerUtils {
     public static final String HEADER_WEB_CONTEXT_PATH = "Web-ContextPath";
     
     /**
-     * Constant for the <code>SpringSource-SystemPackages</code> manifest header.
+     * Constant for the <code>SpringSource-DefaultWABHeaders</code> manifest header.
      */
-    public static final String HEADER_SPRINGSOURCE_DEFAULT_WAB_HEADERS = "SpringSource-DefaultWABHeaders";
-
+    public static final String HEADER_DEFAULT_WAB_HEADERS = "org.eclipse.gemini.web-DefaultWABHeaders";
+    
     /**
      * Constant for the <code>Web-JSPExtractLocation</code> manifest header.
      */

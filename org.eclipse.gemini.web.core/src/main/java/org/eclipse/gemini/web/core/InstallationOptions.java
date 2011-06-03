@@ -24,7 +24,6 @@ import java.util.Set;
 import org.eclipse.gemini.web.internal.WebContainerUtils;
 import org.osgi.framework.Constants;
 
-
 /**
  * Simple utility class that parses the user-supplied installation options from a {@link Map}.
  */
@@ -92,7 +91,7 @@ public final class InstallationOptions {
         this.webContextPath = normalisedOptions.get(WebContainerUtils.HEADER_WEB_CONTEXT_PATH);
         this.webJSPExtractLocation = normalisedOptions.get(WebContainerUtils.HEADER_WEB_JSP_EXTRACT_LOCATION);
 
-        this.defaultWABHeaders = options.get(WebContainerUtils.HEADER_SPRINGSOURCE_DEFAULT_WAB_HEADERS) != null;
+        this.defaultWABHeaders = (options.get(WebContainerUtils.HEADER_DEFAULT_WAB_HEADERS) != null);
     }
 
     private Map<String, String> normalise(Map<String, String> options) {
@@ -194,7 +193,7 @@ public final class InstallationOptions {
     public boolean getDefaultWABHeaders() {
         return this.defaultWABHeaders;
     }
-    
+
     public void setDefaultWABHeaders(boolean defaultWABHeaders) {
         this.defaultWABHeaders = defaultWABHeaders;
     }
