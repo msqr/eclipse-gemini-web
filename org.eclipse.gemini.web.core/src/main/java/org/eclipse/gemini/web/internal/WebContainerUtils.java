@@ -37,7 +37,7 @@ public final class WebContainerUtils {
     /**
      * Constant for the <code>SpringSource-DefaultWABHeaders</code> manifest header.
      */
-    public static final String HEADER_DEFAULT_WAB_HEADERS = "org.eclipse.gemini.web-DefaultWABHeaders";
+    public static final String HEADER_DEFAULT_WAB_HEADERS = "org-eclipse-gemini-web-DefaultWABHeaders";
     
     /**
      * Constant for the <code>Web-JSPExtractLocation</code> manifest header.
