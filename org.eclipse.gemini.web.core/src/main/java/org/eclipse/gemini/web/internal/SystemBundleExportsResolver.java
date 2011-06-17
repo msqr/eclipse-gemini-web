@@ -17,62 +17,72 @@
 package org.eclipse.gemini.web.internal;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.eclipse.virgo.util.osgi.VersionRange;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Version;
-import org.osgi.service.packageadmin.ExportedPackage;
-import org.osgi.service.packageadmin.PackageAdmin;
-
-import org.eclipse.gemini.web.internal.template.ServiceCallback;
-import org.eclipse.gemini.web.internal.template.ServiceTemplate;
-import org.eclipse.virgo.util.osgi.VersionRange;
+import org.osgi.framework.wiring.BundleCapability;
+import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.framework.wiring.BundleWiring;
 
 final class SystemBundleExportsResolver {
-    
+
+    static final String VERSION = "version";
+
+    private static final String OSGI_RESOLVER_MODE = "osgi.resolverMode";
+
+    private static final String OSGI_RESOLVER_MODE_STRICT = "strict";
+
+    private static final String INTERNAL_DIRECTIVE = "x-internal";
+
+    private static final String FRIENDS_DIRECTIVE = "x-friends";
+
     private final BundleContext bundleContext;
-    
+
     SystemBundleExportsResolver(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
-    
+
     public Map<String, VersionRange> getSystemBundleExports() {
-        final Bundle systemBundle = bundleContext.getBundle(0);
-        ServiceTemplate<PackageAdmin> packageAdminTemplate = new ServiceTemplate<PackageAdmin>(bundleContext, PackageAdmin.class);
-        packageAdminTemplate.start();
-        ExportedPackage[] systemBundleExports = packageAdminTemplate.executeWithService(new ServiceCallback<PackageAdmin, ExportedPackage[]>() {            
-            public ExportedPackage[] doWithService(PackageAdmin packageAdmin) {
-                return packageAdmin.getExportedPackages(systemBundle);
-            }           
-        });     
-        packageAdminTemplate.stop();
-        return combineDuplicateExports(systemBundleExports);
+        final Bundle systemBundle = this.bundleContext.getBundle(0);
+        BundleWiring bundleWiring = systemBundle.adapt(BundleRevision.class).getWiring();
+        List<BundleCapability> bundleCapabilities = bundleWiring.getCapabilities(BundleRevision.PACKAGE_NAMESPACE);
+        boolean isStrictMode = OSGI_RESOLVER_MODE_STRICT.equals(this.bundleContext.getProperty(OSGI_RESOLVER_MODE));
+        return combineDuplicateExports(bundleCapabilities, isStrictMode);
     }
-    
-    static Map<String, VersionRange> combineDuplicateExports(ExportedPackage[] allExportedPackages) {                   
+
+    static Map<String, VersionRange> combineDuplicateExports(List<BundleCapability> capabilities, boolean isStrictMode) {
         Map<String, VersionRange> exportedPackages = new HashMap<String, VersionRange>();
-        for (ExportedPackage exportedPackage : allExportedPackages) {
-            VersionRange versionRange = exportedPackages.get(exportedPackage.getName());
-            if (versionRange == null) {
-                versionRange = VersionRange.createExactRange(exportedPackage.getVersion());             
-            } else {
-                Version version = exportedPackage.getVersion();
-                if (!versionRange.includes(version)) {
-                    versionRange = expandVersionRange(version, versionRange);
-                }               
+        for (BundleCapability exportedPackage : capabilities) {
+            if (isStrictMode) {
+                Map<String, String> directives = exportedPackage.getDirectives();
+                if (Boolean.valueOf(directives.get(INTERNAL_DIRECTIVE)) || directives.get(FRIENDS_DIRECTIVE) != null) {
+                    continue;
+                }
             }
-            exportedPackages.put(exportedPackage.getName(), versionRange);
-        }        
-                        
+            String exportedPackageName = (String) exportedPackage.getAttributes().get(BundleRevision.PACKAGE_NAMESPACE);
+            Version exportedPackageVersion = (Version) exportedPackage.getAttributes().get(VERSION);
+            VersionRange versionRange = exportedPackages.get(exportedPackageName);
+            if (versionRange == null) {
+                versionRange = VersionRange.createExactRange(exportedPackageVersion);
+            } else {
+                if (!versionRange.includes(exportedPackageVersion)) {
+                    versionRange = expandVersionRange(exportedPackageVersion, versionRange);
+                }
+            }
+            exportedPackages.put(exportedPackageName, versionRange);
+        }
         return exportedPackages;
     }
-    
+
     private static VersionRange expandVersionRange(Version version, VersionRange versionRange) {
-        Version ceiling = versionRange.getCeiling();        
-        if (version.compareTo(ceiling) > 0) {                        
+        Version ceiling = versionRange.getCeiling();
+        if (version.compareTo(ceiling) > 0) {
             return new VersionRange("[" + versionRange.getFloor() + "," + version + "]");
-        } else {            
+        } else {
             return new VersionRange("[" + version + "," + versionRange.getCeiling() + "]");
         }
     }

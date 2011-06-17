@@ -16,99 +16,137 @@
 
 package org.eclipse.gemini.web.internal;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.Version;
-import org.osgi.service.packageadmin.ExportedPackage;
-
-import org.eclipse.gemini.web.internal.SystemBundleExportsResolver;
 import org.eclipse.virgo.util.osgi.VersionRange;
+import org.junit.Before;
+import org.junit.Test;
+import org.osgi.framework.Version;
+import org.osgi.framework.wiring.BundleCapability;
+import org.osgi.framework.wiring.BundleRevision;
 
 public class SystemBundleExportsResolverTests {
 
+    private BundleCapability capability1;
+
+    private BundleCapability capability2;
+
+    private BundleCapability capability3;
+
+    private List<BundleCapability> input;
+
+    @Before
+    public void setUp() {
+        this.capability1 = createMock(BundleCapability.class);
+        this.capability2 = createMock(BundleCapability.class);
+        this.capability3 = createMock(BundleCapability.class);
+        this.input = new ArrayList<BundleCapability>();
+        this.input.add(this.capability1);
+        this.input.add(this.capability2);
+    }
+
     @Test
     public void basic() {
-        ExportedPackage[] input = new ExportedPackage[] { new ExportedPackageImpl("a", new Version(1, 2, 3)),
-            new ExportedPackageImpl("b", new Version(2, 3, 4)) };
-        
-        Map<String, VersionRange> output = SystemBundleExportsResolver.combineDuplicateExports(input);
-        
+        Map<String, Object> attributes1 = new HashMap<String, Object>();
+        attributes1.put(BundleRevision.PACKAGE_NAMESPACE, "a");
+        attributes1.put(SystemBundleExportsResolver.VERSION, new Version(1, 2, 3));
+        expect(this.capability1.getAttributes()).andReturn(attributes1).times(2);
+
+        Map<String, Object> attributes2 = new HashMap<String, Object>();
+        attributes2.put(BundleRevision.PACKAGE_NAMESPACE, "b");
+        attributes2.put(SystemBundleExportsResolver.VERSION, new Version(2, 3, 4));
+        expect(this.capability2.getAttributes()).andReturn(attributes2).times(2);
+
+        replay(this.capability1, this.capability2);
+
+        Map<String, VersionRange> output = SystemBundleExportsResolver.combineDuplicateExports(this.input, false);
+
         assertEquals(2, output.size());
         assertEquals(new VersionRange("[1.2.3,1.2.3]"), output.get("a"));
         assertEquals(new VersionRange("[2.3.4,2.3.4]"), output.get("b"));
+
+        verify(this.capability1, this.capability2);
     }
-    
+
     @Test
     public void downwardExpansion() {
-        ExportedPackage[] input = new ExportedPackage[] { new ExportedPackageImpl("a", new Version(2, 0, 0)),
-            new ExportedPackageImpl("a", new Version(1, 0, 0)) };
-        
-        Map<String, VersionRange> output = SystemBundleExportsResolver.combineDuplicateExports(input);
-        
+        Map<String, Object> attributes1 = new HashMap<String, Object>();
+        attributes1.put(BundleRevision.PACKAGE_NAMESPACE, "a");
+        attributes1.put(SystemBundleExportsResolver.VERSION, new Version(2, 0, 0));
+        expect(this.capability1.getAttributes()).andReturn(attributes1).times(2);
+
+        Map<String, Object> attributes2 = new HashMap<String, Object>();
+        attributes2.put(BundleRevision.PACKAGE_NAMESPACE, "a");
+        attributes2.put(SystemBundleExportsResolver.VERSION, new Version(1, 0, 0));
+        expect(this.capability2.getAttributes()).andReturn(attributes2).times(2);
+
+        replay(this.capability1, this.capability2);
+
+        Map<String, VersionRange> output = SystemBundleExportsResolver.combineDuplicateExports(this.input, false);
+
         assertEquals(1, output.size());
-        assertEquals(new VersionRange("[1.0.0,2.0.0]"), output.get("a"));        
+        assertEquals(new VersionRange("[1.0.0,2.0.0]"), output.get("a"));
+
+        verify(this.capability1, this.capability2);
     }
-    
+
     @Test
     public void upwardExpansion() {
-        ExportedPackage[] input = new ExportedPackage[] { new ExportedPackageImpl("a", new Version(1, 0, 0)),
-            new ExportedPackageImpl("a", new Version(2, 0, 0)) };
-        
-        Map<String, VersionRange> output = SystemBundleExportsResolver.combineDuplicateExports(input);
-        
+        Map<String, Object> attributes1 = new HashMap<String, Object>();
+        attributes1.put(BundleRevision.PACKAGE_NAMESPACE, "a");
+        attributes1.put(SystemBundleExportsResolver.VERSION, new Version(1, 0, 0));
+        expect(this.capability1.getAttributes()).andReturn(attributes1).times(2);
+
+        Map<String, Object> attributes2 = new HashMap<String, Object>();
+        attributes2.put(BundleRevision.PACKAGE_NAMESPACE, "a");
+        attributes2.put(SystemBundleExportsResolver.VERSION, new Version(2, 0, 0));
+        expect(this.capability2.getAttributes()).andReturn(attributes2).times(2);
+
+        replay(this.capability1, this.capability2);
+
+        Map<String, VersionRange> output = SystemBundleExportsResolver.combineDuplicateExports(this.input, false);
+
         assertEquals(1, output.size());
-        assertEquals(new VersionRange("[1.0.0,2.0.0]"), output.get("a"));        
+        assertEquals(new VersionRange("[1.0.0,2.0.0]"), output.get("a"));
+
+        verify(this.capability1, this.capability2);
     }
-    
+
     @Test
     public void expansionInBothDirections() {
-        ExportedPackage[] input = new ExportedPackage[] { new ExportedPackageImpl("a", new Version(2, 0, 0)),
-            new ExportedPackageImpl("a", new Version(3, 0, 0)), new ExportedPackageImpl("a", new Version(1, 0, 0)) };
-        
-        Map<String, VersionRange> output = SystemBundleExportsResolver.combineDuplicateExports(input);
-        
+        Map<String, Object> attributes1 = new HashMap<String, Object>();
+        attributes1.put(BundleRevision.PACKAGE_NAMESPACE, "a");
+        attributes1.put(SystemBundleExportsResolver.VERSION, new Version(2, 0, 0));
+        expect(this.capability1.getAttributes()).andReturn(attributes1).times(2);
+
+        Map<String, Object> attributes2 = new HashMap<String, Object>();
+        attributes2.put(BundleRevision.PACKAGE_NAMESPACE, "a");
+        attributes2.put(SystemBundleExportsResolver.VERSION, new Version(3, 0, 0));
+        expect(this.capability2.getAttributes()).andReturn(attributes2).times(2);
+
+        Map<String, Object> attributes3 = new HashMap<String, Object>();
+        attributes3.put(BundleRevision.PACKAGE_NAMESPACE, "a");
+        attributes3.put(SystemBundleExportsResolver.VERSION, new Version(1, 0, 0));
+        expect(this.capability3.getAttributes()).andReturn(attributes3).times(2);
+
+        this.input.add(this.capability3);
+
+        replay(this.capability1, this.capability2, this.capability3);
+
+        Map<String, VersionRange> output = SystemBundleExportsResolver.combineDuplicateExports(this.input, false);
+
         assertEquals(1, output.size());
         assertEquals(new VersionRange("[1.0.0,3.0.0]"), output.get("a"));
-    }
 
-    private static final class ExportedPackageImpl implements ExportedPackage {
-
-        private final String name;
-
-        private final Version version;
-
-        private ExportedPackageImpl(String name, Version version) {
-            this.name = name;
-            this.version = version;
-        }
-
-        public Bundle getExportingBundle() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Bundle[] getImportingBundles() {
-            throw new UnsupportedOperationException();
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        public String getSpecificationVersion() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Version getVersion() {
-            return this.version;
-        }
-
-        public boolean isRemovalPending() {
-            throw new UnsupportedOperationException();
-        }
-
+        verify(this.capability1, this.capability2, this.capability3);
     }
 }
