@@ -157,20 +157,21 @@ public class WebappConfigLocatorTest {
         assertEquals(new URL(WebappConfigLocator.JAR_SCHEMA + new File(jarFile1.getPath()).getAbsoluteFile().toURI().toString()
             + WebappConfigLocator.JAR_TO_ENTRY_SEPARATOR + WebappConfigLocator.CONTEXT_XML),
             WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, jarFile1.getPath(), new File(urlDir3.getPath()), null));
-        
+
         // context.xml does not exist in the configuration directory, but exists in doc base
         // doc base cannot be resolved
         // bundle is not provided
-        assertEquals(null, WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, "", new File(urlDir3.getPath()), null));
+        assertEquals(null,
+            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, WebappConfigLocator.EMPTY_STRING, new File(urlDir3.getPath()), null));
         // context.xml will be read from the bundle
         Bundle bundle = createMock(Bundle.class);
         expect(bundle.getLocation()).andReturn(new File(jarFile1.getPath()).getAbsoluteFile().toURI().toString());
         replay(bundle);
         assertEquals(new URL(WebappConfigLocator.JAR_SCHEMA + new File(jarFile1.getPath()).getAbsoluteFile().toURI().toString()
             + WebappConfigLocator.JAR_TO_ENTRY_SEPARATOR + WebappConfigLocator.CONTEXT_XML),
-            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, "", new File(urlDir3.getPath()), bundle));
+            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, WebappConfigLocator.EMPTY_STRING, new File(urlDir3.getPath()), bundle));
         verify(bundle);
-        
+
         // context.xml does not exist in the configuration directory and in doc
         // base
         // doc base is jar

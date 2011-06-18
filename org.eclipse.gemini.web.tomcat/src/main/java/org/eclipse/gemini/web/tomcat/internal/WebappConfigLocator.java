@@ -206,6 +206,7 @@ public class WebappConfigLocator {
 
             if (connection instanceof JarURLConnection) {
                 JarURLConnection jarURLConnection = (JarURLConnection) connection;
+                jarURLConnection.setUseCaches(false);
                 jarFile = jarURLConnection.getJarFile();
                 String entryName = jarURLConnection.getEntryName();
                 if (entryName != null && jarFile != null && jarFile.getEntry(entryName) != null) {
