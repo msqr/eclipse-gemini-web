@@ -28,9 +28,7 @@ import java.net.URLStreamHandler;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.eclipse.gemini.web.internal.url.WebBundleUrl;
 import org.junit.Test;
-
 
 public class WebBundleUrlTests {
 
@@ -69,13 +67,27 @@ public class WebBundleUrlTests {
         assertEquals(FILE_LOCATION, warUrl.getLocation());
         assertEquals("/foo", warUrl.getOptions().get("Web-ContextPath"));
     }
-    
+
     @Test
     public void createFromUrlWithVersionedImports() throws Exception {
         URL url = new URL(WebBundleUrl.SCHEME, null, -1, FILE_LOCATION + "?Import-Package=x;version=1,y;version=2", new DummyHandler());
         WebBundleUrl warUrl = new WebBundleUrl(url);
         assertEquals(FILE_LOCATION, warUrl.getLocation());
         assertEquals("x;version=1,y;version=2", warUrl.getOptions().get("Import-Package"));
+
+        url = new URL(WebBundleUrl.SCHEME, null, -1, FILE_LOCATION + "?Import-Package=x; version=1,y; version=2", new DummyHandler());
+        warUrl = new WebBundleUrl(url);
+        assertEquals(FILE_LOCATION, warUrl.getLocation());
+        try {
+            warUrl.getOptions().get("Import-Package");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Illegal character in query at index 19: /?Import-Package=x; version=1,y; version=2", e.getCause().getMessage());
+        }
+
+        url = new URL(WebBundleUrl.SCHEME, null, -1, FILE_LOCATION + "?Import-Package=x;%20version=1,y;%20version=2", new DummyHandler());
+        warUrl = new WebBundleUrl(url);
+        assertEquals(FILE_LOCATION, warUrl.getLocation());
+        assertEquals("x; version=1,y; version=2", warUrl.getOptions().get("Import-Package"));
     }
 
     private static class TestWarUrl extends WebBundleUrl {
@@ -86,7 +98,7 @@ public class WebBundleUrlTests {
 
         /**
          * @param url to test
-         * @throws URISyntaxException thrown by superclass, possibly  
+         * @throws URISyntaxException thrown by superclass, possibly
          */
         public TestWarUrl(URL url) throws URISyntaxException {
             super(url);

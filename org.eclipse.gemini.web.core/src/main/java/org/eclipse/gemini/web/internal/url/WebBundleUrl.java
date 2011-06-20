@@ -19,6 +19,8 @@ package org.eclipse.gemini.web.internal.url;
 import static java.util.Collections.unmodifiableMap;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLStreamHandler;
 import java.util.Collections;
@@ -27,13 +29,16 @@ import java.util.Map;
 
 import org.eclipse.gemini.web.internal.WebContainerUtils;
 
-
 /**
  * Encapsulates the state of a <code>war:</code> URL.
  */
 public class WebBundleUrl {
 
     public static final String SCHEME = WebContainerUtils.WEB_BUNDLE_SCHEME;
+
+    private static final String QUERY_SEPARATOR = "?";
+
+    private static final String SLASH = "/";
 
     public final Object monitor = new Object();
 
@@ -46,7 +51,7 @@ public class WebBundleUrl {
     public WebBundleUrl(String location, Map<String, String> options) throws MalformedURLException {
         this.url = createURL(location, options);
         this.location = location;
-        this.options = (options == null ? Collections.<String, String> emptyMap() : unmodifiableMap(new HashMap<String, String>(options)));
+        this.options = options == null ? Collections.<String, String> emptyMap() : unmodifiableMap(new HashMap<String, String>(options));
     }
 
     public WebBundleUrl(URL url) {
@@ -64,13 +69,26 @@ public class WebBundleUrl {
 
     /**
      * Gets the query options from the URL. Note that validation is deferred until this point as doing it earlier does
-     * not produce the necessary BundleException when driven under {@link org.osgi.framework.BundleContext#installBundle(String) installBundle(String)}.
+     * not produce the necessary BundleException when driven under
+     * {@link org.osgi.framework.BundleContext#installBundle(String) installBundle(String)}. The query will be decoded
+     * in this method.
+     * 
      * @return the options in a String->String map
      */
     public final Map<String, String> getOptions() {
         synchronized (this.monitor) {
             if (this.options == null) {
-                this.options = parseQueryString(url.getQuery());
+                this.options = unmodifiableMap(new HashMap<String, String>());
+                try {
+                    String query = this.url.getQuery();
+                    if (query != null) {
+                        URI uri = new URI(SLASH + QUERY_SEPARATOR + query);
+                        String schemeSpecificPart = uri.getSchemeSpecificPart();
+                        this.options = parseQueryString(schemeSpecificPart.substring(schemeSpecificPart.indexOf(QUERY_SEPARATOR) + 1));
+                    }
+                } catch (URISyntaxException e) {
+                    throw new IllegalArgumentException("URL '" + this.url + "' is not a valid WAR URL", e);
+                }
             }
         }
         return this.options;
