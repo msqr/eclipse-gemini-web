@@ -18,8 +18,10 @@ package org.eclipse.gemini.web.tomcat.internal;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -27,6 +29,7 @@ import org.apache.catalina.Container;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
 import org.eclipse.gemini.web.core.spi.ServletContainerException;
+import org.osgi.framework.Bundle;
 
 public class WebappConfigLocator {
 
@@ -51,6 +54,8 @@ public class WebappConfigLocator {
     static final String JAR_SCHEMA = "jar:";
 
     static final String JAR_TO_ENTRY_SEPARATOR = "!/";
+
+    static final String EMPTY_STRING = "";
 
     /**
      * Resolves the default context.xml and returns a relative path to it, if it exists in the main Tomcat's
@@ -113,10 +118,11 @@ public class WebappConfigLocator {
      * @param path the context path
      * @param docBase the root directory/file for the web application
      * @param configLocation Host's configuration directory
+     * @param bundle the corresponding web application bundle
      * @return the context.xml if it is found following the algorithm above, otherwise <code>null</code>
      * @throws MalformedURLException
      */
-    public static URL resolveWebappContextXml(String path, String docBase, File configLocation) throws MalformedURLException {
+    public static URL resolveWebappContextXml(String path, String docBase, File configLocation, Bundle bundle) throws MalformedURLException {
         path = formatContextPath(path);
 
         // Try to find the context.xml in the Tomcat's configuration directory
@@ -126,6 +132,14 @@ public class WebappConfigLocator {
         }
 
         // Try to find the context.xml in docBase
+        if (EMPTY_STRING.equals(docBase)) {
+            if (bundle != null) {
+                return resolveWebappContextXmlFromJarURLConnection(bundle);
+            } else {
+                return null;
+            }
+        }
+
         File docBaseFile = new File(docBase);
         if (docBaseFile.isDirectory()) {
             contextXml = new File(docBaseFile, CONTEXT_XML);
@@ -176,5 +190,40 @@ public class WebappConfigLocator {
             contextPath = contextPath.substring(1);
         }
         return contextPath.replace(SLASH_SEPARATOR, HASH_SEPARATOR);
+    }
+
+    private static URL resolveWebappContextXmlFromJarURLConnection(Bundle bundle) {
+        URL bundleUrl;
+        try {
+            bundleUrl = new URL(JAR_SCHEMA + bundle.getLocation() + JAR_TO_ENTRY_SEPARATOR + CONTEXT_XML);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+
+        JarFile jarFile = null;
+        try {
+            URLConnection connection = bundleUrl.openConnection();
+
+            if (connection instanceof JarURLConnection) {
+                JarURLConnection jarURLConnection = (JarURLConnection) connection;
+                jarURLConnection.setUseCaches(false);
+                jarFile = jarURLConnection.getJarFile();
+                String entryName = jarURLConnection.getEntryName();
+                if (entryName != null && jarFile != null && jarFile.getEntry(entryName) != null) {
+                    return bundleUrl;
+                }
+            }
+        } catch (IOException e) {
+            return null;
+        } finally {
+            if (jarFile != null) {
+                try {
+                    jarFile.close();
+                } catch (IOException _) {
+                }
+            }
+        }
+
+        return null;
     }
 }

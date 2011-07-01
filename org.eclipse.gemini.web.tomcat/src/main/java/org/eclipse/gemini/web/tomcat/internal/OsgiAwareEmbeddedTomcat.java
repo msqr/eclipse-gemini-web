@@ -45,6 +45,7 @@ import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolverFactory;
 import org.eclipse.gemini.web.tomcat.internal.support.PackageAdminBundleDependencyDeterminer;
 import org.eclipse.virgo.util.io.FatalIOException;
 import org.eclipse.virgo.util.io.PathReference;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
@@ -176,6 +177,10 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
 
     @Override
     public Context addWebapp(String path, String docBase) {
+        return addWebapp(path, docBase, null);
+    }
+
+    public Context addWebapp(String path, String docBase, Bundle bundle) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Creating context '" + path + "' with docBase '" + docBase + "'");
         }
@@ -208,7 +213,7 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
 
         // If web application's context.xml is existing, set it to the StandardContext
         try {
-            context.setConfigFile(WebappConfigLocator.resolveWebappContextXml(path, docBase, configLocation));
+            context.setConfigFile(WebappConfigLocator.resolveWebappContextXml(path, docBase, configLocation, bundle));
         } catch (MalformedURLException e) {
             throw new ServletContainerException("Cannot resolve web application's context.xml " + docBase, e);
         }

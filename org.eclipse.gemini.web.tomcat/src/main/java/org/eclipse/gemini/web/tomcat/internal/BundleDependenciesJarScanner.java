@@ -53,6 +53,8 @@ final class BundleDependenciesJarScanner implements JarScanner {
 
     private static final String JAR_URL_PREFIX = "jar:";    
     
+    private static final String REFERENCE_URL_PREFIX = "reference";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BundleDependenciesJarScanner.class);
     
     private final BundleDependencyDeterminer bundleDependencyDeterminer;
@@ -87,19 +89,25 @@ final class BundleDependenciesJarScanner implements JarScanner {
             scanJarUrlConnection(bundle, callback);
         }
     }
-    
+
     private void scanJarUrlConnection(Bundle bundle, JarScannerCallback callback) {
         URL bundleUrl;
+        String bundleLocation = bundle.getLocation();
         try {
-            bundleUrl = new URL(JAR_URL_PREFIX + bundle.getLocation() + JAR_URL_SUFFIX);
+            bundleUrl = new URL(bundleLocation);
+            if (REFERENCE_URL_PREFIX.equals(bundleUrl.getProtocol())) {
+                bundleUrl = new URL(JAR_URL_PREFIX + bundleUrl.getFile() + JAR_URL_SUFFIX);
+            } else {
+                bundleUrl = new URL(JAR_URL_PREFIX + bundleLocation + JAR_URL_SUFFIX);
+            }
         } catch (MalformedURLException e) {
-            LOGGER.warn("Failed to create jar: url for bundle location " + bundle.getLocation());
+            LOGGER.warn("Failed to create jar: url for bundle location " + bundleLocation);
             return;
         }
 
-        scanBundleUrl(bundleUrl, callback); 
-    }   
-    
+        scanBundleUrl(bundleUrl, callback);
+    }
+
     private void scanBundleFile(File bundleFile, JarScannerCallback callback) {
         if (bundleFile.isDirectory()) {
             try {

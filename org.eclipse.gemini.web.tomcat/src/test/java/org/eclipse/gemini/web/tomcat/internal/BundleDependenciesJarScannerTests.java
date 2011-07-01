@@ -60,10 +60,9 @@ public class BundleDependenciesJarScannerTests {
     
     private final Bundle dependency = createMock(Bundle.class);
     
-    @SuppressWarnings("unchecked")
     @Test
     public void noDependencies() {
-        expect(bundle.getHeaders()).andReturn(new Hashtable());
+        expect(bundle.getHeaders()).andReturn(new Hashtable<String, String>());
         expect(dependencyDeterminer.getDependencies(this.bundle)).andReturn(Collections.<Bundle>emptySet());
         
         replay(dependencyDeterminer, bundleFileResolver, bundle, callback);
@@ -75,10 +74,9 @@ public class BundleDependenciesJarScannerTests {
         verify(dependencyDeterminer, bundleFileResolver, bundle, callback);
     }
     
-    @SuppressWarnings("unchecked")
     @Test
     public void scanDirectory() throws IOException {
-        expect(bundle.getHeaders()).andReturn(new Hashtable());
+        expect(bundle.getHeaders()).andReturn(new Hashtable<String, String>());
         expect(dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<Bundle>(Arrays.asList(this.dependency)));
         
         File dependencyFile = new File("src/test/resources");        
@@ -94,10 +92,9 @@ public class BundleDependenciesJarScannerTests {
         verify(dependencyDeterminer, bundleFileResolver, bundle, callback);
     }
     
-    @SuppressWarnings("unchecked")
     @Test
     public void scanFile() throws IOException {
-        expect(bundle.getHeaders()).andReturn(new Hashtable());
+        expect(bundle.getHeaders()).andReturn(new Hashtable<String, String>());
         expect(dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<Bundle>(Arrays.asList(this.dependency)));
         
         File dependencyFile = new File("");        
@@ -113,22 +110,23 @@ public class BundleDependenciesJarScannerTests {
         verify(dependencyDeterminer, bundleFileResolver, bundle, callback);
     }
     
-    @SuppressWarnings("unchecked")
     @Test
     public void scanJarUrlConnection() throws IOException {
-        expect(bundle.getHeaders()).andReturn(new Hashtable());
-        expect(dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<Bundle>(Arrays.asList(this.dependency)));
-        expect(dependency.getLocation()).andReturn("file:src/test/resources/bundle.jar").anyTimes();
-            
-        expect(this.bundleFileResolver.resolve(this.dependency)).andReturn(null);        
+        expect(bundle.getHeaders()).andReturn(new Hashtable<String, String>());
+        expect(dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<Bundle>(Arrays.asList(this.dependency))).times(2);
+        expect(dependency.getLocation()).andReturn("file:src/test/resources/bundle.jar").andReturn("reference:file:src/test/resources/bundle.jar");
+
+        expect(this.bundleFileResolver.resolve(this.dependency)).andReturn(null).times(2);
         this.callback.scan(isA(JarURLConnection.class));
-        
+
         replay(dependencyDeterminer, bundleFileResolver, bundle, callback, dependency);
-        
+
         ClassLoader classLoader = new BundleWebappClassLoader(this.bundle, this.classLoaderCustomizer);
-        
+
         scanner.scan(null, classLoader, callback, null);
-        
+
+        scanner.scan(null, classLoader, callback, null);
+
         verify(dependencyDeterminer, bundleFileResolver, bundle, callback);
     }
 }

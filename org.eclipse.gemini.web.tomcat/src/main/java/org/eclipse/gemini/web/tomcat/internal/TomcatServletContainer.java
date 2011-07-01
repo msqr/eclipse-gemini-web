@@ -97,7 +97,7 @@ final class TomcatServletContainer implements ServletContainer {
         try {
             String docBase = determineDocBase(bundle);
 
-            StandardContext context = (StandardContext) this.tomcat.addWebapp(contextPath, docBase);
+            StandardContext context = (StandardContext) this.tomcat.addWebapp(contextPath, docBase, bundle);
 
             BundleWebappLoader loader = new BundleWebappLoader(bundle, this.classLoaderCustomizer);
             context.setLoader(loader);
