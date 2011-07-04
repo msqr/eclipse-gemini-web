@@ -32,13 +32,13 @@ final class BundleEntryAttributes extends ResourceAttributes {
 
     private static final long TIME_NOT_SET = -1L;
 
+    private static final long CONTENT_LENGTH_NOT_SET = -1L;
+
     private static final long serialVersionUID = 7799793247259935763L;
 
     private final transient BundleEntry bundleEntry;
 
     private final String[] attrIds;
-
-    private long lastModified = TIME_NOT_SET;
 
     /**
      * Creates a {@link BundleEntryAttributes} for the given {@link BundleEntry} and attribute identifier array.
@@ -52,8 +52,13 @@ final class BundleEntryAttributes extends ResourceAttributes {
         this.attrIds = attrIds;
         setCollection(this.bundleEntry.isDirectory());
         getName();
-        getLastModified();
-        getCreation();
+        try {
+            URLConnection urlConnection = getBundleEntryURLConnection();
+            getLastModified(urlConnection);
+            getCreation(urlConnection);
+            getContentLength(urlConnection);
+        } catch (IOException e) {
+        }
     }
 
     /**
@@ -61,25 +66,33 @@ final class BundleEntryAttributes extends ResourceAttributes {
      */
     @Override
     public long getCreation() {
+        try {
+            return getCreation(getBundleEntryURLConnection());
+        } catch (IOException e) {
+        }
+        return TIME_NOT_SET;
+    }
+
+    private long getCreation(URLConnection urlConnection) {
         long creation = TIME_NOT_SET;
 
         if (attrPresent(CREATION_DATE) || attrPresent(ALTERNATE_CREATION_DATE)) {
             creation = super.getCreation();
 
             if (creation == TIME_NOT_SET) {
-                try {
-                    URLConnection urlConnection = this.bundleEntry.getURL().openConnection();
-                    creation = urlConnection.getDate();
-                    if (creation == CREATION_DATE_UNKNOWN) {
-                        creation = determineLastModified();
-                    }
-                    setCreation(creation);
-                } catch (IOException _) {
+                creation = determineDate(urlConnection);
+                if (creation == CREATION_DATE_UNKNOWN) {
+                    creation = determineLastModified(urlConnection);
                 }
+                setCreation(creation);
             }
         }
 
         return creation;
+    }
+
+    private long determineDate(URLConnection urlConnection) {
+        return urlConnection.getDate();
     }
 
     private boolean attrPresent(String attrId) {
@@ -101,13 +114,21 @@ final class BundleEntryAttributes extends ResourceAttributes {
      */
     @Override
     public long getLastModified() {
+        try {
+            return getLastModified(getBundleEntryURLConnection());
+        } catch (IOException e) {
+        }
+        return TIME_NOT_SET;
+    }
+
+    private long getLastModified(URLConnection urlConnection) {
         long lastModified = TIME_NOT_SET;
 
         if (attrPresent(LAST_MODIFIED) || attrPresent(ALTERNATE_LAST_MODIFIED)) {
             lastModified = super.getLastModified();
 
             if (lastModified == TIME_NOT_SET) {
-                lastModified = determineLastModified();
+                lastModified = determineLastModified(urlConnection);
 
                 if (lastModified != TIME_NOT_SET) {
                     setLastModified(lastModified);
@@ -118,15 +139,8 @@ final class BundleEntryAttributes extends ResourceAttributes {
         return lastModified;
     }
 
-    private long determineLastModified() {
-        if (this.lastModified == TIME_NOT_SET) {
-            try {
-                URLConnection urlConnection = this.bundleEntry.getURL().openConnection();
-                this.lastModified = urlConnection.getLastModified();
-            } catch (IOException _) {
-            }
-        }
-        return this.lastModified;
+    private long determineLastModified(URLConnection urlConnection) {
+        return urlConnection.getLastModified();
     }
 
     /**
@@ -143,6 +157,41 @@ final class BundleEntryAttributes extends ResourceAttributes {
             name = this.bundleEntry.getName();
         }
         return name;
+    }
+
+    @Override
+    public long getContentLength() {
+        try {
+            return getContentLength(getBundleEntryURLConnection());
+        } catch (IOException e) {
+        }
+        return CONTENT_LENGTH_NOT_SET;
+    }
+
+    private long getContentLength(URLConnection urlConnection) {
+        long contentLength = CONTENT_LENGTH_NOT_SET;
+
+        if (attrPresent(CONTENT_LENGTH) || attrPresent(ALTERNATE_CONTENT_LENGTH)) {
+            contentLength = super.getContentLength();
+
+            if (contentLength == CONTENT_LENGTH_NOT_SET) {
+                contentLength = determineContentLength(urlConnection);
+
+                if (contentLength != CONTENT_LENGTH_NOT_SET) {
+                    setContentLength(contentLength);
+                }
+            }
+        }
+
+        return contentLength;
+    }
+
+    private long determineContentLength(URLConnection urlConnection) {
+        return urlConnection.getContentLength();
+    }
+
+    private URLConnection getBundleEntryURLConnection() throws IOException {
+        return this.bundleEntry.getURL().openConnection();
     }
 
 }

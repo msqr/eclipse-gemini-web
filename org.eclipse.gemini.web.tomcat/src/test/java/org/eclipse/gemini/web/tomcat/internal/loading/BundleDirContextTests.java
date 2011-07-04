@@ -86,6 +86,16 @@ public class BundleDirContextTests {
         checkDirectoryResourceType(attributes);
 
         checkTimes(attributes);
+
+        checkContentLength(attributes);
+    }
+
+    private void checkContentLength(Attributes attributes) {
+        Attribute contentLength = attributes.get(org.apache.naming.resources.ResourceAttributes.CONTENT_LENGTH);
+        Assert.assertNotNull(contentLength);
+
+        contentLength = attributes.get(org.apache.naming.resources.ResourceAttributes.ALTERNATE_CONTENT_LENGTH);
+        Assert.assertNotNull(contentLength);
     }
 
     private void checkName(Attributes attributes, String expectedName) throws NamingException {
@@ -122,6 +132,8 @@ public class BundleDirContextTests {
         checkNoResourceType(attributes);
         
         checkTimes(attributes);
+
+        checkContentLength(attributes);
     }
 
     private void checkNoResourceType(Attributes attributes) {
@@ -152,8 +164,18 @@ public class BundleDirContextTests {
         checkNoResourceType(attributes);
         
         checkNoTimes(attributes);
+
+        checkNoContentLength(attributes);
     }
-    
+
+    private void checkNoContentLength(Attributes attributes) {
+        Attribute contentLength = attributes.get(org.apache.naming.resources.ResourceAttributes.CONTENT_LENGTH);
+        Assert.assertNull(contentLength);
+
+        contentLength = attributes.get(org.apache.naming.resources.ResourceAttributes.ALTERNATE_CONTENT_LENGTH);
+        Assert.assertNull(contentLength);
+    }
+
     /**
      * @throws NamingException  
      */
@@ -186,6 +208,8 @@ public class BundleDirContextTests {
         checkNoResourceType(attributes);
         
         checkOnlyCreationDate(attributes);
+
+        checkNoContentLength(attributes);
     }
     
     private void checkOnlyCreationDate(Attributes attributes) {

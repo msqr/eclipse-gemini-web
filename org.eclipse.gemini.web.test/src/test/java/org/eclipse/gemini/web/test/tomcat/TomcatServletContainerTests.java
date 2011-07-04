@@ -102,8 +102,8 @@ public class TomcatServletContainerTests {
     @Before
     public void before() throws Exception {
         this.bundleContext = TestFrameworkUtils.getBundleContextForTestClass(getClass());
-        ServiceReference ref = bundleContext.getServiceReference(ServletContainer.class.getName());
-        this.container = (ServletContainer) bundleContext.getService(ref);
+        ServiceReference<?> ref = this.bundleContext.getServiceReference(ServletContainer.class.getName());
+        this.container = (ServletContainer) this.bundleContext.getService(ref);
     }
 
     @Test
@@ -197,13 +197,13 @@ public class TomcatServletContainerTests {
 
         try {
             Bundle bundle = this.bundleContext.installBundle(LOCATION_WAR_WITH_TLD_FROM_DEPENDENCY);
-            
+
             try {
                 bundle.start();
 
                 WebApplicationHandle handle = this.container.createWebApplication("/war-with-tld-from-dependency", bundle);
                 this.container.startWebApplication(handle);
-                
+
                 try {
                     String realPath = handle.getServletContext().getRealPath("/");
                     System.out.println(realPath);
@@ -236,7 +236,7 @@ public class TomcatServletContainerTests {
 
                 WebApplicationHandle handle = this.container.createWebApplication("/war-with-tld-from-dependency", bundle);
                 this.container.startWebApplication(handle);
-                
+
                 try {
                     validateURL("http://localhost:8080/war-with-tld-from-dependency/test.jsp");
                 } finally {
@@ -339,6 +339,23 @@ public class TomcatServletContainerTests {
         String line = null;
         while ((line = reader.readLine()) != null) {
             System.out.println(line);
+        }
+    }
+
+    private void validateURLExpectedContent(String path, String... extectedContent) throws MalformedURLException, IOException {
+        URL url = new URL(path);
+        InputStream stream = url.openConnection().getInputStream();
+        assertNotNull(stream);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        StringBuilder stringBuilder = new StringBuilder();
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+            stringBuilder.append(line);
+        }
+        String content = stringBuilder.toString();
+        System.out.println(content);
+        for (int j = 0; j < extectedContent.length; j++) {
+            assertTrue(content.contains(extectedContent[j]));
         }
     }
 
@@ -492,7 +509,7 @@ public class TomcatServletContainerTests {
         WebApplicationHandle handle = this.container.createWebApplication("/war-with-tld", bundle);
         this.container.startWebApplication(handle);
         try {
-            validateURL("http://localhost:8080/war-with-tld");
+            validateURLExpectedContent("http://localhost:8080/war-with-tld", new String[] { "test.jsp", "0.2 kb" });
         } finally {
             this.container.stopWebApplication(handle);
             bundle.uninstall();
