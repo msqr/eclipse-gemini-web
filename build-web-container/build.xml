@@ -114,6 +114,7 @@
 				username="${eclipse.buildId}" 
 				keyfile="${key.file}" 
 				passphrase="${passphrase}"
+				trust="true"
 				command="mkdir -pv /opt/public/rt/gemini/web/update-site/${release.type}/${build.stamp}"/>
 
 		<scp todir="${eclipse.buildId}@build.eclipse.org:/opt/public/rt/gemini/web/update-site/${release.type}/${build.stamp}/" 
