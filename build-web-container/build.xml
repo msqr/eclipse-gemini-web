@@ -110,7 +110,7 @@
 			<arg line="-configs all"/>
 		</java>
 
-		<sshexec host="build.eclipse.org" 
+		<!--sshexec host="build.eclipse.org" 
 				username="${eclipse.buildId}" 
 				keyfile="${key.file}" 
 				passphrase="${passphrase}"
@@ -121,7 +121,7 @@
 				keyfile="${key.file}"
 				passphrase="${passphrase}">
 			<fileset dir="${publishing.dir}"/>
-		</scp>
+		</scp-->
 		<delete dir="${p2.publishing.dir}" excludes="p2agent.tar.gz" includeemptydirs="true" quiet="true"/>
 	</target>
 
