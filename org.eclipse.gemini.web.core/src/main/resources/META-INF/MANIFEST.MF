@@ -1,10 +1,10 @@
 Manifest-Version: 1
-Export-Package: org.eclipse.gemini.web.core;version="1.2.0";uses:="jav
+Export-Package: org.eclipse.gemini.web.core;version="2.0.0";uses:="jav
  ax.servlet,org.eclipse.virgo.util.osgi.manifest,org.osgi.framework",o
- rg.eclipse.gemini.web.core.spi;version="1.2.0";uses:="javax.servlet,o
+ rg.eclipse.gemini.web.core.spi;version="2.0.0";uses:="javax.servlet,o
  rg.osgi.framework",org.eclipse.gemini.web.internal.template;version="
- 1.2.0";uses:="org.osgi.framework,org.osgi.util.tracker",org.eclipse.g
- emini.web.internal.url;version="1.2.0";uses:="org.eclipse.gemini.web.
+ 2.0.0";uses:="org.osgi.framework,org.osgi.util.tracker",org.eclipse.g
+ emini.web.internal.url;version="2.0.0";uses:="org.eclipse.gemini.web.
  core,org.eclipse.virgo.util.io,org.eclipse.virgo.util.osgi.manifest,o
  rg.eclipse.virgo.util.osgi.manifest.parse,org.osgi.framework,org.osgi
  .service.url"
@@ -15,11 +15,12 @@ Bundle-ManifestVersion: 2
 Bundle-Activator: org.eclipse.gemini.web.internal.WebContainerActivato
  r
 Bundle-SymbolicName: org.eclipse.gemini.web.core
-Import-Package: javax.servlet;version="2.5",org.eclipse.virgo.util.io;
- version="2.0",org.eclipse.virgo.util.osgi;version="2.0",org.eclipse.v
- irgo.util.osgi.manifest;version="2.0",org.eclipse.virgo.util.osgi.man
- ifest.parse;version="2.0",org.osgi.framework;version="0",org.osgi.ser
- vice.event;version="1.1";resolution:="optional",org.osgi.service.pack
- ageadmin;version="0",org.osgi.service.url;version="0",org.osgi.util.t
- racker;version="0",org.slf4j;version="1.5.0"
+Import-Package: javax.servlet;version="3.0.0",org.eclipse.virgo.util.i
+ o;version="[3.0.0,3.1)",org.eclipse.virgo.util.osgi;version="[3.0.0,3
+ .1)",org.eclipse.virgo.util.osgi.manifest;version="[3.0.0,3.1)",org.e
+ clipse.virgo.util.osgi.manifest.parse;version="[3.0.0,3.1)",org.osgi.
+ framework;version="0",org.osgi.framework.wiring;version="0",org.osgi.
+ service.event;version="0";resolution:="optional",org.osgi.service.url
+ ;version="0",org.osgi.util.tracker;version="0",org.slf4j;version="1.6
+ .1"
 

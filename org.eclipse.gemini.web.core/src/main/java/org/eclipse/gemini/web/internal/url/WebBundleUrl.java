@@ -18,10 +18,10 @@ package org.eclipse.gemini.web.internal.url;
 
 import static java.util.Collections.unmodifiableMap;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLStreamHandler;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,9 +36,7 @@ public class WebBundleUrl {
 
     public static final String SCHEME = WebContainerUtils.WEB_BUNDLE_SCHEME;
 
-    private static final String QUERY_SEPARATOR = "?";
-
-    private static final String SLASH = "/";
+    private static final String DEFAULT_CHARACTER_ENCODING = "UTF-8";
 
     public final Object monitor = new Object();
 
@@ -78,17 +76,7 @@ public class WebBundleUrl {
     public final Map<String, String> getOptions() {
         synchronized (this.monitor) {
             if (this.options == null) {
-                this.options = unmodifiableMap(new HashMap<String, String>());
-                try {
-                    String query = this.url.getQuery();
-                    if (query != null) {
-                        URI uri = new URI(SLASH + QUERY_SEPARATOR + query);
-                        String schemeSpecificPart = uri.getSchemeSpecificPart();
-                        this.options = parseQueryString(schemeSpecificPart.substring(schemeSpecificPart.indexOf(QUERY_SEPARATOR) + 1));
-                    }
-                } catch (URISyntaxException e) {
-                    throw new IllegalArgumentException("URL '" + this.url + "' is not a valid WAR URL", e);
-                }
+                this.options = parseQueryString(this.url.getQuery());
             }
         }
         return this.options;
@@ -130,10 +118,18 @@ public class WebBundleUrl {
                 if (equals == -1) {
                     throw new IllegalArgumentException("Missing '=' in URL parameter '" + parm + "'");
                 }
-                options.put(parm.substring(0, equals), parm.substring(equals + 1));
+                options.put(decode(parm.substring(0, equals)), decode(parm.substring(equals + 1)));
             }
         }
         return unmodifiableMap(options);
+    }
+
+    private static String decode(String parm) {
+        try {
+            return URLDecoder.decode(parm, DEFAULT_CHARACTER_ENCODING);
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException("Cannot decode '" + parm + "'.", e);
+        }
     }
 
     private static void appendQueryStringIfNecessary(Map<?, ?> options, StringBuilder sb) {

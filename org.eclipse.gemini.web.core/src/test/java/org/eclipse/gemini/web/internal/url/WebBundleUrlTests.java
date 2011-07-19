@@ -75,19 +75,17 @@ public class WebBundleUrlTests {
         assertEquals(FILE_LOCATION, warUrl.getLocation());
         assertEquals("x;version=1,y;version=2", warUrl.getOptions().get("Import-Package"));
 
-        url = new URL(WebBundleUrl.SCHEME, null, -1, FILE_LOCATION + "?Import-Package=x; version=1,y; version=2", new DummyHandler());
-        warUrl = new WebBundleUrl(url);
-        assertEquals(FILE_LOCATION, warUrl.getLocation());
-        try {
-            warUrl.getOptions().get("Import-Package");
-        } catch (IllegalArgumentException e) {
-            assertEquals("Illegal character in query at index 19: /?Import-Package=x; version=1,y; version=2", e.getCause().getMessage());
-        }
-
-        url = new URL(WebBundleUrl.SCHEME, null, -1, FILE_LOCATION + "?Import-Package=x;%20version=1,y;%20version=2", new DummyHandler());
+        url = new URL(WebBundleUrl.SCHEME, null, -1, FILE_LOCATION + "?Bundle-SymbolicName=test%26test&Import-Package=x;%20version=1,y;%20version=2", new DummyHandler());
         warUrl = new WebBundleUrl(url);
         assertEquals(FILE_LOCATION, warUrl.getLocation());
         assertEquals("x; version=1,y; version=2", warUrl.getOptions().get("Import-Package"));
+        assertEquals("test&test", warUrl.getOptions().get("Bundle-SymbolicName"));
+
+        url = new URL(WebBundleUrl.SCHEME, null, -1, FILE_LOCATION + "?Bundle-SymbolicName=test+test&Import-Package=x;%20version=1,y;%20version=2", new DummyHandler());
+        warUrl = new WebBundleUrl(url);
+        assertEquals(FILE_LOCATION, warUrl.getLocation());
+        assertEquals("x; version=1,y; version=2", warUrl.getOptions().get("Import-Package"));
+        assertEquals("test test", warUrl.getOptions().get("Bundle-SymbolicName"));
     }
 
     private static class TestWarUrl extends WebBundleUrl {
