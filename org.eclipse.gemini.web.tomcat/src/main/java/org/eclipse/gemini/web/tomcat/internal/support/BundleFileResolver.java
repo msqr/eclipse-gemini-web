@@ -35,4 +35,13 @@ public interface BundleFileResolver {
      * @return the <code>File</code> or <code>null</code> if no <code>File</code> could be found.
      */
     File resolve(Bundle bundle);
+
+    /**
+     * Attempts to resolve the size of the specified bundle entry from the given bundle.
+     * 
+     * @param bundle the bundle that contains the specified bundle entry.
+     * @param path the specified bundle entry.
+     * @return the size of the specified bundle entry from the given bundle, or -1 if it cannot be determined.
+     */
+    long resolveBundleEntrySize(Bundle bundle, String path);
 }

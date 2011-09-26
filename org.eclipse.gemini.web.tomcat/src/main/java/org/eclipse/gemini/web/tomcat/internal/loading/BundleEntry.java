@@ -16,6 +16,7 @@
 
 package org.eclipse.gemini.web.tomcat.internal.loading;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -23,6 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolver;
+import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolverFactory;
 import org.osgi.framework.Bundle;
 
 public final class BundleEntry {
@@ -34,6 +37,8 @@ public final class BundleEntry {
 	private final String path;
 
 	private final Bundle bundle;
+
+    private final BundleFileResolver bundleFileResolver = BundleFileResolverFactory.createBundleFileResolver();
 
 	public BundleEntry(Bundle bundle) {
 		this(bundle, "");
@@ -184,4 +189,23 @@ public final class BundleEntry {
 		return String.format("BundleEntry [bundle=%s,path=%s]", this.bundle,
 				this.path);
 	}
+
+    /**
+     * Returns the bundle entry size. If the BundleFileResolver is EquinoxBundleFileResolver then we will use equinox
+     * specific functionality to get BundleEntry and its size. If the BundleFileResolver is NoOpBundleFileResolver we
+     * will use URLConnection.getContentLength(). Note: URLConnection.getContentLength() returns "int", if the bundle
+     * entry size exceeds max "int", then the content length will not be correct.
+     * 
+     * @return the bundle entry size
+     */
+    public long getContentLength() {
+        long size = this.bundleFileResolver.resolveBundleEntrySize(this.bundle, this.path);
+        if (size == -1) {
+            try {
+                size = getURL().openConnection().getContentLength();
+            } catch (IOException e) {
+            }
+        }
+        return size;
+    }
 }

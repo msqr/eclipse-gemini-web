@@ -36,8 +36,14 @@ public final class BundleFileResolverFactory {
 
     private static class NoOpBundleFileResolver implements BundleFileResolver {
 
+        @Override
         public File resolve(Bundle bundle) {
             return null;
+        }
+
+        @Override
+        public long resolveBundleEntrySize(Bundle bundle, String path) {
+            return -1L;
         }
 
     }

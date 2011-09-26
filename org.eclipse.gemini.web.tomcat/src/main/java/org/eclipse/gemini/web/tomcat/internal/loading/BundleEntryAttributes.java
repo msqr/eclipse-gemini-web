@@ -175,7 +175,7 @@ final class BundleEntryAttributes extends ResourceAttributes {
             contentLength = super.getContentLength();
 
             if (contentLength == CONTENT_LENGTH_NOT_SET) {
-                contentLength = determineContentLength(urlConnection);
+                contentLength = determineContentLength();
 
                 if (contentLength != CONTENT_LENGTH_NOT_SET) {
                     setContentLength(contentLength);
@@ -186,8 +186,8 @@ final class BundleEntryAttributes extends ResourceAttributes {
         return contentLength;
     }
 
-    private long determineContentLength(URLConnection urlConnection) {
-        return urlConnection.getContentLength();
+    private long determineContentLength() {
+        return this.bundleEntry.getContentLength();
     }
 
     private URLConnection getBundleEntryURLConnection() throws IOException {
