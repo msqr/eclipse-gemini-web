@@ -32,7 +32,7 @@
 
 		<Engine name="Catalina" defaultHost="localhost">
 			<Host name="localhost" deployOnStartup="false" unpackWARs="true"
-				autoDeploy="false" xmlValidation="false" xmlNamespaceAware="false">
+				autoDeploy="false">
 			</Host>
 		</Engine>
 
