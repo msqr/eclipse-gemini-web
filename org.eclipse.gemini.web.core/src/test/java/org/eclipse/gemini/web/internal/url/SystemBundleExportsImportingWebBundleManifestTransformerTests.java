@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.eclipse.gemini.web.core.InstallationOptions;
 import org.eclipse.gemini.web.internal.WebContainerUtils;
 import org.eclipse.gemini.web.internal.url.SystemBundleExportsImportingWebBundleManifestTransformer;
-import org.eclipse.virgo.util.osgi.VersionRange;
+import org.eclipse.virgo.util.osgi.manifest.VersionRange;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifestFactory;
 import org.eclipse.virgo.util.osgi.manifest.ImportedPackage;

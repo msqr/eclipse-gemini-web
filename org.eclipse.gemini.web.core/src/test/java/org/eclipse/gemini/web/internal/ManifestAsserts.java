@@ -24,7 +24,7 @@ import java.util.List;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
-import org.eclipse.virgo.util.osgi.VersionRange;
+import org.eclipse.virgo.util.osgi.manifest.VersionRange;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
 import org.eclipse.virgo.util.osgi.manifest.ExportedPackage;
 import org.eclipse.virgo.util.osgi.manifest.ImportedPackage;

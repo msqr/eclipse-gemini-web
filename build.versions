@@ -6,7 +6,7 @@ org.eclipse.virgo.test=3.0.0.RC2
 
 # Compile
 org.eclipse.virgo.osgi=3.0.0.RC2
-org.eclipse.virgo.util=3.0.0.RC2
+org.eclipse.virgo.util=3.1.0.D-20110927204747
 javax.activation=1.1.1
 javax.annotation=1.1.0.v201105051105
 javax.ejb=3.0.0

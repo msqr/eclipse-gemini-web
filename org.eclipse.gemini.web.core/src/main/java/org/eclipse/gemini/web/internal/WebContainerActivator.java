@@ -42,7 +42,7 @@ import org.eclipse.gemini.web.internal.url.SystemBundleExportsImportingWebBundle
 import org.eclipse.gemini.web.internal.url.WebBundleUrl;
 import org.eclipse.gemini.web.internal.url.WebBundleUrlStreamHandlerService;
 import org.eclipse.virgo.util.osgi.ServiceRegistrationTracker;
-import org.eclipse.virgo.util.osgi.VersionRange;
+import org.eclipse.virgo.util.osgi.manifest.VersionRange;
 
 public class WebContainerActivator implements BundleActivator {
 
