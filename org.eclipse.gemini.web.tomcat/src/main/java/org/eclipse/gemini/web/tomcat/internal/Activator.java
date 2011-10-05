@@ -20,6 +20,11 @@ import java.io.InputStream;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import org.eclipse.gemini.web.core.WebContainerProperties;
+import org.eclipse.gemini.web.core.spi.ServletContainer;
+import org.eclipse.gemini.web.tomcat.internal.loading.DirContextURLStreamHandlerService;
+import org.eclipse.virgo.util.io.IOUtils;
+import org.eclipse.virgo.util.osgi.ServiceRegistrationTracker;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -29,14 +34,9 @@ import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
 
-
-import org.eclipse.gemini.web.core.WebContainerProperties;
-import org.eclipse.gemini.web.core.spi.ServletContainer;
-import org.eclipse.gemini.web.tomcat.internal.loading.DirContextURLStreamHandlerService;
-import org.eclipse.virgo.util.io.IOUtils;
-import org.eclipse.virgo.util.osgi.ServiceRegistrationTracker;
-
 public class Activator implements BundleActivator {
+
+    private static final String JNDI_SCHEME = "jndi";
 
     private static final String EXPRESSION_FACTORY = "javax.el.ExpressionFactory";
 
@@ -50,12 +50,13 @@ public class Activator implements BundleActivator {
 
     private String oldExpressionFactory;
 
+    @Override
     public void start(BundleContext context) throws Exception {
-        oldExpressionFactory = System.setProperty(EXPRESSION_FACTORY, EXPRESSION_FACTORY_IMPL);
+        this.oldExpressionFactory = System.setProperty(EXPRESSION_FACTORY, EXPRESSION_FACTORY_IMPL);
 
         registerURLStreamHandler(context);
         registerConnectorDescriptors(context);
-        
+
         TomcatServletContainer container = createContainer(context);
         container.start();
 
@@ -66,23 +67,27 @@ public class Activator implements BundleActivator {
             this.container = container;
         }
     }
-    
+
     private void registerConnectorDescriptors(BundleContext context) {
         TomcatWebContainerProperties tomcatWebContainerProperties = new TomcatWebContainerProperties();
-        ServiceRegistration<WebContainerProperties> registration = context.registerService(WebContainerProperties.class, tomcatWebContainerProperties, null);
+        ServiceRegistration<WebContainerProperties> registration = context.registerService(WebContainerProperties.class,
+            tomcatWebContainerProperties, null);
         this.tracker.track(registration);
     }
 
     private void registerURLStreamHandler(BundleContext context) {
         Dictionary<String, Object> properties = new Hashtable<String, Object>();
-        properties.put(URLConstants.URL_HANDLER_PROTOCOL, "jndi");
+        properties.put(URLConstants.URL_HANDLER_PROTOCOL, new String[] { JNDI_SCHEME });
 
         DirContextURLStreamHandlerService handler = new DirContextURLStreamHandlerService();
         ServiceRegistration<URLStreamHandlerService> reg = context.registerService(URLStreamHandlerService.class, handler, properties);
         this.tracker.track(reg);
     }
 
+    @Override
     public void stop(BundleContext context) throws Exception {
+        this.tracker.unregisterAll();
+
         TomcatServletContainer container;
         synchronized (this.monitor) {
             container = this.container;
@@ -91,10 +96,9 @@ public class Activator implements BundleActivator {
         if (container != null) {
             container.stop();
         }
-        this.tracker.unregisterAll();
 
-        if (oldExpressionFactory != null) {
-            System.setProperty(EXPRESSION_FACTORY, oldExpressionFactory);
+        if (this.oldExpressionFactory != null) {
+            System.setProperty(EXPRESSION_FACTORY, this.oldExpressionFactory);
         }
     }
 
@@ -111,16 +115,16 @@ public class Activator implements BundleActivator {
     private InputStream resolveConfigFile(BundleContext context) throws BundleException {
         return TomcatConfigLocator.resolveConfigFile(context);
     }
-    
+
     private PackageAdmin getPackageAdmin(BundleContext bundleContext) {
         ServiceReference<PackageAdmin> serviceReference = bundleContext.getServiceReference(PackageAdmin.class);
         if (serviceReference != null) {
-            PackageAdmin packageAdmin = (PackageAdmin) bundleContext.getService(serviceReference);
+            PackageAdmin packageAdmin = bundleContext.getService(serviceReference);
             if (packageAdmin != null) {
                 return packageAdmin;
             }
         }
-        
+
         throw new IllegalStateException("PackageAdmin not available in the service registry");
     }
 }

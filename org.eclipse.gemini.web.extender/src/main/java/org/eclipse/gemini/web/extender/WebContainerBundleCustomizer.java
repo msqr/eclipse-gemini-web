@@ -24,12 +24,10 @@ import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 
-
-
-final class WebContainerBundleCustomizer implements BundleTrackerCustomizer {
+final class WebContainerBundleCustomizer implements BundleTrackerCustomizer<Object> {
 
     private final WebContainer container;
-    
+
     private final Bundle extenderBundle;
 
     public WebContainerBundleCustomizer(WebContainer container, Bundle extenderBundle) {
@@ -37,6 +35,7 @@ final class WebContainerBundleCustomizer implements BundleTrackerCustomizer {
         this.extenderBundle = extenderBundle;
     }
 
+    @Override
     public Object addingBundle(Bundle bundle, BundleEvent event) {
         Object handle = null;
         if (this.container.isWebBundle(bundle)) {
@@ -53,10 +52,12 @@ final class WebContainerBundleCustomizer implements BundleTrackerCustomizer {
         return handle;
     }
 
+    @Override
     public void modifiedBundle(Bundle bundle, BundleEvent event, Object object) {
         // no-op
     }
 
+    @Override
     public void removedBundle(Bundle bundle, BundleEvent event, Object object) {
         if (this.container.isWebBundle(bundle)) {
             ((WebApplication) object).stop();

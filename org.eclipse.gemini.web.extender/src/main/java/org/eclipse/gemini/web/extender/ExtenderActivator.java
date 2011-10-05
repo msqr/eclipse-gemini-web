@@ -25,48 +25,51 @@ import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
-
-
-
 public final class ExtenderActivator implements BundleActivator {
 
     private ServiceTracker<WebContainer, String> serviceTracker;
-    
+
+    @Override
     public void start(BundleContext context) {
-        this.serviceTracker = new ServiceTracker(context, WebContainer.class, new ExtendedWebContainerTracker(context));
+        this.serviceTracker = new ServiceTracker<WebContainer, String>(context, WebContainer.class, new ExtendedWebContainerTracker(context));
         this.serviceTracker.open();
     }
 
+    @Override
     public void stop(BundleContext context) {
         this.serviceTracker.close();
     }
-    
+
     private static final class ExtendedWebContainerTracker implements ServiceTrackerCustomizer<WebContainer, String> {
 
         private final BundleContext context;
-        
-        private BundleTracker<String> bundleTracker;
-        
+
+        private BundleTracker<Object> bundleTracker;
+
         public ExtendedWebContainerTracker(BundleContext context) {
             this.context = context;
         }
 
+        @Override
         public String addingService(ServiceReference<WebContainer> reference) {
-            if(this.bundleTracker == null) {
-                WebContainer container = (WebContainer) this.context.getService(reference);
-                this.bundleTracker = new BundleTracker(this.context, Bundle.ACTIVE, new WebContainerBundleCustomizer(container, context.getBundle()));
+            if (this.bundleTracker == null) {
+                this.bundleTracker = new BundleTracker<Object>(this.context, Bundle.ACTIVE, new WebContainerBundleCustomizer(
+                    this.context.getService(reference), this.context.getBundle()));
             }
             this.bundleTracker.open();
             return reference.getBundle().getSymbolicName();
         }
 
+        @Override
         public void modifiedService(ServiceReference<WebContainer> reference, String service) {
         }
 
+        @Override
         public void removedService(ServiceReference<WebContainer> reference, String service) {
             this.bundleTracker.close();
+            this.bundleTracker = null;
         }
-        
+
     }
 
 }
