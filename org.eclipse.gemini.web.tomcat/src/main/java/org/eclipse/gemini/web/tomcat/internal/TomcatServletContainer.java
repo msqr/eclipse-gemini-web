@@ -25,10 +25,6 @@ import org.apache.catalina.Context;
 import org.apache.catalina.Host;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.core.StandardContext;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
-
 import org.eclipse.gemini.web.core.spi.ContextPathExistsException;
 import org.eclipse.gemini.web.core.spi.ServletContainer;
 import org.eclipse.gemini.web.core.spi.ServletContainerException;
@@ -41,6 +37,9 @@ import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolver;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolverFactory;
 import org.eclipse.gemini.web.tomcat.spi.WebBundleClassLoaderFactory;
 import org.eclipse.virgo.util.osgi.ServiceRegistrationTracker;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
 final class TomcatServletContainer implements ServletContainer {
 
@@ -72,7 +71,8 @@ final class TomcatServletContainer implements ServletContainer {
             this.classLoaderCustomizer.open();
 
             WebBundleClassLoaderFactory classLoaderFactory = new StandardWebBundleClassLoaderFactory(this.classLoaderCustomizer);
-            ServiceRegistration registration = this.context.registerService(WebBundleClassLoaderFactory.class.getName(), classLoaderFactory, null);
+            ServiceRegistration<WebBundleClassLoaderFactory> registration = this.context.registerService(WebBundleClassLoaderFactory.class,
+                classLoaderFactory, null);
             this.registrationTracker.track(registration);
             doStart();
         } catch (LifecycleException e) {
@@ -91,6 +91,7 @@ final class TomcatServletContainer implements ServletContainer {
         }
     }
 
+    @Override
     public WebApplicationHandle createWebApplication(String contextPath, Bundle bundle) {
         contextPath = formatContextPath(contextPath);
 
@@ -111,6 +112,7 @@ final class TomcatServletContainer implements ServletContainer {
         }
     }
 
+    @Override
     public void startWebApplication(WebApplicationHandle handle) {
         String contextPath = handle.getServletContext().getContextPath();
         Host host = this.tomcat.getHost();
@@ -126,6 +128,7 @@ final class TomcatServletContainer implements ServletContainer {
         }
     }
 
+    @Override
     public void stopWebApplication(WebApplicationHandle handle) {
         StandardContext context = extractTomcatContext(handle);
         try {
@@ -242,6 +245,7 @@ final class TomcatServletContainer implements ServletContainer {
             this.webappLoader = webappLoader;
         }
 
+        @Override
         public ServletContext getServletContext() {
             return this.servletContext;
         }
@@ -250,6 +254,7 @@ final class TomcatServletContainer implements ServletContainer {
             return this.context;
         }
 
+        @Override
         public ClassLoader getClassLoader() {
             return this.webappLoader.getClassLoader();
         }

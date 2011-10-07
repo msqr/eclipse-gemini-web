@@ -18,7 +18,6 @@ package org.eclipse.gemini.web.test.extender;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -28,9 +27,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 
 import javax.servlet.ServletContext;
 
+import org.eclipse.virgo.test.framework.OsgiTestRunner;
+import org.eclipse.virgo.test.framework.TestFrameworkUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,9 +40,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
-
-import org.eclipse.virgo.test.framework.OsgiTestRunner;
-import org.eclipse.virgo.test.framework.TestFrameworkUtils;
 
 @RunWith(OsgiTestRunner.class)
 public class UrlBasedExtenderTests {
@@ -160,32 +159,33 @@ public class UrlBasedExtenderTests {
 
             validateURL("http://localhost:8080/specified/test");
 
-            ServiceReference[] serviceReferences = this.context.getServiceReferences(ServletContext.class.getName(), null);
+            Collection<ServiceReference<ServletContext>> serviceReferences = this.context.getServiceReferences(ServletContext.class, null);
             assertNotNull(serviceReferences);
-            assertEquals(1, serviceReferences.length);
+            assertEquals(1, serviceReferences.size());
 
             war2 = this.context.installBundle("webbundle:file:src/test/resources/specified-context-path-2.war");
             war2.start();
 
-            serviceReferences = this.context.getServiceReferences(ServletContext.class.getName(), null);
+            serviceReferences = this.context.getServiceReferences(ServletContext.class, null);
             assertNotNull(serviceReferences);
-            assertEquals(1, serviceReferences.length);
+            assertEquals(1, serviceReferences.size());
 
             war2.stop();
             war2.uninstall();
 
             validateURL("http://localhost:8080/specified/test");
 
-            serviceReferences = this.context.getServiceReferences(ServletContext.class.getName(), null);
+            serviceReferences = this.context.getServiceReferences(ServletContext.class, null);
             assertNotNull(serviceReferences);
-            assertEquals(1, serviceReferences.length);
+            assertEquals(1, serviceReferences.size());
 
             war1.stop();
 
             validateNotFound("http://localhost:8080/specified/test");
 
-            serviceReferences = this.context.getServiceReferences(ServletContext.class.getName(), null);
-            assertNull(serviceReferences);
+            serviceReferences = this.context.getServiceReferences(ServletContext.class, null);
+            assertNotNull(serviceReferences);
+            assertEquals(0, serviceReferences.size());
         } finally {
             extender.uninstall();
             if (war1 != null) {
@@ -226,7 +226,7 @@ public class UrlBasedExtenderTests {
 
             war = installBundle(EMPTY_WAR_WEB_BUNDLE_URL, "?Bundle-ClassPath=WEB-INF/classes/&Web-ContextPath=/");
 
-            String bundleClassPath = (String) war.getHeaders().get("Bundle-ClassPath");
+            String bundleClassPath = war.getHeaders().get("Bundle-ClassPath");
             assertEquals("WEB-INF/classes", bundleClassPath);
         } finally {
             extender.uninstall();
@@ -246,7 +246,7 @@ public class UrlBasedExtenderTests {
             war = installBundle(EMPTY_WAR_WEB_BUNDLE_URL,
                 "?Import-Package=javax.servlet;version=2.5,javax.servlet.http;version=2.5&Web-ContextPath=/");
 
-            String importPackage = (String) war.getHeaders().get("Import-Package");
+            String importPackage = war.getHeaders().get("Import-Package");
             assertTrue(importPackage.startsWith("javax.servlet;version=\"2.5\",javax.servlet.http;version=\"2.5\""));
         } finally {
             extender.uninstall();
@@ -379,7 +379,7 @@ public class UrlBasedExtenderTests {
         } catch (IOException e) {
         }
     }
-    
+
     private InputStream openInputStream(String path) throws MalformedURLException, InterruptedException {
         URL url = new URL(path);
         InputStream stream = null;
@@ -392,5 +392,5 @@ public class UrlBasedExtenderTests {
         }
         return stream;
     }
-    
+
 }

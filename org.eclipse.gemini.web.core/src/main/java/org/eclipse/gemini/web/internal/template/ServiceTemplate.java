@@ -21,50 +21,52 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
-
 public class ServiceTemplate<S> {
 
-    private final ServiceTracker<S, Object> tracker;
-    
+    private final ServiceTracker<Object, Object> tracker;
+
     public ServiceTemplate(BundleContext context, Class<S> clazz) {
-        this.tracker = new ServiceTracker(context, clazz, new ServiceTemplateCustomizer(context));
+        this.tracker = new ServiceTracker<Object, Object>(context, clazz.getName(), new ServiceTemplateCustomizer(context));
     }
-    
+
     public void start() {
         this.tracker.open();
     }
-    
+
     public void stop() {
         this.tracker.close();
     }
-    
+
     @SuppressWarnings("unchecked")
     public <T> T executeWithService(ServiceCallback<S, T> callback) {
         Object service = this.tracker.getService();
-        if(service != null) {
-            return callback.doWithService((S)service);
+        if (service != null) {
+            return callback.doWithService((S) service);
         }
         return null;
     }
-    
-    private static final class ServiceTemplateCustomizer implements ServiceTrackerCustomizer {
+
+    private static final class ServiceTemplateCustomizer implements ServiceTrackerCustomizer<Object, Object> {
 
         private final BundleContext context;
-        
+
         public ServiceTemplateCustomizer(BundleContext context) {
             this.context = context;
         }
 
-        public Object addingService(ServiceReference reference) {
+        @Override
+        public Object addingService(ServiceReference<Object> reference) {
             return this.context.getService(reference);
         }
 
-        public void modifiedService(ServiceReference reference, Object service) {            
+        @Override
+        public void modifiedService(ServiceReference<Object> reference, Object service) {
         }
 
-        public void removedService(ServiceReference reference, Object service) {
+        @Override
+        public void removedService(ServiceReference<Object> reference, Object service) {
             this.context.ungetService(reference);
         }
-        
+
     }
 }

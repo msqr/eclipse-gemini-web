@@ -18,7 +18,6 @@ package org.eclipse.gemini.web.test.extender;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
@@ -27,9 +26,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 
 import javax.servlet.ServletContext;
 
+import org.eclipse.virgo.test.framework.OsgiTestRunner;
+import org.eclipse.virgo.test.framework.TestFrameworkUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,9 +39,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.ServiceReference;
-
-import org.eclipse.virgo.test.framework.OsgiTestRunner;
-import org.eclipse.virgo.test.framework.TestFrameworkUtils;
 
 @RunWith(OsgiTestRunner.class)
 public class StreamBasedExtenderTests {
@@ -155,32 +154,33 @@ public class StreamBasedExtenderTests {
 
             validateURL("http://localhost:8080/specified/test");
 
-            ServiceReference[] serviceReferences = this.context.getServiceReferences(ServletContext.class.getName(), null);
+            Collection<ServiceReference<ServletContext>> serviceReferences = this.context.getServiceReferences(ServletContext.class, null);
             assertNotNull(serviceReferences);
-            assertEquals(1, serviceReferences.length);
+            assertEquals(1, serviceReferences.size());
 
             war2 = this.context.installBundle("webbundle:file:src/test/resources/specified-context-path-2.war");
             war2.start();
 
-            serviceReferences = this.context.getServiceReferences(ServletContext.class.getName(), null);
+            serviceReferences = this.context.getServiceReferences(ServletContext.class, null);
             assertNotNull(serviceReferences);
-            assertEquals(1, serviceReferences.length);
+            assertEquals(1, serviceReferences.size());
 
             war2.stop();
             war2.uninstall();
 
             validateURL("http://localhost:8080/specified/test");
 
-            serviceReferences = this.context.getServiceReferences(ServletContext.class.getName(), null);
+            serviceReferences = this.context.getServiceReferences(ServletContext.class, null);
             assertNotNull(serviceReferences);
-            assertEquals(1, serviceReferences.length);
+            assertEquals(1, serviceReferences.size());
 
             war1.stop();
 
             validateNotFound("http://localhost:8080/specified/test");
 
-            serviceReferences = this.context.getServiceReferences(ServletContext.class.getName(), null);
-            assertNull(serviceReferences);
+            serviceReferences = this.context.getServiceReferences(ServletContext.class, null);
+            assertNotNull(serviceReferences);
+            assertEquals(0, serviceReferences.size());
         } finally {
             extender.uninstall();
             if (war1 != null) {
@@ -213,8 +213,9 @@ public class StreamBasedExtenderTests {
     }
 
     /**
-     * This test expects IllegalArgumentException rather than BundleException because for stream based installation the exception is thrown
-     * when the stream is opened and BundleException is not a valid exception for URL.openStream.
+     * This test expects IllegalArgumentException rather than BundleException because for stream based installation the
+     * exception is thrown when the stream is opened and BundleException is not a valid exception for URL.openStream.
+     * 
      * @throws BundleException but shouldn't
      * @throws Exception possibly
      */
@@ -229,10 +230,11 @@ public class StreamBasedExtenderTests {
             extender.uninstall();
         }
     }
-    
+
     /**
-     * This test expects IllegalArgumentException rather than BundleException because for stream based installation the exception is thrown
-     * when the stream is opened and BundleException is not a valid exception for URL.openStream.
+     * This test expects IllegalArgumentException rather than BundleException because for stream based installation the
+     * exception is thrown when the stream is opened and BundleException is not a valid exception for URL.openStream.
+     * 
      * @throws BundleException but shouldn't
      * @throws Exception possibly
      */
@@ -249,8 +251,9 @@ public class StreamBasedExtenderTests {
     }
 
     /**
-     * This test expects IllegalArgumentException rather than BundleException because for stream based installation the exception is thrown
-     * when the stream is opened and BundleException is not a valid exception for URL.openStream.
+     * This test expects IllegalArgumentException rather than BundleException because for stream based installation the
+     * exception is thrown when the stream is opened and BundleException is not a valid exception for URL.openStream.
+     * 
      * @throws BundleException but shouldn't
      * @throws Exception possibly
      */
@@ -265,10 +268,11 @@ public class StreamBasedExtenderTests {
             extender.uninstall();
         }
     }
-    
+
     /**
-     * This test expects IllegalArgumentException rather than BundleException because for stream based installation the exception is thrown
-     * when the stream is opened and BundleException is not a valid exception for URL.openStream.
+     * This test expects IllegalArgumentException rather than BundleException because for stream based installation the
+     * exception is thrown when the stream is opened and BundleException is not a valid exception for URL.openStream.
+     * 
      * @throws BundleException but shouldn't
      * @throws Exception possibly
      */
@@ -283,7 +287,7 @@ public class StreamBasedExtenderTests {
             extender.uninstall();
         }
     }
-    
+
     @Test
     public void installWithBundleManifestVersion2() throws BundleException, Exception {
         Bundle war = null;
@@ -292,9 +296,9 @@ public class StreamBasedExtenderTests {
             extender.start();
 
             war = installWarBundle("?Bundle-ManifestVersion=2&Web-ContextPath=/simple-war");
-            
+
             war.start();
-            
+
             validateURL("http://localhost:8080/simple-war/index.html");
 
             war.stop();
@@ -307,7 +311,6 @@ public class StreamBasedExtenderTests {
             }
         }
     }
-
 
     private Bundle installExtender() throws BundleException {
         return this.context.installBundle("file:../org.eclipse.gemini.web.extender/target/classes");
@@ -363,7 +366,7 @@ public class StreamBasedExtenderTests {
         } catch (IOException e) {
         }
     }
-    
+
     private InputStream openInputStream(String path) throws MalformedURLException, InterruptedException {
         URL url = new URL(path);
         InputStream stream = null;

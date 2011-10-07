@@ -25,18 +25,17 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
-
 final class DelegatingClassLoaderCustomizer implements ClassLoaderCustomizer {
 
     private final BundleContext context;
 
-    private final ServiceTracker tracker;
+    private final ServiceTracker<ClassLoaderCustomizer, Object> tracker;
 
     private volatile ClassLoaderCustomizer delegate;
 
     public DelegatingClassLoaderCustomizer(BundleContext context) {
         this.context = context;
-        this.tracker = new ServiceTracker(context, ClassLoaderCustomizer.class.getName(), new Customizer());
+        this.tracker = new ServiceTracker<ClassLoaderCustomizer, Object>(context, ClassLoaderCustomizer.class.getName(), new Customizer());
     }
 
     public void open() {
@@ -47,12 +46,14 @@ final class DelegatingClassLoaderCustomizer implements ClassLoaderCustomizer {
         this.tracker.close();
     }
 
+    @Override
     public void addClassFileTransformer(ClassFileTransformer transformer, Bundle bundle) {
         if (this.delegate != null) {
             this.delegate.addClassFileTransformer(transformer, bundle);
         }
     }
 
+    @Override
     public ClassLoader createThrowawayClassLoader(Bundle bundle) {
         if (this.delegate != null) {
             return this.delegate.createThrowawayClassLoader(bundle);
@@ -61,6 +62,7 @@ final class DelegatingClassLoaderCustomizer implements ClassLoaderCustomizer {
         }
     }
 
+    @Override
     public ClassLoader[] extendClassLoaderChain(Bundle bundle) {
         if (this.delegate != null) {
             return this.delegate.extendClassLoaderChain(bundle);
@@ -69,25 +71,28 @@ final class DelegatingClassLoaderCustomizer implements ClassLoaderCustomizer {
         }
     }
 
-    private class Customizer implements ServiceTrackerCustomizer {
+    private class Customizer implements ServiceTrackerCustomizer<ClassLoaderCustomizer, Object> {
 
-        public Object addingService(ServiceReference reference) {
-            ClassLoaderCustomizer newDelegate = (ClassLoaderCustomizer) context.getService(reference);
+        @Override
+        public Object addingService(ServiceReference<ClassLoaderCustomizer> reference) {
+            ClassLoaderCustomizer newDelegate = DelegatingClassLoaderCustomizer.this.context.getService(reference);
 
-            if (delegate == null) {
-                delegate = newDelegate;
+            if (DelegatingClassLoaderCustomizer.this.delegate == null) {
+                DelegatingClassLoaderCustomizer.this.delegate = newDelegate;
             }
 
             return newDelegate;
         }
 
-        public void modifiedService(ServiceReference reference, Object service) {
+        @Override
+        public void modifiedService(ServiceReference<ClassLoaderCustomizer> reference, Object service) {
             // no-op
         }
 
-        public void removedService(ServiceReference reference, Object service) {
-            context.ungetService(reference);
-            delegate = null;
+        @Override
+        public void removedService(ServiceReference<ClassLoaderCustomizer> reference, Object service) {
+            DelegatingClassLoaderCustomizer.this.context.ungetService(reference);
+            DelegatingClassLoaderCustomizer.this.delegate = null;
         }
 
     }
