@@ -1,7 +1,7 @@
 Manifest-Version: 1
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.gemini.web.core
-Bundle-Version: 1.0
+Bundle-Version: $version
 Bundle-Name: Gemini Web Core
 Import-Template: org.eclipse.virgo.util.*;version="${org.eclipse.virgo.util:[=.=.=, =.+1)}",
  javax.servlet.*;version="3.0.0",

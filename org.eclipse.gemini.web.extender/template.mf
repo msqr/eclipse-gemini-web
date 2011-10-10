@@ -1,7 +1,7 @@
 Manifest-Version: 1
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: org.eclipse.gemini.web.extender
-Bundle-Version: 1
+Bundle-Version: $version
 Bundle-Name: Gemini Web Extender
 Bundle-Activator: org.eclipse.gemini.web.extender.ExtenderActivator
 Import-Template: org.eclipse.gemini.web.*;version="${version}",
