@@ -10,6 +10,7 @@
 			in order to provide support for deploying Java EE WARs and OSGi <emphasis>Web Application Bundles</emphasis>. 
 			You configure the embedded Servlet container using the standard Apache Tomcat configuration.
 			The main difference is that the configuration file is called <filename>tomcat-server.xml</filename> rather than <literal>server.xml</literal>.  
+			Another difference is that not all standard Apache Tomcat configuration is supported in @product.name@: the restrictions are described in the remainder of this section.
 			If you do not want to use the default settings, you can provide the <literal>tomcat-server.xml</literal> file located in the <literal>$GW_HOME/config</literal> directory. 
 		</para>
 		<para>Here's an extract of the default configuration distributed with the @short.product.name@.</para>
@@ -69,6 +70,11 @@
 				<listitem>
 					<para>
 						The <literal>&lt;Host&gt;</literal> child element represents a virtual host, which is an association of a network name for a server (such as <literal>www.mycompany.com</literal>) with the particular server on which Catalina is running.  
+					</para>
+				</listitem>
+				<listitem>
+					<para>
+						Note that multiple <literal>&lt;Host&gt;</literal> elements are not supported in @product.name@.
 					</para>
 				</listitem>
 			</itemizedlist>
