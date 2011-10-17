@@ -39,6 +39,7 @@ public class TomcatServletContainerFactoryTests {
         TomcatServletContainerFactory factory = new TomcatServletContainerFactory();
         BundleContext bundleContext = createMock(BundleContext.class);
         expect(bundleContext.getProperty(TomcatConfigLocator.CONFIG_PATH_FRAMEWORK_PROPERTY)).andReturn(null);
+        expect(bundleContext.getProperty(OsgiAwareEmbeddedTomcat.USE_NAMING)).andReturn(null);
         expect(bundleContext.createFilter("(objectClass=org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer)")).andReturn(null);
         replay(bundleContext);
         TomcatServletContainer container = factory.createContainer(new FileInputStream("src/test/resources/server.xml"), bundleContext, null);

@@ -58,6 +58,14 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
 
     private static final String ROOT_PATH = "/";
 
+    static final String USE_NAMING = "useNaming";
+    
+    private static final String TOMCAT_NAMING_ENABLED = "tomcat";
+    
+    private static final String OSGI_NAMING_ENABLED = "osgi";
+    
+    private static final String NAMING_DISABLED = "disabled";
+
     private final static Logger LOGGER = LoggerFactory.getLogger(OsgiAwareEmbeddedTomcat.class);
 
     private final ExtendCatalina catalina = new ExtendCatalina();
@@ -154,12 +162,34 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
     public void init() throws LifecycleException {
         getServer();
 
-        enableNaming();
-        // TODO introduce property for disabling the naming.
-        // Bug 328174 - Provide ability to turn off tomcat naming (jndi) support
-        // System.setProperty("catalina.useNaming", "false");
+        initNaming();
 
         this.server.init();
+    }
+
+    private void initNaming() {
+        String useNaming = bundleContext.getProperty(USE_NAMING);
+        if (useNaming == null) {
+            useNaming = System.getProperty(USE_NAMING);
+        }
+        if (useNaming == null) {
+            useNaming = TOMCAT_NAMING_ENABLED;
+        }
+
+        if (NAMING_DISABLED.equals(useNaming)) {
+            System.setProperty("catalina.useNaming", "false");
+        } else {
+            enableNaming(useNaming);
+        }
+    }
+
+    private void enableNaming(String useNaming) {
+        super.enableNaming();
+        
+        if (OSGI_NAMING_ENABLED.equals(useNaming)) {
+            //TODO Integration with OSGi JNDI will be covered in
+            //https://bugs.eclipse.org/bugs/show_bug.cgi?id=361144
+        }
     }
 
     @Override
