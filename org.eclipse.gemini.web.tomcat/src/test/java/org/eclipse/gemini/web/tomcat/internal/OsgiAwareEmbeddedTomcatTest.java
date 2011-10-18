@@ -2,90 +2,136 @@
 package org.eclipse.gemini.web.tomcat.internal;
 
 import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.List;
+
+import javax.naming.spi.InitialContextFactory;
+import javax.naming.spi.ObjectFactory;
+import javax.naming.spi.ObjectFactoryBuilder;
+
 import org.apache.catalina.LifecycleException;
+import org.eclipse.virgo.teststubs.osgi.framework.StubBundleContext;
+import org.eclipse.virgo.teststubs.osgi.framework.StubServiceRegistration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 public class OsgiAwareEmbeddedTomcatTest {
 
-    private static final String CATALINA_USE_NAMING = "catalina.useNaming";
-
-    private BundleContext bundleContext;
+    private StubBundleContext bundleContext;
 
     private PackageAdmin packageAdmin;
 
     @Before
     public void setUp() {
-        this.bundleContext = createMock(BundleContext.class);
+        this.bundleContext = new StubBundleContext();
         this.packageAdmin = createMock(PackageAdmin.class);
     }
 
     @After
     public void tearDown() {
-        verify(this.bundleContext);
     }
 
     @Test
     public void testInitNaming() {
-        expect(this.bundleContext.getProperty(OsgiAwareEmbeddedTomcat.USE_NAMING)).andReturn(null).andReturn("tomcat").andReturn("disabled");
-        replay(this.bundleContext);
-
         OsgiAwareEmbeddedTomcat tomcat = createTomcat();
         try {
             tomcat.init();
         } catch (LifecycleException e) {
             fail(e.getMessage());
         }
-        assertTrue(Boolean.parseBoolean(System.getProperty(CATALINA_USE_NAMING)));
+        assertTrue(Boolean.parseBoolean(System.getProperty(OsgiAwareEmbeddedTomcat.CATALINA_USE_NAMING)));
 
+        this.bundleContext.addProperty(OsgiAwareEmbeddedTomcat.USE_NAMING, OsgiAwareEmbeddedTomcat.TOMCAT_NAMING_ENABLED);
         tomcat = createTomcat();
         try {
             tomcat.init();
         } catch (LifecycleException e) {
             fail(e.getMessage());
         }
-        assertTrue(Boolean.parseBoolean(System.getProperty(CATALINA_USE_NAMING)));
+        assertTrue(Boolean.parseBoolean(System.getProperty(OsgiAwareEmbeddedTomcat.CATALINA_USE_NAMING)));
 
+        this.bundleContext.addProperty(OsgiAwareEmbeddedTomcat.USE_NAMING, OsgiAwareEmbeddedTomcat.NAMING_DISABLED);
         tomcat = createTomcat();
         try {
             tomcat.init();
         } catch (LifecycleException e) {
             fail(e.getMessage());
         }
-        assertTrue(!Boolean.parseBoolean(System.getProperty(CATALINA_USE_NAMING)));
+        assertTrue(!Boolean.parseBoolean(System.getProperty(OsgiAwareEmbeddedTomcat.CATALINA_USE_NAMING)));
+
+        this.bundleContext.addProperty(OsgiAwareEmbeddedTomcat.USE_NAMING, OsgiAwareEmbeddedTomcat.OSGI_NAMING_ENABLED);
+        tomcat = createTomcat();
+        try {
+            tomcat.init();
+        } catch (LifecycleException e) {
+            fail(e.getMessage());
+        }
+        assertTrue(Boolean.parseBoolean(System.getProperty(OsgiAwareEmbeddedTomcat.CATALINA_USE_NAMING)));
     }
 
     @Test
     public void testInitNamingSystemProperty() {
-        expect(this.bundleContext.getProperty(OsgiAwareEmbeddedTomcat.USE_NAMING)).andReturn(null).andReturn(null);
-        replay(this.bundleContext);
-
         OsgiAwareEmbeddedTomcat tomcat = createTomcat();
-        System.setProperty(OsgiAwareEmbeddedTomcat.USE_NAMING, "tomcat");
+        System.setProperty(OsgiAwareEmbeddedTomcat.USE_NAMING, OsgiAwareEmbeddedTomcat.TOMCAT_NAMING_ENABLED);
         try {
             tomcat.init();
         } catch (LifecycleException e) {
             fail(e.getMessage());
         }
-        assertTrue(Boolean.parseBoolean(System.getProperty(CATALINA_USE_NAMING)));
+        assertTrue(Boolean.parseBoolean(System.getProperty(OsgiAwareEmbeddedTomcat.CATALINA_USE_NAMING)));
 
         tomcat = createTomcat();
-        System.setProperty(OsgiAwareEmbeddedTomcat.USE_NAMING, "disabled");
+        System.setProperty(OsgiAwareEmbeddedTomcat.USE_NAMING, OsgiAwareEmbeddedTomcat.NAMING_DISABLED);
         try {
             tomcat.init();
         } catch (LifecycleException e) {
             fail(e.getMessage());
         }
-        assertTrue(!Boolean.parseBoolean(System.getProperty(CATALINA_USE_NAMING)));
+        assertTrue(!Boolean.parseBoolean(System.getProperty(OsgiAwareEmbeddedTomcat.CATALINA_USE_NAMING)));
+
+        tomcat = createTomcat();
+        System.setProperty(OsgiAwareEmbeddedTomcat.USE_NAMING, OsgiAwareEmbeddedTomcat.OSGI_NAMING_ENABLED);
+        try {
+            tomcat.init();
+        } catch (LifecycleException e) {
+            fail(e.getMessage());
+        }
+        assertTrue(Boolean.parseBoolean(System.getProperty(OsgiAwareEmbeddedTomcat.CATALINA_USE_NAMING)));
+    }
+
+    @Test
+    public void testInitNamingOSGIServices() {
+        this.bundleContext.addProperty(OsgiAwareEmbeddedTomcat.USE_NAMING, OsgiAwareEmbeddedTomcat.OSGI_NAMING_ENABLED);
+
+        OsgiAwareEmbeddedTomcat tomcat = createTomcat();
+        try {
+            tomcat.init();
+        } catch (LifecycleException e) {
+            fail(e.getMessage());
+        }
+        List<StubServiceRegistration<Object>> serviceRegistrations = this.bundleContext.getServiceRegistrations();
+        assertTrue(serviceRegistrations.size() == 3);
+        checkOSGIServicesForNamingAreRegistered(serviceRegistrations);
+    }
+
+    private void checkOSGIServicesForNamingAreRegistered(List<StubServiceRegistration<Object>> serviceRegistrations) {
+        if (serviceRegistrations != null) {
+            for (int i = 0; i < serviceRegistrations.size(); i++) {
+                Dictionary<String, Object> properties = serviceRegistrations.get(i).getProperties();
+                List<String> objectClasses = Arrays.asList((String[]) properties.get(Constants.OBJECTCLASS));
+                assertTrue(objectClasses.contains(ObjectFactory.class.getName()) || objectClasses.contains(ObjectFactoryBuilder.class.getName())
+                    || objectClasses.contains(InitialContextFactory.class.getName()));
+            }
+        } else {
+            fail("There are no service registrations.");
+        }
     }
 
     private OsgiAwareEmbeddedTomcat createTomcat() {

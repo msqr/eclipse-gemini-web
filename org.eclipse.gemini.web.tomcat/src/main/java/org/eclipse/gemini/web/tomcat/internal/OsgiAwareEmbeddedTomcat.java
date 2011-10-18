@@ -20,7 +20,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
+
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.naming.spi.InitialContextFactory;
+import javax.naming.spi.ObjectFactory;
+import javax.naming.spi.ObjectFactoryBuilder;
 
 import org.apache.catalina.Authenticator;
 import org.apache.catalina.Container;
@@ -36,6 +44,7 @@ import org.apache.catalina.Valve;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Catalina;
 import org.apache.catalina.startup.ContextConfig;
+import org.apache.naming.java.javaURLContextFactory;
 import org.apache.tomcat.JarScanner;
 import org.apache.tomcat.util.digester.Digester;
 import org.apache.tomcat.util.scan.StandardJarScanner;
@@ -45,8 +54,10 @@ import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolverFactory;
 import org.eclipse.gemini.web.tomcat.internal.support.PackageAdminBundleDependencyDeterminer;
 import org.eclipse.virgo.util.io.FatalIOException;
 import org.eclipse.virgo.util.io.PathReference;
+import org.eclipse.virgo.util.osgi.ServiceRegistrationTracker;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,17 +65,25 @@ import org.xml.sax.SAXException;
 
 public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.Tomcat {
 
+    private static final String USER_DIR = "user.dir";
+
     private static final String ROOT_CONTEXT_PATH = "";
 
     private static final String ROOT_PATH = "/";
 
     static final String USE_NAMING = "useNaming";
-    
-    private static final String TOMCAT_NAMING_ENABLED = "tomcat";
-    
-    private static final String OSGI_NAMING_ENABLED = "osgi";
-    
-    private static final String NAMING_DISABLED = "disabled";
+
+    static final String TOMCAT_NAMING_ENABLED = "tomcat";
+
+    static final String OSGI_NAMING_ENABLED = "osgi";
+
+    static final String NAMING_DISABLED = "disabled";
+
+    static final String CATALINA_USE_NAMING = "catalina.useNaming";
+
+    static final String JNDI_URLSCHEME = "osgi.jndi.url.scheme";
+
+    static final String JAVA_JNDI_URLSCHEME = "java";
 
     private final static Logger LOGGER = LoggerFactory.getLogger(OsgiAwareEmbeddedTomcat.class);
 
@@ -88,8 +107,10 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
      * Custom mappings of login methods to authenticators
      */
     protected volatile HashMap<String, Authenticator> authenticators;
-    
+
     private final Object monitor = new Object();
+
+    private final ServiceRegistrationTracker tracker = new ServiceRegistrationTracker();
 
     OsgiAwareEmbeddedTomcat(BundleContext context, PackageAdmin packageAdmin) {
         this.bundleContext = context;
@@ -168,7 +189,7 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
     }
 
     private void initNaming() {
-        String useNaming = bundleContext.getProperty(USE_NAMING);
+        String useNaming = this.bundleContext.getProperty(USE_NAMING);
         if (useNaming == null) {
             useNaming = System.getProperty(USE_NAMING);
         }
@@ -177,7 +198,7 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
         }
 
         if (NAMING_DISABLED.equals(useNaming)) {
-            System.setProperty("catalina.useNaming", "false");
+            System.setProperty(CATALINA_USE_NAMING, Boolean.FALSE.toString());
         } else {
             enableNaming(useNaming);
         }
@@ -185,10 +206,11 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
 
     private void enableNaming(String useNaming) {
         super.enableNaming();
-        
+
         if (OSGI_NAMING_ENABLED.equals(useNaming)) {
-            //TODO Integration with OSGi JNDI will be covered in
-            //https://bugs.eclipse.org/bugs/show_bug.cgi?id=361144
+            registerInitialContextFactory();
+            registerJavaURLContextFactory();
+            registerObjectFactoryBuilder();
         }
     }
 
@@ -196,12 +218,14 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
     public void destroy() throws LifecycleException {
         super.destroy();
 
-        if (oldCatalinaBaseDir != null) {
-            System.setProperty(Globals.CATALINA_BASE_PROP, oldCatalinaBaseDir);
+        this.tracker.unregisterAll();
+
+        if (this.oldCatalinaBaseDir != null) {
+            System.setProperty(Globals.CATALINA_BASE_PROP, this.oldCatalinaBaseDir);
         }
 
-        if (oldCatalinaHomeDir != null) {
-            System.setProperty(Globals.CATALINA_HOME_PROP, oldCatalinaHomeDir);
+        if (this.oldCatalinaHomeDir != null) {
+            System.setProperty(Globals.CATALINA_HOME_PROP, this.oldCatalinaHomeDir);
         }
     }
 
@@ -298,7 +322,7 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
         }
         if (this.basedir == null) {
             // Create a temp dir.
-            this.basedir = System.getProperty("user.dir");
+            this.basedir = System.getProperty(USER_DIR);
             PathReference home = new PathReference(this.basedir);
             home.createDirectory();
             if (!home.isAbsolute()) {
@@ -309,8 +333,8 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
                 }
             }
         }
-        oldCatalinaHomeDir = System.setProperty(Globals.CATALINA_HOME_PROP, this.basedir);
-        oldCatalinaBaseDir = System.setProperty(Globals.CATALINA_BASE_PROP, this.basedir);
+        this.oldCatalinaHomeDir = System.setProperty(Globals.CATALINA_HOME_PROP, this.basedir);
+        this.oldCatalinaBaseDir = System.setProperty(Globals.CATALINA_BASE_PROP, this.basedir);
     }
 
     /**
@@ -328,7 +352,7 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
             throw new IllegalArgumentException("Specified Authenticator is not a Valve");
         }
         if (this.authenticators == null) {
-            synchronized (monitor) {
+            synchronized (this.monitor) {
                 if (this.authenticators == null) {
                     this.authenticators = new HashMap<String, Authenticator>();
                 }
@@ -403,6 +427,68 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
         protected void setConfigBase(File configDir) {
             this.configDir = configDir;
         }
+    }
+
+    /**
+     * Registers the <code>ObjectFactoryBuilder</code> implementation that is responsible for loading Tomcat's Object
+     * Factories.
+     */
+    private void registerObjectFactoryBuilder() {
+        ServiceRegistration<ObjectFactoryBuilder> serviceRegistration = this.bundleContext.registerService(ObjectFactoryBuilder.class,
+            new ObjectFactoryBuilder() {
+
+                @Override
+                public ObjectFactory createObjectFactory(Object obj, Hashtable<?, ?> environment) throws NamingException {
+                    if (obj instanceof Reference) {
+                        final Reference reference = (Reference) obj;
+                        final String factory = reference.getFactoryClassName();
+                        if (factory != null) {
+                            try {
+                                Class<?> clazz = getClass().getClassLoader().loadClass(factory);
+                                return (ObjectFactory) clazz.newInstance();
+                            } catch (ClassNotFoundException e) {
+                                if (LOGGER.isInfoEnabled()) {
+                                    LOGGER.info("Error while trying to create object factory [" + factory + "]", e);
+                                }
+                            } catch (InstantiationException e) {
+                                if (LOGGER.isInfoEnabled()) {
+                                    LOGGER.info("Error while trying to create object factory [" + factory + "]", e);
+                                }
+                            } catch (IllegalAccessException e) {
+                                if (LOGGER.isInfoEnabled()) {
+                                    LOGGER.info("Error while trying to create object factory [" + factory + "]", e);
+                                }
+                            }
+                        }
+                    }
+                    return null;
+                }
+
+            }, null);
+        this.tracker.track(serviceRegistration);
+    }
+
+    /**
+     * Registers <code>org.apache.naming.java.javaURLContextFactory</code> as URL Context Factory for 'java' URL scheme.
+     * In the traditional way this factory is specified via <code>java.naming.factory.initial</code> system property.
+     */
+    private void registerJavaURLContextFactory() {
+        Dictionary<String, String> serviceProperties = new Hashtable<String, String>();
+        serviceProperties.put(JNDI_URLSCHEME, JAVA_JNDI_URLSCHEME);
+        ServiceRegistration<ObjectFactory> serviceRegistration = this.bundleContext.registerService(ObjectFactory.class, new javaURLContextFactory(),
+            serviceProperties);
+        this.tracker.track(serviceRegistration);
+    }
+
+    /**
+     * Registers the <code>InitialContextFactory</code> implementation that is responsible for loading
+     * <code>org.apache.naming.java.javaURLContextFactory</code>. In the traditional way this factory is specified via
+     * <code>java.naming.factory.initial</code> system property.
+     */
+    private void registerInitialContextFactory() {
+        ServiceRegistration<?> serviceRegistration = this.bundleContext.registerService(new String[] { InitialContextFactory.class.getName(),
+            javaURLContextFactory.class.getName() }, new javaURLContextFactory(), null);
+        this.tracker.track(serviceRegistration);
     }
 
 }

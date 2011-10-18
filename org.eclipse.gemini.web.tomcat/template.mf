@@ -31,6 +31,7 @@ Import-Package: org.apache.catalina.deploy;version="${org.apache.tomcat}",
  org.apache.catalina.loader;version="${org.apache.tomcat}",
  org.apache.catalina.valves;version="${org.apache.tomcat}",
  org.apache.catalina.authenticator;version="${org.apache.tomcat}",
- org.apache.catalina.servlets;version="${org.apache.tomcat}"
+ org.apache.catalina.servlets;version="${org.apache.tomcat}",
+ org.apache.naming.factory;version="${org.apache.tomcat}"
 Bundle-Activator: org.eclipse.gemini.web.tomcat.internal.Activator
 Excluded-Exports: *.internal.*,javax.*
