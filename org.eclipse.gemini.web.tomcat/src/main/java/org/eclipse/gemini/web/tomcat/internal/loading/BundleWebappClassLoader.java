@@ -39,9 +39,10 @@ import org.apache.tomcat.util.IntrospectionUtils;
 import org.apache.tomcat.util.res.StringManager;
 import org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleReference;
 import org.springframework.osgi.util.BundleDelegatingClassLoader;
 
-public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle {
+public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle, BundleReference {
 
     /**
      * The string manager for this package.
