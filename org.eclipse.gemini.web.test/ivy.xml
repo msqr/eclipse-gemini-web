@@ -32,8 +32,6 @@
            <dependency org="org.eclipse.gemini.web" name="org.eclipse.gemini.web.core" rev="latest.integration"/>
            <dependency org="org.eclipse.gemini.web" name="org.eclipse.gemini.web.tomcat" rev="latest.integration"/>
            
-           <dependency org="org.springframework" name="org.springframework.web" rev="${org.springframework}" conf="test->runtime"/>
-           
            <dependency org="javax.activation" name="com.springsource.javax.activation" rev="${javax.activation}" />
            
            <dependency org="org.apache.taglibs" name="com.springsource.org.apache.taglibs.standard" rev="${org.apache.taglibs}" conf="test->runtime"/>

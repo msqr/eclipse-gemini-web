@@ -18,14 +18,6 @@
 		<dependency org="org.eclipse.virgo.util" name="org.eclipse.virgo.util.math" rev="${org.eclipse.virgo.util}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.util" name="org.eclipse.virgo.util.parser.manifest" rev="${org.eclipse.virgo.util}" conf="dep->runtime"/>
 		
-		<dependency org="org.springframework" name="org.springframework.aop" rev="${org.springframework}" conf="dep->runtime"/>
-		<dependency org="org.springframework" name="org.springframework.beans" rev="${org.springframework}" conf="dep->runtime"/>
-		<dependency org="org.springframework" name="org.springframework.context" rev="${org.springframework}" conf="dep->runtime"/>
-		<dependency org="org.springframework" name="org.springframework.core" rev="${org.springframework}" conf="dep->runtime"/>
-		
-		<dependency org="org.springframework.osgi" name="org.springframework.osgi.core" rev="${org.springframework.osgi}" conf="dep->runtime"/>
-		<dependency org="org.springframework.osgi" name="org.springframework.osgi.io" rev="${org.springframework.osgi}" conf="dep->runtime"/>
-		
 		<dependency org="org.apache.catalina" name="com.springsource.org.apache.catalina.ha" rev="${org.apache.tomcat}" conf="dep->runtime"/>
 		<dependency org="org.apache.catalina" name="com.springsource.org.apache.catalina" rev="${org.apache.tomcat}" conf="dep->runtime"/>
 		<dependency org="org.apache.catalina" name="com.springsource.org.apache.catalina.tribes" rev="${org.apache.tomcat}" conf="dep->runtime"/>
@@ -38,7 +30,6 @@
 		
 		<dependency org="org.eclipse.jdt" name="com.springsource.org.eclipse.jdt.core.compiler.batch" rev="${org.eclipse.jdt}" conf="dep->runtime"/>
 		
-		<dependency org="org.apache.commons" name="com.springsource.org.apache.commons.logging" rev="${org.apache.commons.logging}" conf="dep->runtime"/>
 		<dependency org="javax.activation" name="com.springsource.javax.activation" rev="${javax.activation}" conf="dep->runtime"/>
 		<dependency org="javax.annotation" name="javax.annotation" rev="${javax.annotation}" conf="dep->runtime"/>
 		<dependency org="javax.ejb" name="com.springsource.javax.ejb" rev="${javax.ejb}" conf="dep->runtime"/>
@@ -52,8 +43,6 @@
 		<dependency org="javax.xml.rpc" name="com.springsource.javax.xml.rpc" rev="${javax.xml.rpc}" conf="dep->runtime"/>
 		<dependency org="javax.xml.soap" name="com.springsource.javax.xml.soap" rev="${javax.xml.soap}" conf="dep->runtime"/>
 		<dependency org="javax.xml.stream" name="com.springsource.javax.xml.stream" rev="${javax.xml.stream}" conf="dep->runtime"/>
-		
-		<dependency org="org.aopalliance" name="com.springsource.org.aopalliance" rev="${org.aopalliance}" conf="dep->runtime"/>
 		
 		<dependency org="org.slf4j" name="com.springsource.slf4j.api" rev="${org.slf4j}" conf="dep->runtime"/>
 		<dependency org="org.slf4j" name="com.springsource.slf4j.nop" rev="${org.slf4j}" conf="dep->runtime"/>

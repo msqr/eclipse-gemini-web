@@ -5,6 +5,7 @@ cp $SRC/com.springsource.javax.activation-1.1.0.jar $REPO/com.springsource.javax
 cp $SRC/javax.annotation-1.1.0.v201105051105.jar $REPO/javax.annotation/javax.annotation-1.1.0.v201105051105.jar
 cp $SRC/com.springsource.javax.ejb-3.0.0.jar $REPO/com.springsource.javax.ejb/com.springsource.javax.ejb-3.0.0.jar
 cp $SRC/javax.el-2.2.0.v201105051105.jar $REPO/javax.el/javax.el-2.2.0.v201105051105.jar
+cp $SRC/com.springsource.javax.mail-1.4.0.jar $REPO/com.springsource.javax.mail/com.springsource.javax.mail-1.4.0.jar
 cp $SRC/com.springsource.javax.persistence-1.0.0.jar $REPO/com.springsource.javax.persistence/com.springsource.javax.persistence-1.0.0.jar
 cp $SRC/javax.servlet-3.0.0.v201103241009.jar $REPO/javax.servlet/javax.servlet-3.0.0.v201103241009.jar
 cp $SRC/javax.servlet.jsp-2.2.0.v201103241009.jar $REPO/javax.servlet.jsp/javax.servlet.jsp-2.2.0.v201103241009.jar

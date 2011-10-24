@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2011 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -40,7 +40,6 @@ import org.apache.tomcat.util.res.StringManager;
 import org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleReference;
-import org.springframework.osgi.util.BundleDelegatingClassLoader;
 
 public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle, BundleReference {
 
