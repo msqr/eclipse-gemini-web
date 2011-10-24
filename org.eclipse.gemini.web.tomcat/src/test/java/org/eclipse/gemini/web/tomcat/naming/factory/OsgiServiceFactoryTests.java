@@ -35,7 +35,7 @@ import org.apache.naming.ResourceRef;
 import org.junit.Before;
 import org.junit.Test;
 
-public class OsgiServiceFactoryTest {
+public class OsgiServiceFactoryTests {
 
     private static final String LOOKUP = "some string";
 

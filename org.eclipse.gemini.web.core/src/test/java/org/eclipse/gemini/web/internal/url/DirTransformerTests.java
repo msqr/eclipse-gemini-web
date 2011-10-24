@@ -38,7 +38,7 @@ import org.eclipse.virgo.util.io.IOUtils;
 import org.eclipse.virgo.util.io.PathReference;
 import org.junit.Test;
 
-public class DirTransformerTest {
+public class DirTransformerTests {
 
     private static final String WEB_INF = "WEB-INF";
 

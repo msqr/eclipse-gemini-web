@@ -30,7 +30,7 @@ import org.eclipse.gemini.web.internal.url.DirTransformer.DirTransformerCallback
 import org.eclipse.virgo.util.io.PathReference;
 import org.junit.Test;
 
-public class DirTransformingURLConnectionTest {
+public class DirTransformingURLConnectionTests {
 
     private static final String WEB_INF = "WEB-INF";
 

@@ -41,7 +41,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 
-public class WebappConfigLocatorTest {
+public class WebappConfigLocatorTests {
 
     private static final String CONTEXT_PATH_1 = "test";
 

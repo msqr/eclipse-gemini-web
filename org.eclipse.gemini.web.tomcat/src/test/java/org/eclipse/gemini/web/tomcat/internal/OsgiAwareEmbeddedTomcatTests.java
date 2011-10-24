@@ -37,7 +37,7 @@ import org.junit.Test;
 import org.osgi.framework.Constants;
 import org.osgi.service.packageadmin.PackageAdmin;
 
-public class OsgiAwareEmbeddedTomcatTest {
+public class OsgiAwareEmbeddedTomcatTests {
 
     private StubBundleContext bundleContext;
 
