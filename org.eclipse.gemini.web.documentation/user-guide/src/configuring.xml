@@ -278,6 +278,46 @@
 				</itemizedlist>
 			</para>
 		</section>
+		<section id="configuring-naming">
+			<title>JNDI Resources</title>
+			<para>
+				By default @product.name@ supports standard Apache Tomcat JNDI Resources handling.
+				The <ulink url="http://tomcat.apache.org/tomcat-7.0-doc/jndi-resources-howto.html">Apache Tomcat JDNI Resources How-To</ulink> 
+				describes in details how the JNDI resources can be configured and used.
+			</para>
+			<para>
+				In addition to that feature @product.name@ provides a possibility to switch off the standard Apache Tomcat JNDI Resources handling or to use the OSGi one.
+				One can specify the preferred option using <literal>-DuseNaming</literal> with one of the following options:
+				<itemizedlist>
+					<listitem><literal>tomcat</literal> - the default value: this is the standard Apache Tomcat JNDI Resources handling.</listitem>
+					<listitem><literal>disabled</literal> - there is no JDNI Resources handling provided by @product.name@.</listitem>
+					<listitem>
+						<literal>osgi</literal> - the OSGi JNDI Resource handling will be enabled. 
+						(<ulink url="http://eclipse.org/gemini/naming/">Gemini Naming</ulink> can be used as implementation for OSGi JNDI Services Specification)
+						The <ulink url="http://www.osgi.org/download/r4v42/r4.enterprise.pdf">OSGi JNDI Services Specification</ulink>
+						describes in details how JNDI can be utilized from within an OSGi framework.
+						One can use either <literal>osgi URL scheme</literal> in order to look up an OSGi service, or <literal>java URL scheme</literal> - a feature provided by @product.name@.
+						If <literal>java URL scheme</literal> is chosen then additional configuration is necessary to be provided via context.xml.
+<programlisting language="xml"><![CDATA[<Context>
+<Resource name="LogService"
+          type="org.osgi.service.log.LogService"
+          mappedName="service/org.osgi.service.log.LogService"
+          factory="org.eclipse.gemini.web.tomcat.naming.factory.OsgiServiceFactory"/>
+</Context>]]></programlisting>
+						The list below describes in details the different properties:
+						<itemizedlist>
+							<listitem><literal>name</literal> - The name of the resource that will be created. The name should be relative to the java:comp/env context.</listitem>
+							<listitem><literal>type</literal> - The fully qualified Java class name of the resource (OSGi service) that web application will expect when it performs a lookup or when it uses @Resource annotation.</listitem>
+							<listitem>
+								<literal>mappedName</literal> - the service/s that should be looked up and the filter details if any. 
+								The syntax can be seen in <ulink url="http://www.osgi.org/download/r4v42/r4.enterprise.pdf">OSGi JNDI Services Specification: 126.6 OSGi URL Scheme</ulink>.
+							</listitem>
+							<listitem><literal>factory</literal> - The class name for the JNDI object factory. @product.name@ provides a special JNDI object factory in order to be able to obtain an OSGi service.</listitem>
+						</itemizedlist>
+					</listitem>
+				</itemizedlist>
+			</para>
+		</section>
 	</section>
 	<section id="configuring-osgi-framework">
 		<title>Configuring the OSGi Framework</title>
