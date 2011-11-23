@@ -49,6 +49,8 @@ public final class DefaultsWebBundleManifestTransformer implements WebBundleMani
 
     private void applyImportPackage(BundleManifest manifest) {
         addImportInNecessary("javax.servlet", new Version("2.5"), manifest);
+        addImportInNecessary("javax.servlet.annotation", new Version("2.6"), manifest);
+        addImportInNecessary("javax.servlet.descriptor", new Version("2.6"), manifest);
         addImportInNecessary("javax.servlet.http", new Version("2.5"), manifest);
         addImportInNecessary("javax.servlet.jsp", new Version("2.1"), manifest);
         addImportInNecessary("javax.servlet.jsp.el", new Version("2.1"), manifest);
