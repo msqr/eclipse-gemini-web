@@ -86,10 +86,8 @@
 	</target>
 
 	<!--P2 publishing properties-->
-	<property name="publishing.dir" value="${basedir}/target/repository"/>
-	<property name="p2.repo.url" value="file:///${publishing.dir}"/>
 
-	<target name="p2.publish" depends="package, p2.extract-publisher"
+	<target name="p2.publish" depends="package, fetch-unzipped-virgo-build-tools"
 			description="Publishes bundles, features and product">
 		<copy todir="${basedir}/target/features" failonerror="false">
 			<fileset dir="${basedir}/features"/>
@@ -99,16 +97,12 @@
 			  style="${basedir}/create-feature-xml.xsl">
 			<param name="GW.VERSION" expression="${bundle.version}"/>
 		</xslt>
-
-		<java jar="${p2.launcher.jar}" fork="true" taskname="p2bundles" failonerror="true" maxmemory="256m">
-			<arg line="-application org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher"/>
-			<arg line="-metadataRepository ${p2.repo.url}"/>
-			<arg line="-artifactRepository ${p2.repo.url}"/>
-			<arg line="-bundles ${package.output.dir},${package.output.dir}/dep"/>
-			<arg line="-features ${basedir}/target/features"/>
-			<arg line="-publishArtifacts"/>
-			<arg line="-configs all"/>
-		</java>
+        
+        <antcall target="p2.publish-bundles-features-alt">
+            <param name="repository" value="${repository.dir}"/>
+            <param name="bundles" value="${package.output.dir},${package.output.dir}/dep"/>
+            <param name="features" value="${target.dir}/features"/>
+        </antcall>
 
 		<!--sshexec host="build.eclipse.org" 
 				username="${eclipse.buildId}" 
