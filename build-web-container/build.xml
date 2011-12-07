@@ -99,7 +99,7 @@
 		</xslt>
         
         <antcall target="p2.publish-bundles-features-alt">
-            <param name="repository" value="${repository.dir}"/>
+            <param name="repository" value="${p2.repository.dir}"/>
             <param name="bundles" value="${package.output.dir},${package.output.dir}/dep"/>
             <param name="features" value="${target.dir}/features"/>
         </antcall>
