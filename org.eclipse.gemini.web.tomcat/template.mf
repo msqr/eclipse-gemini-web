@@ -3,7 +3,7 @@ Bundle-Name: Gemini Web Tomcat Bootstrap
 Bundle-SymbolicName: org.eclipse.gemini.web.tomcat
 Bundle-Version: $version
 Import-Template: org.eclipse.gemini.web.*;version="${version}",
- org.eclipse.virgo.util.*;version="${org.eclipse.virgo.util:[=.=.=, =.+1)}",
+ org.eclipse.virgo.util.*;version="0",
  org.apache.catalina.*;version="${org.apache.tomcat}",
  org.apache.juli.*;version="${org.apache.tomcat}",
  org.apache.naming.*;version="${org.apache.tomcat}",
