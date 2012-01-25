@@ -69,7 +69,8 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
     // ------------------------------------------------------------------------
 
     public BundleWebappClassLoader(final Bundle bundle, ClassLoaderCustomizer classLoaderCustomizer) {
-        super(new URL[0]);
+    	// Make the parent class loader consistent with the parent class loader of all the bundles in the framework.
+        super(new URL[0], BundleWebappClassLoader.class.getClassLoader().getParent());
         this.bundle = bundle;
         this.classLoaderCustomizer = classLoaderCustomizer;
 
