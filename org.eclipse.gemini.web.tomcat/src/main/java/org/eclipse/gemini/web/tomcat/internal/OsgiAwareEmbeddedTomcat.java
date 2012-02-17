@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -58,7 +58,6 @@ import org.eclipse.virgo.util.osgi.ServiceRegistrationTracker;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.packageadmin.PackageAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -112,9 +111,9 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
 
     private final ServiceRegistrationTracker tracker = new ServiceRegistrationTracker();
 
-    OsgiAwareEmbeddedTomcat(BundleContext context, PackageAdmin packageAdmin) {
+    OsgiAwareEmbeddedTomcat(BundleContext context) {
         this.bundleContext = context;
-        JarScanner bundleDependenciesJarScanner = new BundleDependenciesJarScanner(new PackageAdminBundleDependencyDeterminer(context, packageAdmin),
+        JarScanner bundleDependenciesJarScanner = new BundleDependenciesJarScanner(new PackageAdminBundleDependencyDeterminer(),
             BundleFileResolverFactory.createBundleFileResolver());
         JarScanner defaultJarScanner = new StandardJarScanner();
 

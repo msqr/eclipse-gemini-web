@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,60 +17,56 @@
 package org.eclipse.gemini.web.tomcat.internal.support;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.packageadmin.ExportedPackage;
-import org.osgi.service.packageadmin.PackageAdmin;
-
+import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.framework.wiring.BundleWire;
+import org.osgi.framework.wiring.BundleWiring;
 
 /**
- * A <code>BundleDependencyDeterminer</code> that uses {@link PackageAdmin} to
+ * A <code>BundleDependencyDeterminer</code> that uses {@link BundleWiring} to 
  * determine a <code>Bundle</code>'s dependencies.
  * <p />
- *
+ * 
  * <strong>Concurrent Semantics</strong><br />
  * Thread-safe.
- *
+ * 
  */
 public final class PackageAdminBundleDependencyDeterminer implements BundleDependencyDeterminer {
-    
-    private final BundleContext bundleContext;
-    
-    private final PackageAdmin packageAdmin;
-    
-    public PackageAdminBundleDependencyDeterminer(BundleContext bundleContext, PackageAdmin packageAdmin) {    
-        this.bundleContext = bundleContext;
-        this.packageAdmin = packageAdmin;
+
+    public PackageAdminBundleDependencyDeterminer() {
     }
-    
-    /** 
+
+    /**
      * {@inheritDoc}
      */
+    @Override
     public Set<Bundle> getDependencies(Bundle rootBundle) {
         Set<Bundle> dependencies = new HashSet<Bundle>();
-        
-        Bundle[] bundles = this.bundleContext.getBundles();
-        
-        if (bundles != null) {        
-            for (Bundle bundle : bundles) {
-                ExportedPackage[] exportedPackages = this.packageAdmin.getExportedPackages(bundle);
-                if (exportedPackages != null) {
-                    for (ExportedPackage exportedPackage : exportedPackages) {
-                        Bundle[] importers = exportedPackage.getImportingBundles();
-                        if (importers != null) {
-                            for (Bundle importer : importers) {
-                                if (importer.equals(rootBundle)) {
-                                    dependencies.add(bundle);
-                                }
-                            }
-                        }
-                    }
-                }
+
+        BundleWiring bundleWiring = rootBundle.adapt(BundleRevision.class).getWiring();
+
+        // Look at imported packages
+        dependencies.addAll(getRequiredWires(bundleWiring, BundleRevision.PACKAGE_NAMESPACE));
+
+        // Look at required bundles
+        dependencies.addAll(getRequiredWires(bundleWiring, BundleRevision.BUNDLE_NAMESPACE));
+
+        return dependencies;
+    }
+
+    private Set<Bundle> getRequiredWires(BundleWiring bundleWiring, String namespace) {
+        Set<Bundle> dependencies = new HashSet<Bundle>();
+
+        List<BundleWire> bundleWires = bundleWiring.getRequiredWires(namespace);
+        if (bundleWires != null) {
+            for (BundleWire wire : bundleWires) {
+                dependencies.add(wire.getProviderWiring().getBundle());
             }
         }
-        
+
         return dependencies;
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -28,9 +28,7 @@ import org.eclipse.virgo.util.osgi.ServiceRegistrationTracker;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.url.URLConstants;
 import org.osgi.service.url.URLStreamHandlerService;
 
@@ -106,7 +104,7 @@ public class Activator implements BundleActivator {
         TomcatServletContainerFactory factory = new TomcatServletContainerFactory();
         InputStream configFile = resolveConfigFile(context);
         try {
-            return factory.createContainer(configFile, context, getPackageAdmin(context));
+            return factory.createContainer(configFile, context);
         } finally {
             IOUtils.closeQuietly(configFile);
         }
@@ -114,17 +112,5 @@ public class Activator implements BundleActivator {
 
     private InputStream resolveConfigFile(BundleContext context) throws BundleException {
         return TomcatConfigLocator.resolveConfigFile(context);
-    }
-
-    private PackageAdmin getPackageAdmin(BundleContext bundleContext) {
-        ServiceReference<PackageAdmin> serviceReference = bundleContext.getServiceReference(PackageAdmin.class);
-        if (serviceReference != null) {
-            PackageAdmin packageAdmin = bundleContext.getService(serviceReference);
-            if (packageAdmin != null) {
-                return packageAdmin;
-            }
-        }
-
-        throw new IllegalStateException("PackageAdmin not available in the service registry");
     }
 }

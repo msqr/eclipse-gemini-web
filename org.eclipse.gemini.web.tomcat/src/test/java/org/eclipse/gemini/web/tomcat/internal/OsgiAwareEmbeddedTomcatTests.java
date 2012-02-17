@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG
+ * Copyright (c) 2011, 2012 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,7 +16,6 @@
 
 package org.eclipse.gemini.web.tomcat.internal;
 
-import static org.easymock.EasyMock.createMock;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -35,18 +34,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Constants;
-import org.osgi.service.packageadmin.PackageAdmin;
 
 public class OsgiAwareEmbeddedTomcatTests {
 
     private StubBundleContext bundleContext;
 
-    private PackageAdmin packageAdmin;
-
     @Before
     public void setUp() {
         this.bundleContext = new StubBundleContext();
-        this.packageAdmin = createMock(PackageAdmin.class);
     }
 
     @After
@@ -150,7 +145,7 @@ public class OsgiAwareEmbeddedTomcatTests {
     }
 
     private OsgiAwareEmbeddedTomcat createTomcat() {
-        return new OsgiAwareEmbeddedTomcat(this.bundleContext, this.packageAdmin);
+        return new OsgiAwareEmbeddedTomcat(this.bundleContext);
     }
 
 }

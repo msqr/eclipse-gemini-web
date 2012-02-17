@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,14 +19,13 @@ package org.eclipse.gemini.web.tomcat.internal;
 import java.io.InputStream;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.service.packageadmin.PackageAdmin;
 
 final class TomcatServletContainerFactory {
 
-    public TomcatServletContainer createContainer(InputStream configuration, BundleContext context, PackageAdmin packageAdmin) {
-        OsgiAwareEmbeddedTomcat catalina = new OsgiAwareEmbeddedTomcat(context, packageAdmin);
+    public TomcatServletContainer createContainer(InputStream configuration, BundleContext context) {
+        OsgiAwareEmbeddedTomcat catalina = new OsgiAwareEmbeddedTomcat(context);
         catalina.configure(configuration);
-        
+
         return new TomcatServletContainer(catalina, context);
     }
 }

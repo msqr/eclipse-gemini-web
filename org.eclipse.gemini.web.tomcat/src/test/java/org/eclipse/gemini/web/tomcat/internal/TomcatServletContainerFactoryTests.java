@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -25,12 +25,8 @@ import static org.junit.Assert.assertNotNull;
 import java.io.FileInputStream;
 
 import org.eclipse.gemini.web.core.spi.ServletContainerException;
-import org.eclipse.gemini.web.tomcat.internal.TomcatServletContainer;
-import org.eclipse.gemini.web.tomcat.internal.TomcatServletContainerFactory;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
-
-
 
 public class TomcatServletContainerFactoryTests {
 
@@ -42,15 +38,15 @@ public class TomcatServletContainerFactoryTests {
         expect(bundleContext.getProperty(OsgiAwareEmbeddedTomcat.USE_NAMING)).andReturn(null);
         expect(bundleContext.createFilter("(objectClass=org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer)")).andReturn(null);
         replay(bundleContext);
-        TomcatServletContainer container = factory.createContainer(new FileInputStream("src/test/resources/server.xml"), bundleContext, null);
+        TomcatServletContainer container = factory.createContainer(new FileInputStream("src/test/resources/server.xml"), bundleContext);
         assertNotNull(container);
         verify(bundleContext);
     }
-    
-    @Test(expected=ServletContainerException.class)
+
+    @Test(expected = ServletContainerException.class)
     public void testCreateContainerWithInvalidConfigFile() throws Exception {
         TomcatServletContainerFactory factory = new TomcatServletContainerFactory();
-        TomcatServletContainer container = factory.createContainer(new FileInputStream("src/test/resources/invalid-server.xml"), null, null);
+        TomcatServletContainer container = factory.createContainer(new FileInputStream("src/test/resources/invalid-server.xml"), null);
         assertNotNull(container);
     }
 }
