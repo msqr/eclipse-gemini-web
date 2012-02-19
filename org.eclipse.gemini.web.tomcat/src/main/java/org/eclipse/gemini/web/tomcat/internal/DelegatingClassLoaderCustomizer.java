@@ -17,7 +17,11 @@
 package org.eclipse.gemini.web.tomcat.internal;
 
 import java.lang.instrument.ClassFileTransformer;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.eclipse.gemini.web.tomcat.internal.loading.ChainedClassLoader;
 import org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -31,7 +35,7 @@ final class DelegatingClassLoaderCustomizer implements ClassLoaderCustomizer {
 
     private final ServiceTracker<ClassLoaderCustomizer, Object> tracker;
 
-    private volatile ClassLoaderCustomizer delegate;
+    private volatile Set<ClassLoaderCustomizer> delegate;
 
     public DelegatingClassLoaderCustomizer(BundleContext context) {
         this.context = context;
@@ -48,15 +52,25 @@ final class DelegatingClassLoaderCustomizer implements ClassLoaderCustomizer {
 
     @Override
     public void addClassFileTransformer(ClassFileTransformer transformer, Bundle bundle) {
-        if (this.delegate != null) {
-            this.delegate.addClassFileTransformer(transformer, bundle);
+        if (this.delegate != null && this.delegate.size() > 0) {
+            for (ClassLoaderCustomizer classLoaderCustomizer : this.delegate) {
+                classLoaderCustomizer.addClassFileTransformer(transformer, bundle);
+            }
         }
     }
 
     @Override
     public ClassLoader createThrowawayClassLoader(Bundle bundle) {
-        if (this.delegate != null) {
-            return this.delegate.createThrowawayClassLoader(bundle);
+        if (this.delegate != null && this.delegate.size() > 0) {
+            Set<ClassLoader> result = new HashSet<ClassLoader>();
+            for (ClassLoaderCustomizer classLoaderCustomizer : this.delegate) {
+                result.add(classLoaderCustomizer.createThrowawayClassLoader(bundle));
+            }
+            if (result.size() > 0) {
+                return ChainedClassLoader.create(result.toArray(new ClassLoader[result.size()]));
+            } else {
+                return null;
+            }
         } else {
             return null;
         }
@@ -64,8 +78,12 @@ final class DelegatingClassLoaderCustomizer implements ClassLoaderCustomizer {
 
     @Override
     public ClassLoader[] extendClassLoaderChain(Bundle bundle) {
-        if (this.delegate != null) {
-            return this.delegate.extendClassLoaderChain(bundle);
+        if (this.delegate != null && this.delegate.size() > 0) {
+            Set<ClassLoader> result = new HashSet<ClassLoader>();
+            for (ClassLoaderCustomizer classLoaderCustomizer : this.delegate) {
+                result.addAll(Arrays.asList(classLoaderCustomizer.extendClassLoaderChain(bundle)));
+            }
+            return result.toArray(new ClassLoader[result.size()]);
         } else {
             return new ClassLoader[0];
         }
@@ -78,8 +96,10 @@ final class DelegatingClassLoaderCustomizer implements ClassLoaderCustomizer {
             ClassLoaderCustomizer newDelegate = DelegatingClassLoaderCustomizer.this.context.getService(reference);
 
             if (DelegatingClassLoaderCustomizer.this.delegate == null) {
-                DelegatingClassLoaderCustomizer.this.delegate = newDelegate;
+                DelegatingClassLoaderCustomizer.this.delegate = new HashSet<ClassLoaderCustomizer>();
             }
+
+            DelegatingClassLoaderCustomizer.this.delegate.add(newDelegate);
 
             return newDelegate;
         }
@@ -91,8 +111,11 @@ final class DelegatingClassLoaderCustomizer implements ClassLoaderCustomizer {
 
         @Override
         public void removedService(ServiceReference<ClassLoaderCustomizer> reference, Object service) {
+            if (DelegatingClassLoaderCustomizer.this.delegate != null) {
+                DelegatingClassLoaderCustomizer.this.delegate.remove(DelegatingClassLoaderCustomizer.this.context.getService(reference));
+            }
+
             DelegatingClassLoaderCustomizer.this.context.ungetService(reference);
-            DelegatingClassLoaderCustomizer.this.delegate = null;
         }
 
     }
