@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -37,15 +37,6 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.ServiceReference;
-
 import org.eclipse.gemini.web.core.spi.ServletContainer;
 import org.eclipse.gemini.web.core.spi.WebApplicationHandle;
 import org.eclipse.virgo.test.framework.OsgiTestRunner;
@@ -54,6 +45,14 @@ import org.eclipse.virgo.util.io.FileSystemUtils;
 import org.eclipse.virgo.util.io.IOUtils;
 import org.eclipse.virgo.util.io.PathReference;
 import org.eclipse.virgo.util.io.ZipUtils;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.ServiceReference;
 
 @RunWith(OsgiTestRunner.class)
 public class TomcatServletContainerTests {
@@ -89,6 +88,8 @@ public class TomcatServletContainerTests {
     private static final String LOCATION_WAR_WITH_WEB_XML_FROM_FRAGMENT = "file:../org.eclipse.gemini.web.test/target/resources/war-with-web-xml-from-fragment.war";
 
     private static final String LOCATION_FRAGMENT_PROVIDES_WEB_XML = "file:../org.eclipse.gemini.web.test/target/resources/fragment-provides-web-xml.jar";
+
+    private static final String LOCATION_WAR_WITH_ANNOTATIONS = "../org.eclipse.gemini.web.test/target/resources/war-with-annotations.war?Web-ContextPath=/war-with-annotations";
 
     private BundleContext bundleContext;
 
@@ -516,6 +517,22 @@ public class TomcatServletContainerTests {
 
             tomcatServerXml.delete();
             defaultWebXml.delete();
+        }
+    }
+
+    @Test
+    public void testWarWithAnnotations() throws Exception {
+        String location = LOCATION_PREFIX + LOCATION_WAR_WITH_ANNOTATIONS;
+        Bundle bundle = this.bundleContext.installBundle(location);
+        bundle.start();
+
+        WebApplicationHandle handle = this.container.createWebApplication("/war-with-annotations", bundle);
+        this.container.startWebApplication(handle);
+        try {
+            validateURL("http://localhost:8080/war-with-annotations/TestServlet");
+        } finally {
+            this.container.stopWebApplication(handle);
+            bundle.uninstall();
         }
     }
 

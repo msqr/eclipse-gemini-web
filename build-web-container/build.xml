@@ -33,6 +33,7 @@
 		<pathelement location="../test-bundles/war-with-web-xml-from-fragment"/>
 		<pathelement location="../test-bundles/war-with-context-xml-custom-classloader"/>
 		<pathelement location="../test-bundles/war-with-context-xml-cross-context"/>
+		<pathelement location="../test-bundles/war-with-annotations"/>
 	</path>
 
 	<path id="doc.bundles">
