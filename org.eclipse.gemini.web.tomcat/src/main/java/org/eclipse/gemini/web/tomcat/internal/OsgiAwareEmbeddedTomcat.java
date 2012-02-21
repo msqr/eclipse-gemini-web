@@ -88,8 +88,6 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
 
     private final ExtendCatalina catalina = new ExtendCatalina();
 
-    private final JarScanner jarScanner;
-
     private final BundleContext bundleContext;
 
     private File configDir;
@@ -111,13 +109,18 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
 
     private final ServiceRegistrationTracker tracker = new ServiceRegistrationTracker();
 
+    private final DelegatingJarScannerCustomizer jarScannerCustomizer;
+
+    private final JarScanner bundleDependenciesJarScanner;
+
+    private final JarScanner defaultJarScanner;
+
     OsgiAwareEmbeddedTomcat(BundleContext context) {
         this.bundleContext = context;
-        JarScanner bundleDependenciesJarScanner = new BundleDependenciesJarScanner(new PackageAdminBundleDependencyDeterminer(),
+        this.bundleDependenciesJarScanner = new BundleDependenciesJarScanner(new PackageAdminBundleDependencyDeterminer(),
             BundleFileResolverFactory.createBundleFileResolver());
-        JarScanner defaultJarScanner = new StandardJarScanner();
-
-        this.jarScanner = new ChainingJarScanner(bundleDependenciesJarScanner, defaultJarScanner);
+        this.defaultJarScanner = new StandardJarScanner();
+        this.jarScannerCustomizer = new DelegatingJarScannerCustomizer(context);
     }
 
     /**
@@ -127,8 +130,15 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
      */
     @Override
     public void start() throws LifecycleException {
+        this.jarScannerCustomizer.open();
         getServer();
         this.server.start();
+    }
+
+    @Override
+    public void stop() throws LifecycleException {
+        super.stop();
+        this.jarScannerCustomizer.close();
     }
 
     public void setServer(Server server) {
@@ -274,7 +284,7 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
         context.setDocBase(docBase);
         context.setPath(path.equals(ROOT_PATH) ? ROOT_CONTEXT_PATH : path);
 
-        context.setJarScanner(this.jarScanner);
+        context.setJarScanner(getJarScanner(bundle));
 
         context.setParent(host);
 
@@ -381,8 +391,6 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
      */
     private static class ExtendedStandardContext extends StandardContext {
 
-        private static final long serialVersionUID = 6914580440115519171L;
-
         /**
          * Returns <code>true</code> for exploded bundles.
          */
@@ -488,6 +496,23 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
         ServiceRegistration<?> serviceRegistration = this.bundleContext.registerService(new String[] { InitialContextFactory.class.getName(),
             javaURLContextFactory.class.getName() }, new javaURLContextFactory(), null);
         this.tracker.track(serviceRegistration);
+    }
+
+    private JarScanner getJarScanner(Bundle bundle) {
+        JarScanner[] jarScanners = new JarScanner[] { this.bundleDependenciesJarScanner, this.defaultJarScanner };
+
+        JarScanner[] chainExtensions = this.jarScannerCustomizer.extendJarScannerChain(bundle);
+
+        JarScanner[] finalJarScanners = null;
+        if (chainExtensions != null && chainExtensions.length > 0) {
+            finalJarScanners = new JarScanner[jarScanners.length + chainExtensions.length];
+            System.arraycopy(jarScanners, 0, finalJarScanners, 0, jarScanners.length);
+            System.arraycopy(chainExtensions, 0, finalJarScanners, jarScanners.length, chainExtensions.length);
+        } else {
+            finalJarScanners = jarScanners;
+        }
+
+        return new ChainingJarScanner(finalJarScanners);
     }
 
 }

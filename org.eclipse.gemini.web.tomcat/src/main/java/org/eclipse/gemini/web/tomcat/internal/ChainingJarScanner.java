@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -33,15 +33,16 @@ import org.apache.tomcat.JarScannerCallback;
  * 
  */
 final class ChainingJarScanner implements JarScanner {
-    
+
     private final JarScanner[] jarScanners;
-    
-    public ChainingJarScanner(JarScanner... jarScanners) {
+
+    ChainingJarScanner(JarScanner... jarScanners) {
         this.jarScanners = jarScanners;
     }
 
+    @Override
     public void scan(ServletContext context, ClassLoader classloader, JarScannerCallback callback, Set<String> jarsToSkip) {
-        for (JarScanner jarScanner : jarScanners) {
+        for (JarScanner jarScanner : this.jarScanners) {
             jarScanner.scan(context, classloader, callback, jarsToSkip);
         }
     }

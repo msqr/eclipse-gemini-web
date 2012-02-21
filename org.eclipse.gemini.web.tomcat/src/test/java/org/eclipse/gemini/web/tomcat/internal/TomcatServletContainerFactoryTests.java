@@ -25,28 +25,38 @@ import static org.junit.Assert.assertNotNull;
 import java.io.FileInputStream;
 
 import org.eclipse.gemini.web.core.spi.ServletContainerException;
+import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.BundleContext;
 
 public class TomcatServletContainerFactoryTests {
 
+    private BundleContext bundleContext;
+
+    @Before
+    public void setUp() throws Exception {
+        this.bundleContext = createMock(BundleContext.class);
+        expect(this.bundleContext.getProperty(TomcatConfigLocator.CONFIG_PATH_FRAMEWORK_PROPERTY)).andReturn(null);
+        expect(this.bundleContext.getProperty(OsgiAwareEmbeddedTomcat.USE_NAMING)).andReturn(null);
+        expect(this.bundleContext.createFilter("(objectClass=org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer)")).andReturn(null);
+        expect(this.bundleContext.createFilter("(objectClass=org.eclipse.gemini.web.tomcat.spi.JarScannerCustomizer)")).andReturn(null);
+    }
+
     @Test
     public void testCreateContainerWithConfigFile() throws Exception {
         TomcatServletContainerFactory factory = new TomcatServletContainerFactory();
-        BundleContext bundleContext = createMock(BundleContext.class);
-        expect(bundleContext.getProperty(TomcatConfigLocator.CONFIG_PATH_FRAMEWORK_PROPERTY)).andReturn(null);
-        expect(bundleContext.getProperty(OsgiAwareEmbeddedTomcat.USE_NAMING)).andReturn(null);
-        expect(bundleContext.createFilter("(objectClass=org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer)")).andReturn(null);
-        replay(bundleContext);
-        TomcatServletContainer container = factory.createContainer(new FileInputStream("src/test/resources/server.xml"), bundleContext);
+        replay(this.bundleContext);
+        TomcatServletContainer container = factory.createContainer(new FileInputStream("src/test/resources/server.xml"), this.bundleContext);
         assertNotNull(container);
-        verify(bundleContext);
+        verify(this.bundleContext);
     }
 
     @Test(expected = ServletContainerException.class)
     public void testCreateContainerWithInvalidConfigFile() throws Exception {
         TomcatServletContainerFactory factory = new TomcatServletContainerFactory();
-        TomcatServletContainer container = factory.createContainer(new FileInputStream("src/test/resources/invalid-server.xml"), null);
+        replay(this.bundleContext);
+        TomcatServletContainer container = factory.createContainer(new FileInputStream("src/test/resources/invalid-server.xml"), this.bundleContext);
         assertNotNull(container);
+        verify(this.bundleContext);
     }
 }

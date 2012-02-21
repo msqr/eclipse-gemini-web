@@ -16,6 +16,7 @@
 
 package org.eclipse.gemini.web.tomcat.internal;
 
+import static org.easymock.EasyMock.createMock;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -29,6 +30,7 @@ import javax.naming.spi.ObjectFactoryBuilder;
 
 import org.apache.catalina.LifecycleException;
 import org.eclipse.virgo.teststubs.osgi.framework.StubBundleContext;
+import org.eclipse.virgo.teststubs.osgi.framework.StubFilter;
 import org.eclipse.virgo.teststubs.osgi.framework.StubServiceRegistration;
 import org.junit.After;
 import org.junit.Before;
@@ -39,9 +41,13 @@ public class OsgiAwareEmbeddedTomcatTests {
 
     private StubBundleContext bundleContext;
 
+    private StubFilter filter;
+
     @Before
     public void setUp() {
         this.bundleContext = new StubBundleContext();
+        this.filter = createMock(StubFilter.class);
+        this.bundleContext.addFilter("(objectClass=org.eclipse.gemini.web.tomcat.spi.JarScannerCustomizer)", this.filter);
     }
 
     @After
