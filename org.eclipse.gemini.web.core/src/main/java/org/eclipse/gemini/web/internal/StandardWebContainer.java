@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -26,7 +26,6 @@ import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Standard implementation of {@link WebContainer}.
  */
@@ -45,10 +44,12 @@ final class StandardWebContainer implements WebContainer {
         this.eventManager = eventManager;
     }
 
+    @Override
     public WebApplication createWebApplication(Bundle bundle) throws BundleException {
         return this.createWebApplication(bundle, null);
     }
 
+    @Override
     public WebApplication createWebApplication(Bundle bundle, Bundle extender) throws BundleException {
         if (!isWebBundle(bundle)) {
             throw new BundleException("Bundle '" + bundle + "' is not a valid web bundle.");
@@ -56,7 +57,7 @@ final class StandardWebContainer implements WebContainer {
         try {
             WebApplicationHandle handle = this.servletContainer.createWebApplication(WebContainerUtils.getContextPath(bundle), bundle);
             handle.getServletContext().setAttribute(ATTRIBUTE_BUNDLE_CONTEXT, bundle.getBundleContext());
-            return new StandardWebApplication(bundle.getBundleContext(), extender, handle, this.servletContainer, this.eventManager, this.retryController);
+            return new StandardWebApplication(bundle, extender, handle, this.servletContainer, this.eventManager, this.retryController);
         } catch (ServletContainerException ex) {
             if (LOGGER.isErrorEnabled()) {
                 LOGGER.error("Failed to create web application for bundle '" + bundle + "'", ex);
@@ -65,6 +66,7 @@ final class StandardWebContainer implements WebContainer {
         }
     }
 
+    @Override
     public boolean isWebBundle(Bundle bundle) {
         return WebContainerUtils.isWebBundle(bundle);
     }
@@ -72,6 +74,7 @@ final class StandardWebContainer implements WebContainer {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void halt() {
         this.retryController.clear();
     }

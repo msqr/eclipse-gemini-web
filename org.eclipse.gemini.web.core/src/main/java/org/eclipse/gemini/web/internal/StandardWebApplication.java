@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -23,24 +23,20 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
 import org.eclipse.gemini.web.core.WebApplication;
 import org.eclipse.gemini.web.core.WebApplicationStartFailedException;
 import org.eclipse.gemini.web.core.spi.ServletContainer;
-import org.eclipse.gemini.web.core.spi.ServletContainerException;
 import org.eclipse.gemini.web.core.spi.WebApplicationHandle;
 import org.eclipse.virgo.util.osgi.ServiceRegistrationTracker;
+import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class StandardWebApplication implements WebApplication {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StandardWebApplication.class);
 
-    private final BundleContext bundleContext;
+    private final Bundle bundle;
 
     private final Bundle extender;
 
@@ -58,9 +54,9 @@ final class StandardWebApplication implements WebApplication {
 
     private final WebApplicationStartFailureRetryController retryController;
 
-    public StandardWebApplication(BundleContext bundleContext, Bundle extender, WebApplicationHandle handle, ServletContainer container,
-        EventManager eventManager, WebApplicationStartFailureRetryController retryController) {
-        this.bundleContext = bundleContext;
+    public StandardWebApplication(Bundle bundle, Bundle extender, WebApplicationHandle handle, ServletContainer container, EventManager eventManager,
+        WebApplicationStartFailureRetryController retryController) {
+        this.bundle = bundle;
         this.extender = extender;
         this.handle = handle;
         this.container = container;
@@ -68,14 +64,17 @@ final class StandardWebApplication implements WebApplication {
         this.retryController = retryController;
     }
 
+    @Override
     public ServletContext getServletContext() {
         return this.handle.getServletContext();
     }
 
+    @Override
     public ClassLoader getClassLoader() {
         return this.handle.getClassLoader();
     }
 
+    @Override
     public void start() {
         boolean localStarted;
 
@@ -87,32 +86,44 @@ final class StandardWebApplication implements WebApplication {
             String webContextPath = getContextPath();
             this.eventManager.sendDeploying(getBundle(), this.extender, webContextPath);
 
+            boolean startOK = false;
             try {
                 this.container.startWebApplication(this.handle);
+                startOK = true;
+
                 publishServletContext();
 
                 synchronized (this.monitor) {
                     this.started = true;
+                    localStarted = this.started;
                 }
 
                 this.eventManager.sendDeployed(getBundle(), this.extender, webContextPath);
-            } catch (ServletContainerException ex) {
+            } catch (RuntimeException e) {
                 if (LOGGER.isErrorEnabled()) {
-                    LOGGER.error("Failed to start web application at bundleContext path '" + this.handle.getServletContext().getContextPath() + "'", ex);
+                    LOGGER.error("Failed to start web application at context path '" + webContextPath + "'", e);
                 }
-                this.retryController.recordFailure(this);
-                Set<Long> webContextPathBundleIds = getWebContextPathBundleIds(webContextPath);
-                boolean collision = webContextPathBundleIds.size() > 1;
-                this.eventManager.sendFailed(getBundle(), this.extender, webContextPath, ex, collision ? webContextPath : null,
-                    collision ? webContextPathBundleIds : null);
-                throw new WebApplicationStartFailedException(ex);
+                try {
+                    this.retryController.recordFailure(this);
+                    Set<Long> webContextPathBundleIds = getWebContextPathBundleIds(webContextPath);
+                    boolean collision = webContextPathBundleIds.size() > 1;
+                    this.eventManager.sendFailed(getBundle(), this.extender, webContextPath, e, collision ? webContextPath : null,
+                        collision ? webContextPathBundleIds : null);
+                } finally {
+                    if (!localStarted) {
+                        if (startOK) {
+                            this.container.stopWebApplication(this.handle);
+                        }
+                    }
+                }
+                throw new WebApplicationStartFailedException(e);
             }
         }
     }
 
     private Set<Long> getWebContextPathBundleIds(String webContextPath) {
         Set<Long> bundleIds = new HashSet<Long>();
-        for (Bundle bundle : this.bundleContext.getBundles()) {
+        for (Bundle bundle : this.extender.getBundleContext().getBundles()) {
             if (webContextPath.equals(WebContainerUtils.getContextPath(bundle))) {
                 bundleIds.add(bundle.getBundleId());
             }
@@ -120,6 +131,7 @@ final class StandardWebApplication implements WebApplication {
         return bundleIds;
     }
 
+    @Override
     public void stop() {
         boolean localStarted;
 
@@ -139,7 +151,7 @@ final class StandardWebApplication implements WebApplication {
 
     private void publishServletContext() {
         Dictionary<String, String> properties = constructServletContextProperties();
-        this.tracker.track(this.bundleContext.registerService(ServletContext.class, getServletContext(), properties));
+        this.tracker.track(getBundle().getBundleContext().registerService(ServletContext.class, getServletContext(), properties));
     }
 
     String getContextPath() {
@@ -147,14 +159,13 @@ final class StandardWebApplication implements WebApplication {
     }
 
     Bundle getBundle() {
-        return this.bundleContext.getBundle();
+        return this.bundle;
     }
 
     private Dictionary<String, String> constructServletContextProperties() {
         Dictionary<String, String> properties = new Hashtable<String, String>();
-        Bundle bundle = getBundle();
-        WebContainerUtils.setServletContextBundleProperties(properties, bundle);
-        properties.put("osgi.web.contextpath", getServletContext().getContextPath());
+        WebContainerUtils.setServletContextBundleProperties(properties, getBundle());
+        properties.put("osgi.web.contextpath", getContextPath());
         return properties;
     }
 
