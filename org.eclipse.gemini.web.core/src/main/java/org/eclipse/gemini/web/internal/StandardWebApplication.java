@@ -127,9 +127,9 @@ final class StandardWebApplication implements WebApplication {
 
     private Set<Long> getWebContextPathBundleIds(String webContextPath) {
         Set<Long> bundleIds = new HashSet<Long>();
-        // Use the system bundle to retrieve all bundles
+        // Use this bundle context to retrieve all bundles
         // Extender bundle cannot be used because it might be null
-        // Web app bundle cannot be use because its bundle context might be not valid and RuntimeException will be
+        // Web app bundle cannot be use because its bundle context might not be a valid one and RuntimeException will be
         // thrown
         for (Bundle bundle : this.thisBundleContext.getBundles()) {
             if (webContextPath.equals(WebContainerUtils.getContextPath(bundle))) {
