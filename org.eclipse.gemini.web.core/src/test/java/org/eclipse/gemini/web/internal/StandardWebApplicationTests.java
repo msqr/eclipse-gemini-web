@@ -50,6 +50,8 @@ public class StandardWebApplicationTests {
 
     private StubBundle extender;
 
+    private StubBundle thisBundle;
+
     private WebApplicationHandle webApplicationHandle;
 
     private ServletContainer servletContainer;
@@ -70,6 +72,7 @@ public class StandardWebApplicationTests {
         this.filter = createMock(StubFilter.class);
         this.extender = new StubBundle();
         this.bundle = new StubBundle();
+        this.thisBundle = new StubBundle();
         ((StubBundleContext) this.bundle.getBundleContext()).addFilter("(objectClass=org.osgi.service.event.EventAdmin)", this.filter);
     }
 
@@ -83,14 +86,29 @@ public class StandardWebApplicationTests {
         expect(this.webApplicationHandle.getServletContext()).andReturn(this.servletContext).anyTimes();
         expect(this.servletContext.getContextPath()).andReturn(CONTEXT_PATH).anyTimes();
         this.servletContainer.startWebApplication(this.webApplicationHandle);
-        expectLastCall();
+        expectLastCall().anyTimes();
         this.servletContainer.stopWebApplication(this.webApplicationHandle);
-        expectLastCall();
+        expectLastCall().anyTimes();
 
-        StandardWebApplication standardWebApplication = createStandardWebApplication();
+        replay(this.webApplicationHandle, this.servletContainer, this.servletContext, this.filter);
+
+        StandardWebApplication standardWebApplication = createStandardWebApplication(true);
 
         standardWebApplication.start();
         List<StubServiceRegistration<Object>> serviceRegistration = ((StubBundleContext) this.bundle.getBundleContext()).getServiceRegistrations();
+        assertNotNull(serviceRegistration);
+        assertTrue(serviceRegistration.size() == 1);
+        assertTrue(this.bundle.getBundleContext().getService(serviceRegistration.get(0).getReference()) instanceof ServletContext);
+
+        standardWebApplication.stop();
+        serviceRegistration = ((StubBundleContext) this.bundle.getBundleContext()).getServiceRegistrations();
+        assertNotNull(serviceRegistration);
+        assertTrue(serviceRegistration.size() == 0);
+
+        standardWebApplication = createStandardWebApplication(false);
+
+        standardWebApplication.start();
+        serviceRegistration = ((StubBundleContext) this.bundle.getBundleContext()).getServiceRegistrations();
         assertNotNull(serviceRegistration);
         assertTrue(serviceRegistration.size() == 1);
         assertTrue(this.bundle.getBundleContext().getService(serviceRegistration.get(0).getReference()) instanceof ServletContext);
@@ -108,7 +126,9 @@ public class StandardWebApplicationTests {
         this.servletContainer.startWebApplication(this.webApplicationHandle);
         expectLastCall().andThrow(new ServletContainerException("Start failes."));
 
-        StandardWebApplication standardWebApplication = createStandardWebApplication();
+        replay(this.webApplicationHandle, this.servletContainer, this.servletContext, this.filter);
+
+        StandardWebApplication standardWebApplication = createStandardWebApplication(true);
 
         try {
             standardWebApplication.start();
@@ -127,11 +147,13 @@ public class StandardWebApplicationTests {
         expect(this.webApplicationHandle.getServletContext()).andReturn(this.servletContext).anyTimes();
         expect(this.servletContext.getContextPath()).andReturn(CONTEXT_PATH).anyTimes();
         this.servletContainer.startWebApplication(this.webApplicationHandle);
-        expectLastCall();
+        expectLastCall().anyTimes();
         this.servletContainer.stopWebApplication(this.webApplicationHandle);
-        expectLastCall();
+        expectLastCall().anyTimes();
 
-        StandardWebApplication standardWebApplication = createStandardWebApplication();
+        replay(this.webApplicationHandle, this.servletContainer, this.servletContext, this.filter);
+
+        StandardWebApplication standardWebApplication = createStandardWebApplication(true);
 
         this.bundle.setState(Bundle.RESOLVED);
 
@@ -145,16 +167,36 @@ public class StandardWebApplicationTests {
         List<StubServiceRegistration<Object>> serviceRegistration = ((StubBundleContext) this.bundle.getBundleContext()).getServiceRegistrations();
         assertNotNull(serviceRegistration);
         assertTrue(serviceRegistration.size() == 0);
+
+        this.bundle.setState(Bundle.ACTIVE);
+
+        standardWebApplication = createStandardWebApplication(false);
+
+        this.bundle.setState(Bundle.RESOLVED);
+
+        try {
+            standardWebApplication.start();
+            fail("Exception should be thrown because bundle is in RESOLVED state.");
+        } catch (WebApplicationStartFailedException e) {
+            System.out.println(e.getMessage());
+        }
+
+        serviceRegistration = ((StubBundleContext) this.bundle.getBundleContext()).getServiceRegistrations();
+        assertNotNull(serviceRegistration);
+        assertTrue(serviceRegistration.size() == 0);
     }
 
-    private StandardWebApplication createStandardWebApplication() {
-        replay(this.webApplicationHandle, this.servletContainer, this.servletContext, this.filter);
-
+    private StandardWebApplication createStandardWebApplication(boolean withExtender) {
         this.eventManager = new EventManager(this.bundle.getBundleContext());
         this.webApplicationStartFailureRetryController = new WebApplicationStartFailureRetryController();
 
-        return new StandardWebApplication(this.bundle, this.extender, this.webApplicationHandle, this.servletContainer, this.eventManager,
-            this.webApplicationStartFailureRetryController);
+        if (withExtender) {
+            return new StandardWebApplication(this.bundle, this.extender, this.webApplicationHandle, this.servletContainer, this.eventManager,
+                this.webApplicationStartFailureRetryController, this.thisBundle.getBundleContext());
+        } else {
+            return new StandardWebApplication(this.bundle, null, this.webApplicationHandle, this.servletContainer, this.eventManager,
+                this.webApplicationStartFailureRetryController, this.thisBundle.getBundleContext());
+        }
     }
 
 }

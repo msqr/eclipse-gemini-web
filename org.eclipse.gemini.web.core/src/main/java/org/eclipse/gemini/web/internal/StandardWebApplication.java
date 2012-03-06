@@ -29,6 +29,7 @@ import org.eclipse.gemini.web.core.spi.ServletContainer;
 import org.eclipse.gemini.web.core.spi.WebApplicationHandle;
 import org.eclipse.virgo.util.osgi.ServiceRegistrationTracker;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,8 @@ final class StandardWebApplication implements WebApplication {
     private final Bundle bundle;
 
     private final Bundle extender;
+
+    private final BundleContext thisBundleContext;
 
     private final WebApplicationHandle handle;
 
@@ -55,13 +58,14 @@ final class StandardWebApplication implements WebApplication {
     private final WebApplicationStartFailureRetryController retryController;
 
     public StandardWebApplication(Bundle bundle, Bundle extender, WebApplicationHandle handle, ServletContainer container, EventManager eventManager,
-        WebApplicationStartFailureRetryController retryController) {
+        WebApplicationStartFailureRetryController retryController, BundleContext thisBundleContext) {
         this.bundle = bundle;
         this.extender = extender;
         this.handle = handle;
         this.container = container;
         this.eventManager = eventManager;
         this.retryController = retryController;
+        this.thisBundleContext = thisBundleContext;
     }
 
     @Override
@@ -123,7 +127,11 @@ final class StandardWebApplication implements WebApplication {
 
     private Set<Long> getWebContextPathBundleIds(String webContextPath) {
         Set<Long> bundleIds = new HashSet<Long>();
-        for (Bundle bundle : this.extender.getBundleContext().getBundles()) {
+        // Use the system bundle to retrieve all bundles
+        // Extender bundle cannot be used because it might be null
+        // Web app bundle cannot be use because its bundle context might be not valid and RuntimeException will be
+        // thrown
+        for (Bundle bundle : this.thisBundleContext.getBundles()) {
             if (webContextPath.equals(WebContainerUtils.getContextPath(bundle))) {
                 bundleIds.add(bundle.getBundleId());
             }
