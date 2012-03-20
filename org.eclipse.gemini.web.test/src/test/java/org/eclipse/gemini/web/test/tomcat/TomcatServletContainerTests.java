@@ -536,6 +536,56 @@ public class TomcatServletContainerTests {
         }
     }
 
+    @Test
+    public void testDirectoryListing() throws Exception {
+        File tomcatServerXml = new File("target/config/tomcat-server.xml");
+        createFileWithContent(tomcatServerXml, "");
+
+        // In this custom default web.xml the directory listing is enabled
+        // Thus we will ensure that a custom default web.xml is used
+        File defaultWebXml = new File("target/config/web.xml");
+        createFileWithContent(defaultWebXml, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
+            + "<web-app xmlns=\"http://java.sun.com/xml/ns/javaee\"\nxmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+            + "xsi:schemaLocation=\"http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd\"\nversion=\"2.5\">\n"
+            + "<servlet>\n<servlet-name>default</servlet-name>\n<servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>\n"
+            + "<init-param><param-name>debug</param-name><param-value>0</param-value></init-param>\n"
+            + "<init-param><param-name>listings</param-name><param-value>true</param-value></init-param>\n"
+            + "<load-on-startup>1</load-on-startup>\n</servlet>\n"
+            + "<servlet-mapping><servlet-name>default</servlet-name><url-pattern>/</url-pattern></servlet-mapping></web-app>");
+
+        // Create web app dir
+        File webAppDir = new File("target/test-classes/simple-web-app-dir");
+        File testFolder = new File(webAppDir, "test");
+        File testHtml = new File(testFolder, "test.html");
+        createFileWithContent(testHtml, "Hello World!");
+        File metaInf = new File(webAppDir, "META-INF");
+        File manifest = new File(metaInf, "MANIFEST.MF");
+        createFileWithContent(manifest, "Manifest-Version: 1.0\n" 
+            + "Bundle-ManifestVersion: 2\n" 
+            + "Web-ContextPath: /simple-web-app-dir\n"
+            + "Bundle-SymbolicName: simple-web-app-dir\n\n");
+
+        Bundle bundle = this.bundleContext.installBundle("reference:file:" + webAppDir.getAbsolutePath());
+        bundle.start();
+
+        WebApplicationHandle handle = this.container.createWebApplication("/simple-web-app-dir", bundle);
+        this.container.startWebApplication(handle);
+        try {
+            validateURL("http://localhost:8080/simple-web-app-dir/test/test.html");
+            validateURL("http://localhost:8080/simple-web-app-dir/test");
+
+            FileSystemUtils.deleteRecursively(testFolder);
+            validateNotFound("http://localhost:8080/simple-web-app-dir/test");
+        } finally {
+            this.container.stopWebApplication(handle);
+            bundle.uninstall();
+
+            FileSystemUtils.deleteRecursively(webAppDir);
+            tomcatServerXml.delete();
+            defaultWebXml.delete();
+        }
+    }
+
     private void createFileWithContent(File file, String content) throws Exception {
         file.getParentFile().mkdirs();
         FileWriter fWriter = null;

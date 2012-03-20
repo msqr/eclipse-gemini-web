@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,6 +17,7 @@
 package org.eclipse.gemini.web.tomcat.internal.loading;
 
 import java.io.IOException;
+import java.net.URL;
 import java.net.URLConnection;
 
 import javax.naming.directory.Attributes;
@@ -54,9 +55,11 @@ final class BundleEntryAttributes extends ResourceAttributes {
         getName();
         try {
             URLConnection urlConnection = getBundleEntryURLConnection();
-            getLastModified(urlConnection);
-            getCreation(urlConnection);
-            getContentLength(urlConnection);
+            if (urlConnection != null) {
+                getLastModified(urlConnection);
+                getCreation(urlConnection);
+                getContentLength(urlConnection);
+            }
         } catch (IOException e) {
         }
     }
@@ -67,7 +70,10 @@ final class BundleEntryAttributes extends ResourceAttributes {
     @Override
     public long getCreation() {
         try {
-            return getCreation(getBundleEntryURLConnection());
+            URLConnection urlConnection = getBundleEntryURLConnection();
+            if (urlConnection != null) {
+                return getCreation(urlConnection);
+            }
         } catch (IOException e) {
         }
         return TIME_NOT_SET;
@@ -115,7 +121,10 @@ final class BundleEntryAttributes extends ResourceAttributes {
     @Override
     public long getLastModified() {
         try {
-            return getLastModified(getBundleEntryURLConnection());
+            URLConnection urlConnection = getBundleEntryURLConnection();
+            if (urlConnection != null) {
+                return getLastModified(urlConnection);
+            }
         } catch (IOException e) {
         }
         return TIME_NOT_SET;
@@ -162,7 +171,10 @@ final class BundleEntryAttributes extends ResourceAttributes {
     @Override
     public long getContentLength() {
         try {
-            return getContentLength(getBundleEntryURLConnection());
+            URLConnection urlConnection = getBundleEntryURLConnection();
+            if (urlConnection != null) {
+                return getContentLength(urlConnection);
+            }
         } catch (IOException e) {
         }
         return CONTENT_LENGTH_NOT_SET;
@@ -191,7 +203,12 @@ final class BundleEntryAttributes extends ResourceAttributes {
     }
 
     private URLConnection getBundleEntryURLConnection() throws IOException {
-        return this.bundleEntry.getURL().openConnection();
+        URL url = this.bundleEntry.getURL();
+        if (url != null) {
+            return url.openConnection();
+        } else {
+            return null;
+        }
     }
 
 }
