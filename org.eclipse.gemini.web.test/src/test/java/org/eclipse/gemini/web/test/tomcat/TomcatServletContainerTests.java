@@ -488,6 +488,22 @@ public class TomcatServletContainerTests {
     }
 
     @Test
+    public void testWarWithAnnotations() throws Exception {
+        String location = LOCATION_PREFIX + LOCATION_WAR_WITH_ANNOTATIONS;
+        Bundle bundle = this.bundleContext.installBundle(location);
+        bundle.start();
+
+        WebApplicationHandle handle = this.container.createWebApplication("/war-with-annotations", bundle);
+        this.container.startWebApplication(handle);
+        try {
+            validateURL("http://localhost:8080/war-with-annotations/TestServlet");
+        } finally {
+            this.container.stopWebApplication(handle);
+            bundle.uninstall();
+        }
+    }
+
+    @Test
     public void testServletContainerWithCustomDefaultWebXml() throws Exception {
         File tomcatServerXml = new File("target/config/tomcat-server.xml");
         createFileWithContent(tomcatServerXml, "");
@@ -495,14 +511,18 @@ public class TomcatServletContainerTests {
         // In this custom default web.xml the directory listing is enabled
         // Thus we will ensure that a custom default web.xml is used
         File defaultWebXml = new File("target/config/web.xml");
-        createFileWithContent(defaultWebXml, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
-            + "<web-app xmlns=\"http://java.sun.com/xml/ns/javaee\"\nxmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
-            + "xsi:schemaLocation=\"http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd\"\nversion=\"2.5\">\n"
-            + "<servlet>\n<servlet-name>default</servlet-name>\n<servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>\n"
-            + "<init-param><param-name>debug</param-name><param-value>0</param-value></init-param>\n"
-            + "<init-param><param-name>listings</param-name><param-value>true</param-value></init-param>\n"
-            + "<load-on-startup>1</load-on-startup>\n</servlet>\n"
-            + "<servlet-mapping><servlet-name>default</servlet-name><url-pattern>/</url-pattern></servlet-mapping></web-app>");
+        createFileWithContent(
+            defaultWebXml,
+            "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
+                + "<web-app xmlns=\"http://java.sun.com/xml/ns/javaee\"\nxmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+                + "xsi:schemaLocation=\"http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd\"\nversion=\"2.5\">\n"
+                + "<servlet>\n<servlet-name>default</servlet-name>\n<servlet-class>org.apache.catalina.servlets.DefaultServlet</servlet-class>\n"
+                + "<init-param><param-name>debug</param-name><param-value>0</param-value></init-param>\n"
+                + "<init-param><param-name>listings</param-name><param-value>true</param-value></init-param>\n"
+                + "<load-on-startup>1</load-on-startup>\n</servlet>\n"
+                + "<servlet-mapping>\n<servlet-name>default</servlet-name>\n<url-pattern>/</url-pattern>\n</servlet-mapping>\n"
+                + "<filter>\n<filter-name>requestdumper</filter-name>\n<filter-class>org.apache.catalina.filters.RequestDumperFilter</filter-class>\n</filter>\n"
+                + "<filter-mapping>\n<filter-name>requestdumper</filter-name>\n<url-pattern>/*</url-pattern>\n</filter-mapping>\n</web-app>");
 
         Bundle bundle = this.bundleContext.installBundle(LOCATION_WAR_WITH_TLD);
         bundle.start();
@@ -517,22 +537,6 @@ public class TomcatServletContainerTests {
 
             tomcatServerXml.delete();
             defaultWebXml.delete();
-        }
-    }
-
-    @Test
-    public void testWarWithAnnotations() throws Exception {
-        String location = LOCATION_PREFIX + LOCATION_WAR_WITH_ANNOTATIONS;
-        Bundle bundle = this.bundleContext.installBundle(location);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/war-with-annotations", bundle);
-        this.container.startWebApplication(handle);
-        try {
-            validateURL("http://localhost:8080/war-with-annotations/TestServlet");
-        } finally {
-            this.container.stopWebApplication(handle);
-            bundle.uninstall();
         }
     }
 
