@@ -164,7 +164,9 @@ final class TomcatServletContainer implements ServletContainer {
     }
 
     private ClassLoader createThreadContextClassLoader() {
-        return ChainedClassLoader.create(getClass().getClassLoader(), Context.class.getClassLoader());
+        ChainedClassLoader chainedClassLoader = ChainedClassLoader.create(getClass().getClassLoader(), Context.class.getClassLoader());
+        chainedClassLoader.setBundle(this.context.getBundle());
+        return chainedClassLoader;
     }
 
     private void removeContext(StandardContext context) {

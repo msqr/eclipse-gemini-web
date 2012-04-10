@@ -301,7 +301,9 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
         digester.push(this);
 
         ClassLoader[] loaders = new ClassLoader[] { Catalina.class.getClassLoader(), getClass().getClassLoader() };
-        digester.setClassLoader(ChainedClassLoader.create(loaders));
+        ChainedClassLoader chainedClassLoader = ChainedClassLoader.create(loaders);
+        chainedClassLoader.setBundle(this.bundleContext.getBundle());
+        digester.setClassLoader(chainedClassLoader);
 
         try {
             digester.parse(configuration);

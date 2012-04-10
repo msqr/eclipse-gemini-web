@@ -29,15 +29,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleReference;
+
 /**
  * <strong>Concurrent Semantics</strong><br />
  * 
  * This class is immutable and therefore thread safe.
  */
-public final class ChainedClassLoader extends ClassLoader {
+public final class ChainedClassLoader extends ClassLoader implements BundleReference {
 
 	/** list of loaders */
 	private final List<ClassLoader> loaders;
+	
+	private Bundle bundle;
 
 	/**
 	 * Constructs a new <code>ChainedClassLoader</code> instance.
@@ -174,5 +179,14 @@ public final class ChainedClassLoader extends ClassLoader {
 
 		throw new ClassNotFoundException(name);
 	}
+
+    @Override
+    public Bundle getBundle() {
+        return bundle;
+    }
+    
+    public void setBundle(Bundle bundle) {
+        this.bundle = bundle;
+    }
 
 }
