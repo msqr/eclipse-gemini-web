@@ -91,6 +91,8 @@ public class TomcatServletContainerTests {
 
     private static final String LOCATION_WAR_WITH_ANNOTATIONS = "../org.eclipse.gemini.web.test/target/resources/war-with-annotations.war?Web-ContextPath=/war-with-annotations";
 
+    private static final String LOCATION_BUNDLE_CUSTOMIZER = "file:../org.eclipse.gemini.web.test/target/resources/customizer-bundle.jar";
+
     private BundleContext bundleContext;
 
     private ServletContainer container;
@@ -500,6 +502,25 @@ public class TomcatServletContainerTests {
         } finally {
             this.container.stopWebApplication(handle);
             bundle.uninstall();
+        }
+    }
+
+    @Test
+    public void testCustomizers() throws Exception {
+        Bundle customizer = this.bundleContext.installBundle(LOCATION_BUNDLE_CUSTOMIZER);
+        customizer.start();
+
+        Bundle bundle = this.bundleContext.installBundle(LOCATION_WAR_WITH_SERVLET);
+        bundle.start();
+
+        WebApplicationHandle handle = this.container.createWebApplication("/war-with-servlet", bundle);
+        this.container.startWebApplication(handle);
+        try {
+            validateURL("http://localhost:8080/war-with-servlet/CustomServlet");
+        } finally {
+            this.container.stopWebApplication(handle);
+            bundle.uninstall();
+            customizer.uninstall();
         }
     }
 

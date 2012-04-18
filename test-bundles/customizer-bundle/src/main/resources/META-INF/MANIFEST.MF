@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: Customizer-bundle
+Bundle-Version: 1.0.0
+Import-Package: org.apache.tomcat,
+ org.eclipse.gemini.web.tomcat.spi,
+ org.osgi.framework,
+ javax.servlet,
+ javax.servlet.http,
+ org.eclipse.osgi.baseadaptor,
+ org.eclipse.osgi.baseadaptor.bundlefile,
+ org.eclipse.osgi.framework.adaptor,
+ org.eclipse.osgi.framework.internal.core
+Bundle-Activator: org.eclipse.gemini.web.Activator  
+ 
+
