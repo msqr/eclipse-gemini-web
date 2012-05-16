@@ -37,7 +37,7 @@
             <dependency org="javax.xml.rpc" name="com.springsource.javax.xml.rpc" rev="${javax.xml.rpc}" />
             <dependency org="org.apache.jasper" name="com.springsource.org.apache.jasper" rev="${org.apache.tomcat}" conf="compile->runtime"/>
             <dependency org="org.apache.el" name="com.springsource.org.apache.el" rev="${org.apache.tomcat}" conf="compile->runtime"/>
-            <dependency org="org.eclipse.jdt" name="com.springsource.org.eclipse.jdt.core.compiler.batch" rev="${org.eclipse.jdt}" conf="compile->runtime"/>
+            <dependency org="org.eclipse.jdt" name="org.eclipse.jdt.core.compiler.batch" rev="${org.eclipse.jdt}" conf="compile->runtime"/>
             <dependency org="org.apache.catalina" name="com.springsource.org.apache.catalina" rev="${org.apache.tomcat}" conf="compile->runtime"/>
             <dependency org="org.apache.catalina" name="com.springsource.org.apache.catalina.ha" rev="${org.apache.tomcat}" conf="compile->runtime"/>
             <dependency org="org.apache.catalina" name="com.springsource.org.apache.catalina.tribes" rev="${org.apache.tomcat}" conf="compile->runtime"/>

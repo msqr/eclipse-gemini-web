@@ -29,5 +29,5 @@ org.eclipse.osgi.services=3.3.0.v20110110
 org.eclipse.equinox.cm=1.0.300.v20101204
 org.eclipse.equinox.event=1.2.100.v20110110
 org.apache.tomcat=7.0.26
-org.eclipse.jdt=3.6.1
+org.eclipse.jdt=3.7.0.M20120208-0800
 org.slf4j=1.6.1
