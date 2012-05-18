@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -121,7 +121,13 @@ final class TomcatServletContainer implements ServletContainer {
 
         StandardContext context = extractTomcatContext(handle);
 
-        host.addChild(context);
+        try {
+            host.addChild(context);
+        } catch (IllegalStateException e) {
+            host.removeChild(context);
+            throw new ServletContainerException("Web application at '" + contextPath + "' cannot be added to the host.", e);
+        }
+
         if (!context.getState().isAvailable()) {
             host.removeChild(context);
             throw new ServletContainerException("Web application at '" + contextPath + "' failed to start. Check the logs for more details.");
@@ -233,7 +239,7 @@ final class TomcatServletContainer implements ServletContainer {
         return contextPath;
     }
 
-    private static class TomcatWebApplicationHandle implements WebApplicationHandle {
+    static class TomcatWebApplicationHandle implements WebApplicationHandle {
 
         private final ServletContext servletContext;
 
@@ -241,7 +247,7 @@ final class TomcatServletContainer implements ServletContainer {
 
         private final BundleWebappLoader webappLoader;
 
-        private TomcatWebApplicationHandle(ServletContext servletContext, StandardContext context, BundleWebappLoader webappLoader) {
+        TomcatWebApplicationHandle(ServletContext servletContext, StandardContext context, BundleWebappLoader webappLoader) {
             this.servletContext = servletContext;
             this.context = context;
             this.webappLoader = webappLoader;
