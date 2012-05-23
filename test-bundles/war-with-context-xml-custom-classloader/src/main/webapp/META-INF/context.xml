@@ -12,5 +12,7 @@
     <Valve
         className="org.apache.catalina.authenticator.BasicAuthenticator"/>
 
+    <Realm className="org.apache.catalina.realm.LockOutRealm"/>
+
 </Context>
 
