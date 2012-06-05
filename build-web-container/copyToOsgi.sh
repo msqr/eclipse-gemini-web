@@ -1,12 +1,12 @@
 # copies the results of a web container build (ant clean collect) to the relevant directories of the given OSGi trunk
 REPO=$1/licensed/repo
 SRC=target/bundles
-cp $SRC/org.eclipse.virgo.util.osgi-3.1.0.*.jar $REPO/org.eclipse.virgo.util.osgi/org.eclipse.virgo.util.osgi-3.1.0.jar
-cp $SRC/org.eclipse.virgo.util.osgi.manifest-3.1.0.*.jar $REPO/org.eclipse.virgo.util.osgi/org.eclipse.virgo.util.osgi.manifest-3.1.0.jar
-cp $SRC/org.eclipse.virgo.util.common-3.1.0.*.jar $REPO/org.eclipse.virgo.util.common/org.eclipse.virgo.util.common-3.1.0.jar
-cp $SRC/org.eclipse.virgo.util.io-3.1.0.*.jar $REPO/org.eclipse.virgo.util.io/org.eclipse.virgo.util.io-3.1.0.jar
-cp $SRC/org.eclipse.virgo.util.math-3.1.0.*.jar $REPO/org.eclipse.virgo.util.math/org.eclipse.virgo.util.math-3.1.0.jar
-cp $SRC/org.eclipse.virgo.util.parser.manifest-3.1.0.*.jar $REPO/org.eclipse.virgo.util.parser.manifest/org.eclipse.virgo.util.parser.manifest-3.1.0.jar
+cp $SRC/org.eclipse.virgo.util.osgi-3.5.0.*.jar $REPO/org.eclipse.virgo.util.osgi/org.eclipse.virgo.util.osgi-3.5.0.jar
+cp $SRC/org.eclipse.virgo.util.osgi.manifest-3.5.0.*.jar $REPO/org.eclipse.virgo.util.osgi/org.eclipse.virgo.util.osgi.manifest-3.5.0.jar
+cp $SRC/org.eclipse.virgo.util.common-3.5.0.*.jar $REPO/org.eclipse.virgo.util.common/org.eclipse.virgo.util.common-3.5.0.jar
+cp $SRC/org.eclipse.virgo.util.io-3.5.0.*.jar $REPO/org.eclipse.virgo.util.io/org.eclipse.virgo.util.io-3.5.0.jar
+cp $SRC/org.eclipse.virgo.util.math-3.5.0.*.jar $REPO/org.eclipse.virgo.util.math/org.eclipse.virgo.util.math-3.5.0.jar
+cp $SRC/org.eclipse.virgo.util.parser.manifest-3.5.0.*.jar $REPO/org.eclipse.virgo.util.parser.manifest/org.eclipse.virgo.util.parser.manifest-3.5.0.jar
 cp $SRC/com.springsource.org.apache.catalina.ha-7.0.26.jar $REPO/com.springsource.org.apache.catalina.ha/com.springsource.org.apache.catalina.ha-7.0.26.jar
 cp $SRC/com.springsource.org.apache.catalina-7.0.26.jar $REPO/com.springsource.org.apache.catalina/com.springsource.org.apache.catalina-7.0.26.jar
 cp $SRC/com.springsource.org.apache.catalina.tribes-7.0.26.jar $REPO/com.springsource.org.apache.catalina.tribes/com.springsource.org.apache.catalina.tribes-7.0.26.jar

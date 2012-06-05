@@ -455,9 +455,13 @@ public class TomcatServletContainerTests {
             + "config.getServletContext().getRealPath(/): <%=config.getServletContext().getRealPath(\"/\")%>\n"
             + "**************  REAL PATH: <%=request.getRealPath(\".\")%>\n"
             + "**************  REAL PATH: <%=request.getRealPath(\"META-INF/.\")%>\n");
+        File metaInf = new File(webAppDir, "META-INF");
+        File manifest = new File(metaInf, "MANIFEST.MF");
+        createFileWithContent(manifest, ""); 
 
         Bundle bundle = this.bundleContext.installBundle(LOCATION_PREFIX + webAppDir.getAbsolutePath() + "?Web-ContextPath=/simple-web-app-dir");
         bundle.start();
+		assertNotNull(bundle.getSymbolicName());
 
         WebApplicationHandle handle = this.container.createWebApplication("/simple-web-app-dir", bundle);
         this.container.startWebApplication(handle);
