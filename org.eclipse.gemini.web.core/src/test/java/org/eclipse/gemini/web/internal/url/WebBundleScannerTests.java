@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -21,38 +21,49 @@ import static org.easymock.EasyMock.verify;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 import org.easymock.EasyMock;
-import org.junit.Test;
-
-import org.eclipse.gemini.web.internal.url.WebBundleScanner;
-import org.eclipse.gemini.web.internal.url.WebBundleScannerCallback;
 import org.eclipse.virgo.util.io.JarUtils;
 import org.eclipse.virgo.util.io.PathReference;
+import org.junit.Test;
 
 public class WebBundleScannerTests {
 
-	private static final File WAR_FILE = new File("target/resources/simple-war.war");
+    private static final File WAR_FILE = new File("target/resources/simple-war.war");
+
+    private static final File WAR_CLASSPATHDEPS = new File("../org.eclipse.gemini.web.test/src/test/resources/classpathdeps.war");
+
+    @Test
+    public void testScanClasspathDeps() throws IOException {
+        final WebBundleScannerCallback callback = EasyMock.createMock(WebBundleScannerCallback.class);
+
+        setExpectationsClasspathDeps(callback);
+
+        scan(WAR_CLASSPATHDEPS.toURI().toURL(), callback);
+    }
 
     @Test
     public void testScanLib() throws IOException {
         WebBundleScannerCallback callback = EasyMock.createMock(WebBundleScannerCallback.class);
-        
+
         setExpectations(callback);
-                
-        replay(callback);
-        
-        WebBundleScanner scanner = new WebBundleScanner(WAR_FILE.toURI().toURL(), callback);
-        scanner.scanWar();
-        
-        verify(callback);        
+
+        scan(WAR_FILE.toURI().toURL(), callback);
     }
-    
+
+    private void setExpectationsClasspathDeps(WebBundleScannerCallback callback) {
+        callback.jarFound("WEB-INF/lib/jar1.jar");
+        callback.jarFound("j2/jar2.jar");
+        callback.jarFound("j3/jar3.jar");
+        callback.jarFound("j4/jar4.jar");
+    }
+
     private void setExpectations(WebBundleScannerCallback callback) {
-        callback.jarFound("WEB-INF/lib/com.springsource.slf4j.api-1.6.1.jar");        
+        callback.jarFound("WEB-INF/lib/com.springsource.slf4j.api-1.6.1.jar");
         callback.classFound("foo/bar/Doo.class");
     }
-    
+
     private void setExpectationsIncludingNestedJars(WebBundleScannerCallback callback) {
         setExpectations(callback);
 
@@ -80,61 +91,59 @@ public class WebBundleScannerTests {
         callback.classFound("org/slf4j/spi/MarkerFactoryBinder.class");
         callback.classFound("org/slf4j/spi/MDCAdapter.class");
     }
-    
+
     @SuppressWarnings("deprecation")
     @Test
     public void testScanLibIncludingNestedJars() throws IOException {
-        
+
         WebBundleScannerCallback callback = EasyMock.createMock(WebBundleScannerCallback.class);
-        
+
         setExpectationsIncludingNestedJars(callback);
-        
-        replay(callback);
-        
-        WebBundleScanner scanner = new WebBundleScanner(WAR_FILE.toURL(), callback, true);
-        scanner.scanWar();
-        
-        verify(callback);        
+
+        scan(WAR_FILE.toURL(), callback, true);
     }
-    
+
     @Test
     public void testScanDir() throws Exception {
         PathReference pr = unpackToDir();
         try {
             WebBundleScannerCallback callback = EasyMock.createMock(WebBundleScannerCallback.class);
-            
+
             setExpectations(callback);
-            
-            replay(callback);
-            
-            WebBundleScanner scanner = new WebBundleScanner(pr.toURI().toURL(), callback);            
-            scanner.scanWar();
-            
-            verify(callback);
+
+            scan(pr.toURI().toURL(), callback);
         } finally {
             pr.delete(true);
         }
     }
-    
+
     @Test
     public void testScanDirIncludingNestedJars() throws Exception {
         PathReference pr = unpackToDir();
         try {
             WebBundleScannerCallback callback = EasyMock.createMock(WebBundleScannerCallback.class);
-            
+
             setExpectationsIncludingNestedJars(callback);
-            
-            replay(callback);
-            
-            WebBundleScanner scanner = new WebBundleScanner(pr.toURI().toURL(), callback, true);            
-            scanner.scanWar();
-            
-            verify(callback);
+
+            scan(pr.toURI().toURL(), callback, true);
         } finally {
             pr.delete(true);
         }
     }
-    
+
+    private void scan(final URL url, final WebBundleScannerCallback callback) throws IOException {
+        this.scan(url, callback, false);
+    }
+
+    private void scan(final URL url, final WebBundleScannerCallback callback, final boolean findClassesInNestedJars) throws IOException {
+        replay(callback);
+
+        final WebBundleScanner scanner = new WebBundleScanner(url, callback, findClassesInNestedJars);
+        scanner.scanWar();
+
+        verify(callback);
+    }
+
     private PathReference unpackToDir() throws IOException {
         String tmpDir = System.getProperty("java.io.tmpdir");
         PathReference dest = new PathReference(new File(tmpDir, "unpack-" + System.currentTimeMillis()));

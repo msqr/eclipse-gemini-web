@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,20 +19,25 @@ package org.eclipse.gemini.web.internal.url;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.zip.ZipEntry;
 
 import org.eclipse.virgo.util.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class WebBundleScanner {
 
@@ -60,6 +65,10 @@ final class WebBundleScanner {
 
     private final URL source;
 
+    private final String localSourcePath;
+
+    private final Collection<ZipEntry> sourceZipEntries = new HashSet<ZipEntry>();
+
     private final WebBundleScannerCallback callBack;
 
     private final boolean findClassesInNestedJars;
@@ -81,6 +90,7 @@ final class WebBundleScanner {
         this.source = source;
         this.callBack = callBack;
         this.findClassesInNestedJars = findClassesInNestedJars;
+        this.localSourcePath = getLocalSourcePath(source);
     }
 
     /**
@@ -92,6 +102,7 @@ final class WebBundleScanner {
     void scanWar() throws IOException {
         synchronized (this.monitor) {
             this.scannedJars.clear();
+            this.sourceZipEntries.clear();
             if (isDirectory()) {
                 scanWarDirectory();
             } else {
@@ -209,11 +220,13 @@ final class WebBundleScanner {
             }
         }
 
-        JarEntry entry;
-        while ((entry = jis.getNextJarEntry()) != null) {
-            String entryName = entry.getName();
-            if (entryName.endsWith(CLASS_SUFFIX)) {
-                notifyClassFound(entryName);
+        if (this.findClassesInNestedJars) {
+            JarEntry entry;
+            while ((entry = jis.getNextJarEntry()) != null) {
+                String entryName = entry.getName();
+                if (entryName.endsWith(CLASS_SUFFIX)) {
+                    notifyClassFound(entryName);
+                }
             }
         }
     }
@@ -247,7 +260,23 @@ final class WebBundleScanner {
         }
     }
 
-    private void scanNestedJarInWarFile(String jarPath) throws IOException {
+    private void scanNestedJarInWarFile(final String jarPath) throws IOException {
+        if (this.localSourcePath == null) {
+            scanNestedJarInWarFileWithStream(jarPath);
+            return;
+        }
+
+        scanNestedJarInWarFileWithZipFile(jarPath, this.localSourcePath);
+    }
+
+    private String getLocalSourcePath(final URL url) {
+        if (!FILE_SCHEME.equals(url.getProtocol())) {
+            return null;
+        }
+        return URLDecoder.decode(url.getPath());
+    }
+
+    private void scanNestedJarInWarFileWithStream(String jarPath) throws IOException {
         JarInputStream jis = new JarInputStream(this.source.openStream());
         try {
             JarEntry entry;
@@ -263,13 +292,54 @@ final class WebBundleScanner {
         } finally {
             IOUtils.closeQuietly(jis);
         }
+    }
 
+    private void scanNestedJarInWarFileWithZipFile(String jarPath, String localSourcePath) throws IOException {
+        JarFile jarFile = null;
+        try {
+            InputStream foundInputStream = null;
+            String foundZipEntryName = null;
+            if (this.sourceZipEntries.isEmpty()) {// then search and cache all entries
+                jarFile = new JarFile(localSourcePath);
+                Enumeration<JarEntry> jarFileEntries = jarFile.entries();
+                while (jarFileEntries.hasMoreElements()) {
+                    final ZipEntry zipEntry = jarFileEntries.nextElement();
+                    // 1. cache
+                    this.sourceZipEntries.add(zipEntry);
+                    // 2. search if it is not found still
+                    if (foundZipEntryName == null && jarPath.endsWith(zipEntry.getName())) {
+                        foundZipEntryName = zipEntry.getName();
+                        foundInputStream = jarFile.getInputStream(zipEntry);
+                    }
+                }
+            } else {// search entry in cache
+                for (ZipEntry zipEntry : this.sourceZipEntries) {
+                    if (jarPath.endsWith(zipEntry.getName())) {
+                        jarFile = new JarFile(localSourcePath);
+                        foundZipEntryName = zipEntry.getName();
+                        foundInputStream = jarFile.getInputStream(zipEntry);
+                        break;
+                    }
+
+                }
+            }
+
+            if (foundZipEntryName != null && driveCallBackIfNewJarFound(foundZipEntryName)) {
+                JarInputStream nestedJis = new JarInputStream(foundInputStream);
+                doScanNestedJar(foundZipEntryName, nestedJis);
+            }
+        } finally {// quiet close
+            if (jarFile != null) {
+                try {
+                    jarFile.close();
+                } catch (IOException _) {
+                }
+            }
+        }
     }
 
     private void notifyClassFound(String entryName) {
-        if (this.findClassesInNestedJars) {
-            this.callBack.classFound(entryName);
-        }
+        this.callBack.classFound(entryName);
     }
 
     private boolean isDirectory() {
