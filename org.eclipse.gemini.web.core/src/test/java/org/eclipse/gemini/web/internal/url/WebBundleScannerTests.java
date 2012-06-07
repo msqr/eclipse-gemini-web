@@ -92,7 +92,6 @@ public class WebBundleScannerTests {
         callback.classFound("org/slf4j/spi/MDCAdapter.class");
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void testScanLibIncludingNestedJars() throws IOException {
 
@@ -100,12 +99,12 @@ public class WebBundleScannerTests {
 
         setExpectationsIncludingNestedJars(callback);
 
-        scan(WAR_FILE.toURL(), callback, true);
+        scan(WAR_FILE.toURI().toURL(), callback, true);
     }
 
     @Test
     public void testScanDir() throws Exception {
-        PathReference pr = unpackToDir();
+        PathReference pr = unpackToDir(WAR_FILE);
         try {
             WebBundleScannerCallback callback = EasyMock.createMock(WebBundleScannerCallback.class);
 
@@ -119,11 +118,25 @@ public class WebBundleScannerTests {
 
     @Test
     public void testScanDirIncludingNestedJars() throws Exception {
-        PathReference pr = unpackToDir();
+        PathReference pr = unpackToDir(WAR_FILE);
         try {
             WebBundleScannerCallback callback = EasyMock.createMock(WebBundleScannerCallback.class);
 
             setExpectationsIncludingNestedJars(callback);
+
+            scan(pr.toURI().toURL(), callback, true);
+        } finally {
+            pr.delete(true);
+        }
+    }
+
+    @Test
+    public void testScanDirIncludingClasspathDeps() throws Exception {
+        PathReference pr = unpackToDir(WAR_CLASSPATHDEPS);
+        try {
+            WebBundleScannerCallback callback = EasyMock.createMock(WebBundleScannerCallback.class);
+
+            setExpectationsClasspathDeps(callback);
 
             scan(pr.toURI().toURL(), callback, true);
         } finally {
@@ -144,10 +157,10 @@ public class WebBundleScannerTests {
         verify(callback);
     }
 
-    private PathReference unpackToDir() throws IOException {
+    private PathReference unpackToDir(File warFile) throws IOException {
         String tmpDir = System.getProperty("java.io.tmpdir");
         PathReference dest = new PathReference(new File(tmpDir, "unpack-" + System.currentTimeMillis()));
-        PathReference src = new PathReference(WAR_FILE);
+        PathReference src = new PathReference(warFile);
         JarUtils.unpackTo(src, dest);
         return dest;
     }

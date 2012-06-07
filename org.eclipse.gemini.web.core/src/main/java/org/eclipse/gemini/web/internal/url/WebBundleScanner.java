@@ -210,8 +210,7 @@ final class WebBundleScanner {
                     String[] classPathItems = classPath.split(CLASS_PATH_SEPARATOR);
                     for (String classPathItem : classPathItems) {
                         try {
-                            Path entryPath = jarPathx.applyRelativePath(new Path(classPathItem));
-                            scanNestedJarInWar(entryPath.toString());
+                            scanNestedJarInWar(jarPathx, classPathItem);
                         } catch (IllegalArgumentException _) {
                             // skip invalid relative paths which try to escape the WAR
                         }
@@ -237,21 +236,29 @@ final class WebBundleScanner {
         return lastDirectoryIndex == -1 ? new Path() : new Path(jarPath.substring(0, lastDirectoryIndex));
     }
 
-    private void scanNestedJarInWar(String jarPath) throws IOException {
+    private void scanNestedJarInWar(Path directoryPath, String jarPath) throws IOException {
         if (isDirectory()) {
-            scanNestedJarInWarDirectory(jarPath);
+            scanNestedJarInWarDirectory(directoryPath, jarPath);
         } else {
-            scanNestedJarInWarFile(jarPath);
+            scanNestedJarInWarFile(directoryPath, jarPath);
         }
     }
 
-    private void scanNestedJarInWarDirectory(String jarPath) throws IOException {
+    private void scanNestedJarInWarDirectory(Path directoryPath, String jarPath) throws IOException {
+        Path entryPath = directoryPath.applyRelativePath(new Path(jarPath));
         try {
             File bundleDir = sourceAsFile();
-            File nestedJar = new File(bundleDir, "/" + jarPath);
+            File nestedJar = new File(entryPath.toString());
+            if (!nestedJar.isAbsolute()) {
+                nestedJar = new File(bundleDir, entryPath.toString());
+            }
             if (nestedJar.isFile()) {
-                String pathToJar = "/" + nestedJar.getName();
-                if (driveCallBackIfNewJarFound(pathToJar)) {
+                URI pathToJar = bundleDir.toURI().relativize(nestedJar.toURI());
+                if (pathToJar.equals(nestedJar.toURI())) {
+                    // Do nothing - cannot obtain relative path
+                    return;
+                }
+                if (driveCallBackIfNewJarFound(pathToJar.getPath())) {
                     doScanNestedJar(nestedJar);
                 }
             }
@@ -260,13 +267,14 @@ final class WebBundleScanner {
         }
     }
 
-    private void scanNestedJarInWarFile(final String jarPath) throws IOException {
+    private void scanNestedJarInWarFile(Path directoryPath, final String jarPath) throws IOException {
+        Path entryPath = directoryPath.applyRelativePath(new Path(jarPath));
         if (this.localSourcePath == null) {
-            scanNestedJarInWarFileWithStream(jarPath);
+            scanNestedJarInWarFileWithStream(entryPath.toString());
             return;
         }
 
-        scanNestedJarInWarFileWithZipFile(jarPath, this.localSourcePath);
+        scanNestedJarInWarFileWithZipFile(entryPath.toString(), this.localSourcePath);
     }
 
     private String getLocalSourcePath(final URL url) {
