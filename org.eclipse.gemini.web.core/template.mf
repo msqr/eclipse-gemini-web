@@ -4,7 +4,7 @@ Bundle-SymbolicName: org.eclipse.gemini.web.core
 Bundle-Version: $version
 Bundle-Name: Gemini Web Core
 Import-Template: org.eclipse.virgo.util.*;version="0",
- javax.servlet.*;version="3.0.0",
+ javax.servlet.*;version="2.6.0",
  org.slf4j;version="${org.slf4j}",
  org.osgi.service.event;resolution:="optional";version="0",
  org.osgi.framework.*;version="0",
