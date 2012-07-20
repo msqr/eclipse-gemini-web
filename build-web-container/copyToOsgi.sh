@@ -20,5 +20,5 @@ cp $SRC/org.eclipse.gemini.web.core-2.1.0.*.jar $REPO/org.eclipse.gemini.web.cor
 cp $SRC/org.eclipse.gemini.web.extender-2.1.0.*.jar $REPO/org.eclipse.gemini.web.extender/org.eclipse.gemini.web.extender-2.1.0.jar
 cp $SRC/org.eclipse.gemini.web.tomcat-2.1.0.*.jar $REPO/org.eclipse.gemini.web.tomcat/org.eclipse.gemini.web.tomcat-2.1.0.jar
 cp $SRC/org.eclipse.jdt.core.compiler.batch-3.7.0.M20120208-0800.jar $REPO/org.eclipse.jdt.core.compiler.batch/com.springsource.org.eclipse.jdt.core.compiler.batch-3.7.0.M20120208-0800.jar
-cp $SRC/com.springsource.slf4j.api-1.6.1.jar $REPO/com.springsource.slf4j.api/com.springsource.slf4j.api-1.6.1.jar
-cp $SRC/com.springsource.slf4j.nop-1.6.1.jar $REPO/com.springsource.slf4j.nop/com.springsource.slf4j.nop-1.6.1.jar
+cp $SRC/org.slf4j.api-1.6.4.*.jar $REPO/org.eclipse.virgo.mirrored/org.slf4j.api-1.6.4.jar
+cp $SRC/org.slf4j.nop-1.6.4.*.jar $REPO/org.eclipse.virgo.mirrored/org.slf4j.nop-1.6.4.jar
