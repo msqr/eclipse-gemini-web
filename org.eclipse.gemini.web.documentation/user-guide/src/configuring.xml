@@ -3,10 +3,10 @@
 	<title>Configuration</title>
 	<titleabbrev>Configuration</titleabbrev>
 	<section id="configuring-tomcat">
-		<title>Configuring the Embedded Tomcat Servlet Container</title>
+		<title>Configuring the Embedded Apache Tomcat Servlet Container</title>
 		<para>
 			@product.name@
-			embeds an OSGi-enhanced version of the <ulink url="http://tomcat.apache.org/">Tomcat Servlet Container</ulink>
+			embeds an OSGi-enhanced version of the <ulink url="http://tomcat.apache.org/">Apache Tomcat Servlet Container</ulink>
 			in order to provide support for deploying Java EE WARs and OSGi <emphasis>Web Application Bundles</emphasis>. 
 			You configure the embedded Servlet container using the standard Apache Tomcat configuration.
 			The main difference is that the configuration file is called <filename>tomcat-server.xml</filename> rather than <literal>server.xml</literal>.  
@@ -46,10 +46,10 @@
 			</tip>
 			<itemizedlist>
 				<listitem>
-					<para>The root element of the <literal>tomcat-server.xml</literal> file is <literal>&lt;Server&gt;</literal>. The attributes of this element represent the characteristics of the entire embedded Tomcat servlet container. The <literal>shutdown</literal> attribute specifies the command string that the shutdown port number receives via a TCP/IP connection in order to shut down the servlet container. The <literal>port</literal> attribute specifies the TCP/IP port number that listens for a shutdown message.</para>
+					<para>The root element of the <literal>tomcat-server.xml</literal> file is <literal>&lt;Server&gt;</literal>. The attributes of this element represent the characteristics of the entire embedded Apache Tomcat servlet container. The <literal>shutdown</literal> attribute specifies the command string that the shutdown port number receives via a TCP/IP connection in order to shut down the servlet container. The <literal>port</literal> attribute specifies the TCP/IP port number that listens for a shutdown message.</para>
 				</listitem>
 				<listitem>
-					<para>The <literal>&lt;Listener&gt;</literal> XML elements specify the list of lifecycle listeners that monitor and manage the embedded Tomcat servlet container. Each listener class is a Java Management Extensions (JMX) MBean that listens to a specific component of the servlet container and has been programmed to do something at certain lifecycle events of the component, such as before starting up, after stopping, and so on.</para>
+					<para>The <literal>&lt;Listener&gt;</literal> XML elements specify the list of lifecycle listeners that monitor and manage the embedded Apache Tomcat servlet container. Each listener class is a Java Management Extensions (JMX) MBean that listens to a specific component of the servlet container and has been programmed to do something at certain lifecycle events of the component, such as before starting up, after stopping, and so on.</para>
 				</listitem>
 				<listitem>
 					<para>The <literal>&lt;Service&gt;</literal> XML element groups together one or more connectors and a single engine. Connectors define a transport mechanism, such as HTTP, that clients use to send and receive messages to and from the associated service. There are many transports that a client can use, which is why a <literal>&lt;Service&gt;</literal> element can have many <literal>&lt;Connector&gt;</literal> elements. The engine then defines how these requests and responses that the connector receives and sends are in turn handled by the servlet container; you can define only a single <literal>&lt;Engine&gt;</literal> element for any given <literal>&lt;Service&gt;</literal> element.</para>
@@ -82,8 +82,8 @@
 		<section id="configuring-tomcat-connectors">
 			<title>Connector Configuration</title>
 			<para>The @product.name@ supports the configuration of any connector supported by Apache Tomcat. 
-				See the default configuration above for syntax examples, and for further details of the configuration properties supported for various <literal>&lt;Connector&gt;</literal> implementations, consult the official <ulink url="http://tomcat.apache.org/tomcat-7.0-doc/config/http.html">Tomcat HTTP Connector</ulink> documentation.
-				For detailed instructions on how to configure Tomcat's SSL support, consult the official <ulink url="http://tomcat.apache.org/tomcat-7.0-doc/ssl-howto.html">Tomcat SSL Configuration HOW-TO</ulink>.
+				See the default configuration above for syntax examples, and for further details of the configuration properties supported for various <literal>&lt;Connector&gt;</literal> implementations, consult the official <ulink url="http://tomcat.apache.org/tomcat-7.0-doc/config/http.html">Apache Tomcat HTTP Connector</ulink> documentation.
+				For detailed instructions on how to configure Apache Tomcat's SSL support, consult the official <ulink url="http://tomcat.apache.org/tomcat-7.0-doc/ssl-howto.html">Apache Tomcat SSL Configuration HOW-TO</ulink>.
 			</para>
 		</section>
 		<section id="configuring-tomcat-clustering">
@@ -91,7 +91,7 @@
 			<para>
 				@product.name@ supports standard Apache Tomcat cluster configuration.
 				By default, clustering of the embedded servlet container is disabled, and the default configuration does not include any clustering information.  
-				See <ulink url="http://tomcat.apache.org/tomcat-7.0-doc/cluster-howto.html">Tomcat Clustering/Session Replication HOW-TO</ulink> for detailed information about enabling and configuring clustering.
+				See <ulink url="http://tomcat.apache.org/tomcat-7.0-doc/cluster-howto.html">Apache Tomcat Clustering/Session Replication HOW-TO</ulink> for detailed information about enabling and configuring clustering.
 			</para>
 		</section>
 		<section id="configuring-default-web-xml">
@@ -236,7 +236,7 @@
 			</para>
 			<para>
 				Context configuration files may be placed in the following locations,
-				where <literal>[enginename]</literal> is the name of Tomcat's engine ('Catalina' by default) and <literal>[hostname]</literal> names
+				where <literal>[enginename]</literal> is the name of Apache Tomcat's engine ('Catalina' by default) and <literal>[hostname]</literal> names
 				a virtual host ('localhost' by default), both of which are configured in <literal>tomcat-server.xml</literal>:
 				<itemizedlist>
 					<listitem>
@@ -290,7 +290,7 @@
 				One can specify the preferred option using <literal>-DuseNaming</literal> with one of the following options:
 				<itemizedlist>
 					<listitem><literal>tomcat</literal> - the default value: this is the standard Apache Tomcat JNDI Resources handling.</listitem>
-					<listitem><literal>disabled</literal> - there is no JDNI Resources handling provided by @product.name@.</listitem>
+					<listitem><literal>disabled</literal> - there is no JNDI Resources handling provided by @product.name@.</listitem>
 					<listitem>
 						<literal>osgi</literal> - the OSGi JNDI Resource handling will be enabled. 
 						(<ulink url="http://eclipse.org/gemini/naming/">Gemini Naming</ulink> can be used as implementation for OSGi JNDI Services Specification)
