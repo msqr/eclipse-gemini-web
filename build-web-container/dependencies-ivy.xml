@@ -28,7 +28,7 @@
 		<dependency org="org.apache.tomcat" name="com.springsource.org.apache.tomcat.api" rev="${org.apache.tomcat}" conf="dep->runtime"/>
 		<dependency org="org.apache.tomcat" name="com.springsource.org.apache.tomcat.util" rev="${org.apache.tomcat}" conf="dep->runtime"/>
 		
-		<dependency org="org.eclipse.jdt" name="org.eclipse.jdt.core.compiler.batch" rev="${org.eclipse.jdt}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.eclipse.jdt.core.compiler.batch" rev="${org.eclipse.jdt}" conf="dep->runtime"/>
 		
 		<dependency org="javax.activation" name="com.springsource.javax.activation" rev="${javax.activation}" conf="dep->runtime"/>
 		<dependency org="javax.annotation" name="javax.annotation" rev="${javax.annotation}" conf="dep->runtime"/>

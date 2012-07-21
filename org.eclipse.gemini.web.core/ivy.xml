@@ -23,10 +23,9 @@
 		<dependency org="javax.servlet" name="javax.servlet" rev="${javax.servlet}" conf="compile->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="org.slf4j.api" rev="${org.slf4j.api}" conf="compile->runtime"/>
 		
-		<dependency org="org.eclipse.osgi" name="org.eclipse.osgi" rev="${org.eclipse.osgi}" conf="compile->compile"/>
-		<dependency org="org.eclipse.osgi" name="org.eclipse.osgi.services" rev="${org.eclipse.osgi.services}" conf="compile->runtime"/>
-		<dependency org="org.eclipse.osgi" name="org.eclipse.equinox.cm" rev="${org.eclipse.equinox.cm}" conf="compile->runtime"/>
-		<dependency org="org.eclipse.osgi" name="org.eclipse.equinox.event" rev="${org.eclipse.equinox.event}" conf="compile->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.eclipse.osgi" rev="${org.eclipse.osgi}" conf="compile->compile"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.eclipse.osgi.services" rev="${org.eclipse.osgi.services}" conf="compile->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.eclipse.equinox.event" rev="${org.eclipse.equinox.event}" conf="compile->runtime"/>
 		
 		<dependency org="org.eclipse.virgo.teststubs" name="org.eclipse.virgo.teststubs.osgi" rev="${org.eclipse.virgo.teststubs}" conf="test->runtime"/>
 		<dependency org="org.junit" name="com.springsource.org.junit" rev="${org.junit}" conf="test->runtime"/>
