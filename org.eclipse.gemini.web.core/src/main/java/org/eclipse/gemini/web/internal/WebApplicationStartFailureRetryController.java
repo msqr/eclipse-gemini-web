@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -89,6 +89,18 @@ final class WebApplicationStartFailureRetryController {
                 if (id1 < id2) {
                     return -1;
                 } else if (id1 > id2) {
+                    return 1;
+                } else {
+                    return compareHashcode(wa1, wa2);
+                }
+            }
+
+            private int compareHashcode(StandardWebApplication wa1, StandardWebApplication wa2) {
+                long hashcode1 = wa1.hashCode();
+                long hashcode2 = wa2.hashCode();
+                if (hashcode1 < hashcode2) {
+                    return -1;
+                } else if (hashcode1 > hashcode2) {
                     return 1;
                 } else {
                     return 0;
