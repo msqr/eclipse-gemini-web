@@ -35,16 +35,16 @@
             <dependency org="javax.xml.bind" name="com.springsource.javax.xml.bind" rev="${javax.xml.bind}" />
             <dependency org="javax.xml.stream" name="com.springsource.javax.xml.stream" rev="${javax.xml.stream}" />
             <dependency org="javax.xml.rpc" name="com.springsource.javax.xml.rpc" rev="${javax.xml.rpc}" />
-            <dependency org="org.apache.jasper" name="com.springsource.org.apache.jasper" rev="${org.apache.tomcat}" conf="compile->runtime"/>
-            <dependency org="org.apache.el" name="com.springsource.org.apache.el" rev="${org.apache.tomcat}" conf="compile->runtime"/>
+            <dependency org="org.eclipse.virgo.mirrored" name="org.apache.jasper" rev="${org.apache.jasper}" conf="compile->runtime"/>
+            <dependency org="org.eclipse.virgo.mirrored" name="org.apache.el" rev="${org.apache.el}" conf="compile->runtime"/>
             <dependency org="org.eclipse.virgo.mirrored" name="org.eclipse.jdt.core.compiler.batch" rev="${org.eclipse.jdt}" conf="compile->runtime"/>
-            <dependency org="org.apache.catalina" name="com.springsource.org.apache.catalina" rev="${org.apache.tomcat}" conf="compile->runtime"/>
-            <dependency org="org.apache.catalina" name="com.springsource.org.apache.catalina.ha" rev="${org.apache.tomcat}" conf="compile->runtime"/>
-            <dependency org="org.apache.catalina" name="com.springsource.org.apache.catalina.tribes" rev="${org.apache.tomcat}" conf="compile->runtime"/>
-            <dependency org="org.apache.coyote" name="com.springsource.org.apache.coyote" rev="${org.apache.tomcat}" conf="compile->runtime"/>
-            <dependency org="org.apache.juli" name="com.springsource.org.apache.juli.extras" rev="${org.apache.tomcat}" conf="compile->runtime"/>
-            <dependency org="org.apache.tomcat" name="com.springsource.org.apache.tomcat.api" rev="${org.apache.tomcat}" conf="compile->runtime"/>
-            <dependency org="org.apache.tomcat" name="com.springsource.org.apache.tomcat.util" rev="${org.apache.tomcat}" conf="compile->runtime"/>
+            <dependency org="org.eclipse.virgo.mirrored" name="org.apache.catalina" rev="${org.apache.catalina}" conf="compile->runtime"/>
+            <dependency org="org.eclipse.virgo.mirrored" name="org.apache.catalina.ha" rev="${org.apache.catalina.ha}" conf="compile->runtime"/>
+            <dependency org="org.eclipse.virgo.mirrored" name="org.apache.catalina.tribes" rev="${org.apache.catalina.tribes}" conf="compile->runtime"/>
+            <dependency org="org.eclipse.virgo.mirrored" name="org.apache.coyote" rev="${org.apache.coyote}" conf="compile->runtime"/>
+            <dependency org="org.eclipse.virgo.mirrored" name="org.apache.juli.extras" rev="${org.apache.juli.extras}" conf="compile->runtime"/>
+            <dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.api" rev="${org.apache.tomcat.api}" conf="compile->runtime"/>
+            <dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.util" rev="${org.apache.tomcat.util}" conf="compile->runtime"/>
 
             <dependency org="org.junit" name="com.springsource.org.junit" rev="${org.junit}" conf="test->runtime"/>
             <dependency org="org.easymock" name="com.springsource.org.easymock" rev="${org.easymock}" conf="test->runtime"/>

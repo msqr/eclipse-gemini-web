@@ -18,7 +18,7 @@
 
     <dependencies>
 		<dependency org="javax.servlet" name="javax.servlet" rev="${javax.servlet}" conf="compile->runtime"/>
-		<dependency org="org.apache.tomcat" name="com.springsource.org.apache.tomcat.api" rev="${org.apache.tomcat}" conf="compile->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.api" rev="${org.apache.tomcat.api}" conf="compile->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="org.eclipse.osgi" rev="${org.eclipse.osgi}" conf="compile->runtime"/>
 		<dependency org="org.eclipse.gemini.web" name="org.eclipse.gemini.web.tomcat" rev="2.1.0.M02" conf="compile->runtime"/>
     </dependencies>
