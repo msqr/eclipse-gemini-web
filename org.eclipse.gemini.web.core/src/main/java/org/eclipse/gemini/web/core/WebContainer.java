@@ -96,7 +96,8 @@ public interface WebContainer {
     static final String EVENT_PROPERTY_EXTENDER_BUNDLE_VERSION = "extender.bundle.version";
 
     /**
-     * The {@link org.osgi.service.event.Event Event} property containing a Web-ContextPath which is shared by more than one bundle.
+     * The {@link org.osgi.service.event.Event Event} property containing a Web-ContextPath which is shared by more than
+     * one bundle.
      */
     static final String EVENT_PROPERTY_COLLISION = "collision";
 
@@ -135,7 +136,7 @@ public interface WebContainer {
      * @return <code>true</code> if the supplied bundle is a valid web bundle; otherwise <code>false</code>.
      */
     boolean isWebBundle(Bundle bundle);
-    
+
     /**
      * Stops the web container.
      */

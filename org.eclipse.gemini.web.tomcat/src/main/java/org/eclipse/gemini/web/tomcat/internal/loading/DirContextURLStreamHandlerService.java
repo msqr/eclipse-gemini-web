@@ -26,7 +26,7 @@ import org.osgi.service.url.AbstractURLStreamHandlerService;
 public class DirContextURLStreamHandlerService extends AbstractURLStreamHandlerService {
 
     private final DirContextURLStreamHandler handler = new DirContextURLStreamHandler();
-    
+
     @Override
     public URLConnection openConnection(URL u) throws IOException {
         return new URL(null, u.toExternalForm(), this.handler).openConnection();

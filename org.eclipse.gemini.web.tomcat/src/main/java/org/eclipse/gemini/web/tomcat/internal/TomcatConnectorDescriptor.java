@@ -18,23 +18,22 @@ package org.eclipse.gemini.web.tomcat.internal;
 
 import org.eclipse.gemini.web.core.ConnectorDescriptor;
 
-
 /**
  * <p>
  * TomcatConnectorDescriptor is the Tomcat specific implementation of {@link ConnectorDescriptor}.
  * </p>
- *
+ * 
  * <strong>Concurrent Semantics</strong><br />
- *
+ * 
  * StandardConnectorDescriptor is threadsafe
- *
+ * 
  */
 public class TomcatConnectorDescriptor implements ConnectorDescriptor {
 
     private final int port;
-    
+
     private final String scheme;
-    
+
     private final String protocol;
 
     private final boolean sslEnabled;
@@ -45,10 +44,11 @@ public class TomcatConnectorDescriptor implements ConnectorDescriptor {
         this.port = port;
         this.sslEnabled = sslEnabled;
     }
-    
+
     /**
      * {@inheritDoc}
      */
+    @Override
     public int getPort() {
         return this.port;
     }
@@ -56,6 +56,7 @@ public class TomcatConnectorDescriptor implements ConnectorDescriptor {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getProtocol() {
         return this.protocol;
     }
@@ -63,6 +64,7 @@ public class TomcatConnectorDescriptor implements ConnectorDescriptor {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getScheme() {
         return this.scheme;
     }
@@ -70,6 +72,7 @@ public class TomcatConnectorDescriptor implements ConnectorDescriptor {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean sslEnabled() {
         return this.sslEnabled;
     }

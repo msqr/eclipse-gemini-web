@@ -25,13 +25,11 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
+import org.eclipse.virgo.teststubs.osgi.framework.FindEntriesDelegate;
+import org.eclipse.virgo.teststubs.osgi.framework.StubBundle;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import org.eclipse.gemini.web.tomcat.internal.loading.BundleDirContext;
-import org.eclipse.virgo.teststubs.osgi.framework.FindEntriesDelegate;
-import org.eclipse.virgo.teststubs.osgi.framework.StubBundle;
 
 public class BundleDirContextTests {
 
@@ -45,42 +43,46 @@ public class BundleDirContextTests {
 
     @Before
     public void setUp() throws Exception {
-        testBundle.addEntry("", new File("src/test/resources/").toURI().toURL());
-        testBundle.addEntry(DIRECTORY_NAME, new File("src/test/resources/sub/").toURI().toURL());
-        testBundle.addEntry(FILE_NAME, new File("src/test/resources/sub/one.txt").toURI().toURL());
-        testBundle.setFindEntriesDelegate(new FindEntriesDelegate() {
+        this.testBundle.addEntry("", new File("src/test/resources/").toURI().toURL());
+        this.testBundle.addEntry(DIRECTORY_NAME, new File("src/test/resources/sub/").toURI().toURL());
+        this.testBundle.addEntry(FILE_NAME, new File("src/test/resources/sub/one.txt").toURI().toURL());
+        this.testBundle.setFindEntriesDelegate(new FindEntriesDelegate() {
 
-			public Enumeration<?> findEntries(final String path, final String filePattern,
-					boolean recurse) {
-				return new Enumeration<URL>() {
-					
-					private boolean hasMore = true;
+            @Override
+            public Enumeration<?> findEntries(final String path, final String filePattern, boolean recurse) {
+                return new Enumeration<URL>() {
 
-					public boolean hasMoreElements() {
-						return this.hasMore;
-					}
+                    private boolean hasMore = true;
 
-					public URL nextElement() {
-						if (this.hasMore) {
-							this.hasMore = false;
-							return testBundle.getEntry(path + "/" + filePattern);
-						}
-						return null;
-					}};
-			}});
+                    @Override
+                    public boolean hasMoreElements() {
+                        return this.hasMore;
+                    }
 
-        bundleDirContext = new BundleDirContext(this.testBundle);
+                    @Override
+                    public URL nextElement() {
+                        if (this.hasMore) {
+                            this.hasMore = false;
+                            return BundleDirContextTests.this.testBundle.getEntry(path + "/" + filePattern);
+                        }
+                        return null;
+                    }
+                };
+            }
+        });
+
+        this.bundleDirContext = new BundleDirContext(this.testBundle);
     }
 
     @Test(expected = NamingException.class)
     public void testDoGetAttributesStringStringArrayNameNotFound() throws NamingException {
-        bundleDirContext.getAttributes("sub", null);
+        this.bundleDirContext.getAttributes("sub", null);
     }
 
     @Test
     public void testGetAttributesOfDirectory() throws NamingException {
-        Attributes attributes = bundleDirContext.getAttributes(DIRECTORY_NAME);
-        
+        Attributes attributes = this.bundleDirContext.getAttributes(DIRECTORY_NAME);
+
         checkName(attributes, DIRECTORY_NAME.substring(0, DIRECTORY_NAME.length() - 1));
 
         checkDirectoryResourceType(attributes);
@@ -110,7 +112,7 @@ public class BundleDirContextTests {
     private void checkDirectoryResourceType(Attributes attributes) throws NamingException {
         Attribute resourceType = attributes.get(org.apache.naming.resources.ResourceAttributes.TYPE);
         checkCollectionResourceType(resourceType);
-        
+
         resourceType = attributes.get(org.apache.naming.resources.ResourceAttributes.ALTERNATE_TYPE);
         checkCollectionResourceType(resourceType);
     }
@@ -125,12 +127,12 @@ public class BundleDirContextTests {
 
     @Test
     public void testGetAttributesOfFile() throws NamingException {
-        Attributes attributes = bundleDirContext.getAttributes(FILE_NAME);
-        
+        Attributes attributes = this.bundleDirContext.getAttributes(FILE_NAME);
+
         checkName(attributes, FILE_NAME.split("/")[1]);
-        
+
         checkNoResourceType(attributes);
-        
+
         checkTimes(attributes);
 
         checkContentLength(attributes);
@@ -144,25 +146,25 @@ public class BundleDirContextTests {
     private void checkTimes(Attributes attributes) {
         Attribute creationDate = attributes.get(org.apache.naming.resources.ResourceAttributes.CREATION_DATE);
         Assert.assertNotNull(creationDate);
-        
+
         creationDate = attributes.get(org.apache.naming.resources.ResourceAttributes.ALTERNATE_CREATION_DATE);
         Assert.assertNotNull(creationDate);
-        
+
         Attribute lastModified = attributes.get(org.apache.naming.resources.ResourceAttributes.LAST_MODIFIED);
         Assert.assertNotNull(lastModified);
-        
+
         lastModified = attributes.get(org.apache.naming.resources.ResourceAttributes.ALTERNATE_LAST_MODIFIED);
         Assert.assertNotNull(lastModified);
     }
-    
+
     @Test
     public void testGetNoAttributesOfFile() throws NamingException {
-        Attributes attributes = bundleDirContext.getAttributes(FILE_NAME, new String[]{});
-        
+        Attributes attributes = this.bundleDirContext.getAttributes(FILE_NAME, new String[] {});
+
         checkNoName(attributes);
-        
+
         checkNoResourceType(attributes);
-        
+
         checkNoTimes(attributes);
 
         checkNoContentLength(attributes);
@@ -177,53 +179,54 @@ public class BundleDirContextTests {
     }
 
     /**
-     * @throws NamingException  
+     * @throws NamingException
      */
     private void checkNoName(Attributes attributes) throws NamingException {
         Attribute name = attributes.get(org.apache.naming.resources.ResourceAttributes.NAME);
         Assert.assertNull(name);
-        
+
     }
-    
+
     private void checkNoTimes(Attributes attributes) {
         Attribute creationDate = attributes.get(org.apache.naming.resources.ResourceAttributes.CREATION_DATE);
         Assert.assertNull(creationDate);
-        
+
         creationDate = attributes.get(org.apache.naming.resources.ResourceAttributes.ALTERNATE_CREATION_DATE);
         Assert.assertNull(creationDate);
-        
+
         Attribute lastModified = attributes.get(org.apache.naming.resources.ResourceAttributes.LAST_MODIFIED);
         Assert.assertNull(lastModified);
-        
+
         lastModified = attributes.get(org.apache.naming.resources.ResourceAttributes.ALTERNATE_LAST_MODIFIED);
         Assert.assertNull(lastModified);
     }
-    
+
     @Test
     public void testGetSomeAttributesOfFile() throws NamingException {
-        Attributes attributes = bundleDirContext.getAttributes(FILE_NAME, new String[]{org.apache.naming.resources.ResourceAttributes.ALTERNATE_CREATION_DATE});
-        
+        Attributes attributes = this.bundleDirContext.getAttributes(FILE_NAME,
+            new String[] { org.apache.naming.resources.ResourceAttributes.ALTERNATE_CREATION_DATE });
+
         checkNoName(attributes);
-        
+
         checkNoResourceType(attributes);
-        
+
         checkOnlyCreationDate(attributes);
 
         checkNoContentLength(attributes);
     }
-    
+
     private void checkOnlyCreationDate(Attributes attributes) {
         Attribute creationDate = attributes.get(org.apache.naming.resources.ResourceAttributes.CREATION_DATE);
         Assert.assertNotNull(creationDate);
-        
+
         creationDate = attributes.get(org.apache.naming.resources.ResourceAttributes.ALTERNATE_CREATION_DATE);
         Assert.assertNotNull(creationDate);
-        
+
         Attribute lastModified = attributes.get(org.apache.naming.resources.ResourceAttributes.LAST_MODIFIED);
         Assert.assertNull(lastModified);
-        
+
         lastModified = attributes.get(org.apache.naming.resources.ResourceAttributes.ALTERNATE_LAST_MODIFIED);
         Assert.assertNull(lastModified);
     }
-    
+
 }

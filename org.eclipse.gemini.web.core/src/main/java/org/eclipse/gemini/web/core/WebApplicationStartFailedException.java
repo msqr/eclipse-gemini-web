@@ -16,23 +16,23 @@
 
 package org.eclipse.gemini.web.core;
 
-
 /**
  * Thrown to signal that a {@link WebApplication} has failed to {@link WebApplication#start()}.
-
+ * 
  * <p />
- *
+ * 
  * <strong>Concurrent Semantics</strong><br />
- *
+ * 
  * Thread-safe.
- *
+ * 
  */
 public final class WebApplicationStartFailedException extends RuntimeException {
 
     private static final long serialVersionUID = -1722479683094175136L;
-    
+
     /**
      * Creates a new WebApplicationStartFailedException with the supplied cause
+     * 
      * @param cause The cause of the failure
      */
     public WebApplicationStartFailedException(Throwable cause) {

@@ -27,6 +27,8 @@ import java.net.URL;
 
 import junit.framework.Assert;
 
+import org.eclipse.virgo.test.framework.OsgiTestRunner;
+import org.eclipse.virgo.test.framework.TestFrameworkUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,9 +36,6 @@ import org.junit.runner.RunWith;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-
-import org.eclipse.virgo.test.framework.OsgiTestRunner;
-import org.eclipse.virgo.test.framework.TestFrameworkUtils;
 
 @RunWith(OsgiTestRunner.class)
 public class OverlappingWebContextPathsTests {

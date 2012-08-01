@@ -33,6 +33,6 @@ public class ContextPathExistsException extends ServletContainerException {
     }
 
     public String getContextPath() {
-        return contextPath;
+        return this.contextPath;
     }
 }

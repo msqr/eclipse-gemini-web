@@ -24,18 +24,17 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
 
-import org.eclipse.gemini.web.internal.url.PackagesInWarScanner;
 import org.junit.Test;
 
 public class PackagesInWarScannerTests {
-    
+
     @Test
     public void scanning() throws MalformedURLException, IOException {
         PackagesInWarScanner scanner = new PackagesInWarScanner();
         Set<String> packagesContainedInWar = scanner.getPackagesContainedInWar(new URL("file:target/resources/simple-war.war"));
-        
+
         assertEquals(4, packagesContainedInWar.size());
-        
+
         assertTrue(packagesContainedInWar.contains("org.slf4j"));
         assertTrue(packagesContainedInWar.contains("org.slf4j.helpers"));
         assertTrue(packagesContainedInWar.contains("org.slf4j.spi"));

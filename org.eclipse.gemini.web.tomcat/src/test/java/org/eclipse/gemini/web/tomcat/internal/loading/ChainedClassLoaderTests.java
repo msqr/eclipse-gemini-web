@@ -22,10 +22,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
 
-import org.eclipse.gemini.web.tomcat.internal.loading.ChainedClassLoader;
 import org.junit.Test;
-
-
 
 public class ChainedClassLoaderTests {
 
@@ -35,23 +32,23 @@ public class ChainedClassLoaderTests {
         assertNotNull(loader.loadClass(Test.class.getName()));
         assertNotNull(loader.loadClass(ChainedClassLoaderTests.class.getName()));
     }
-    
+
     @Test
     public void testGetResource() throws Exception {
         ChainedClassLoader loader = new ChainedClassLoader(classLoaderFor(Test.class), classLoaderFor(ChainedClassLoaderTests.class));
         URL resource = loader.getResource("invalid-server.xml");
         assertNotNull(resource);
     }
-    
+
     @Test
     public void testGetResources() throws Exception {
         ChainedClassLoader loader = new ChainedClassLoader(classLoaderFor(Test.class), classLoaderFor(ChainedClassLoaderTests.class));
         Enumeration<URL> resources = loader.getResources("META-INF/MANIFEST.MF");
         assertNotNull(resources);
     }
-    
+
     private ClassLoader classLoaderFor(Class<?> cls) {
         URL location = cls.getProtectionDomain().getCodeSource().getLocation();
-        return new URLClassLoader(new URL[]{location}, null);
+        return new URLClassLoader(new URL[] { location }, null);
     }
 }

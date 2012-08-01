@@ -26,16 +26,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
-
-
 import org.eclipse.gemini.web.core.InstallationOptions;
 import org.eclipse.gemini.web.internal.WebContainerUtils;
-import org.eclipse.gemini.web.internal.url.SystemBundleExportsImportingWebBundleManifestTransformer;
-import org.eclipse.virgo.util.osgi.manifest.VersionRange;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifestFactory;
 import org.eclipse.virgo.util.osgi.manifest.ImportedPackage;
+import org.eclipse.virgo.util.osgi.manifest.VersionRange;
+import org.junit.Test;
 
 public class SystemBundleExportsImportingWebBundleManifestTransformerTests {
 

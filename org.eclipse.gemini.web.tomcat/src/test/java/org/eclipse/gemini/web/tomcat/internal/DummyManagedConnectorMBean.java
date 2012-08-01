@@ -21,9 +21,9 @@ package org.eclipse.gemini.web.tomcat.internal;
 public interface DummyManagedConnectorMBean {
 
     public String getmodelerType();
-    
+
     public boolean getsSLEnabled();
-    
+
     public String getname();
 
 }

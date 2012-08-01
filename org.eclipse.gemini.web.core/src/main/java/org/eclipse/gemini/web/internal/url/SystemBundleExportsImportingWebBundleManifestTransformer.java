@@ -19,14 +19,13 @@ package org.eclipse.gemini.web.internal.url;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.gemini.web.core.InstallationOptions;
 import org.eclipse.gemini.web.core.WebBundleManifestTransformer;
-import org.eclipse.virgo.util.osgi.manifest.VersionRange;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
-
+import org.eclipse.virgo.util.osgi.manifest.VersionRange;
 
 public final class SystemBundleExportsImportingWebBundleManifestTransformer implements WebBundleManifestTransformer {
 
@@ -38,6 +37,7 @@ public final class SystemBundleExportsImportingWebBundleManifestTransformer impl
         this.systemBundleExports = systemBundleExports;
     }
 
+    @Override
     public void transform(BundleManifest manifest, URL sourceURL, InstallationOptions options, boolean webBundle) throws IOException {
         if (!webBundle || options.getDefaultWABHeaders()) {
             addImportsForSystemBundleExports(manifest, this.warPackagesScanner.getPackagesContainedInWar(sourceURL));

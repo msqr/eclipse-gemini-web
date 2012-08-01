@@ -24,39 +24,37 @@ import java.lang.management.ManagementFactory;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.eclipse.gemini.web.tomcat.internal.TomcatMBeanManager;
 import org.junit.Test;
 
-
 public class TomcatMBeanManagerTests {
-    
+
     @Test
     public void testStartAndStop() throws Exception {
         String domain = "foo";
-        
+
         MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-        
+
         ObjectName oname = new ObjectName(domain, "bar", "baz");
         server.registerMBean(new Foo(), oname);
-        
+
         TomcatMBeanManager mgr = new TomcatMBeanManager(domain);
-        
+
         assertTrue(server.isRegistered(oname));
         mgr.start();
         assertFalse(server.isRegistered(oname));
-        
+
         server.registerMBean(new Foo(), oname);
 
         assertTrue(server.isRegistered(oname));
         mgr.stop();
         assertFalse(server.isRegistered(oname));
     }
-    
+
     public static interface FooMBean {
-        
+
     }
-    
+
     public static final class Foo implements FooMBean {
-        
+
     }
 }

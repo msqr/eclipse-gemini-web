@@ -24,15 +24,15 @@ import org.eclipse.gemini.web.core.InstallationOptions;
 import org.eclipse.gemini.web.core.WebBundleManifestTransformer;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
 
-
 public class ChainingWebBundleManifestTransformer implements WebBundleManifestTransformer {
-    
+
     private final WebBundleManifestTransformer[] manifestTransformers;
-    
+
     public ChainingWebBundleManifestTransformer(WebBundleManifestTransformer... transformers) {
         this.manifestTransformers = transformers;
     }
 
+    @Override
     public void transform(BundleManifest manifest, URL sourceURL, InstallationOptions options, boolean webBundle) throws IOException {
         if (options == null) {
             options = new InstallationOptions(Collections.<String, String> emptyMap());

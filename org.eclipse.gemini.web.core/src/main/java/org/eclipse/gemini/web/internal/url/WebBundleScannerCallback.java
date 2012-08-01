@@ -17,8 +17,8 @@
 package org.eclipse.gemini.web.internal.url;
 
 interface WebBundleScannerCallback {
-	
-	void jarFound(String pathToJar);
-	
-	void classFound(String className);
+
+    void jarFound(String pathToJar);
+
+    void classFound(String className);
 }

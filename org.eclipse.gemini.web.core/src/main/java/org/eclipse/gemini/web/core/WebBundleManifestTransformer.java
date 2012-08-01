@@ -41,7 +41,8 @@ public interface WebBundleManifestTransformer {
      * @param sourceURL the {@link URL} the bundle was installed from.
      * @param options the {@link InstallationOptions}. May be <code>null</code>.
      * @param webBundle whether or not the bundle is deemed to be a bundle as determined by the
-     *        {@link org.eclipse.gemini.web.internal.WebContainerUtils#isWebApplicationBundle isWebApplicationBundle} specification.
+     *        {@link org.eclipse.gemini.web.internal.WebContainerUtils#isWebApplicationBundle isWebApplicationBundle}
+     *        specification.
      * @throws IOException if transformation fails.
      */
     void transform(BundleManifest manifest, URL sourceURL, InstallationOptions options, boolean webBundle) throws IOException;

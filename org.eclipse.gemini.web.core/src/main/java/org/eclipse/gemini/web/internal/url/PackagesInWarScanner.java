@@ -28,6 +28,7 @@ class PackagesInWarScanner {
         if (warURL != null) {
             WebBundleScanner scanner = new WebBundleScanner(warURL, new WebBundleScannerCallback() {
 
+                @Override
                 public void classFound(String entry) {
                     int lastSlashIndex = entry.lastIndexOf('/');
                     if (lastSlashIndex >= 0) {
@@ -35,6 +36,7 @@ class PackagesInWarScanner {
                     }
                 }
 
+                @Override
                 public void jarFound(String entry) {
                 }
             }, true);

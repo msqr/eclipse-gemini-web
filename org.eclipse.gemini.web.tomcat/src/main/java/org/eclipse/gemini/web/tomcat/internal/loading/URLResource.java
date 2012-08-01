@@ -22,23 +22,21 @@ import java.net.URL;
 
 import org.apache.naming.resources.Resource;
 
-
-final class URLResource extends Resource{
+final class URLResource extends Resource {
 
     private final URL url;
-    
+
     public URLResource(URL url) {
         this.url = url;
     }
 
     @Override
     public InputStream streamContent() throws IOException {
-        if(this.binaryContent == null) {
-            this.inputStream = url.openStream();
+        if (this.binaryContent == null) {
+            this.inputStream = this.url.openStream();
         }
         return super.streamContent();
-        
+
     }
-    
-    
+
 }

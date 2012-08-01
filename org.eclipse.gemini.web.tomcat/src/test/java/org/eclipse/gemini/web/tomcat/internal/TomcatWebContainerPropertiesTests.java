@@ -28,25 +28,21 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 import org.eclipse.gemini.web.core.ConnectorDescriptor;
-import org.eclipse.gemini.web.tomcat.internal.TomcatWebContainerProperties;
 import org.junit.Before;
 import org.junit.Test;
-
-
-
 
 /**
  */
 public class TomcatWebContainerPropertiesTests {
-    
+
     private static final String CATALINA_TYPE_PROTOCOL_HANDLER = "Catalina:type=ProtocolHandler,port=9999";
-    
+
     private static final String ATTRIBUTE_MODELER_TYPE = "modelerType";
-    
+
     private static final String ATTRIBUTE_SSL_ENABLED = "sSLEnabled";
-    
+
     private static final String ATTRIBUTE_NAME = "name";
-    
+
     /**
      * @throws Exception potentially
      */
@@ -63,7 +59,8 @@ public class TomcatWebContainerPropertiesTests {
     }
 
     /**
-     * Test method for {@link org.eclipse.gemini.web.tomcat.internal.TomcatWebContainerProperties#getConnectorDescriptors()}.
+     * Test method for
+     * {@link org.eclipse.gemini.web.tomcat.internal.TomcatWebContainerProperties#getConnectorDescriptors()}.
      */
     @Test
     public void testGetConnectorDescriptors() {
@@ -77,6 +74,5 @@ public class TomcatWebContainerPropertiesTests {
         assertEquals(9999, connectorDescriptor.getPort());
         assertEquals(true, connectorDescriptor.sslEnabled());
     }
-
 
 }

@@ -26,8 +26,8 @@ import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 
 /**
- * A <code>BundleDependencyDeterminer</code> that uses {@link BundleWiring} to 
- * determine a <code>Bundle</code>'s dependencies.
+ * A <code>BundleDependencyDeterminer</code> that uses {@link BundleWiring} to determine a <code>Bundle</code>'s
+ * dependencies.
  * <p />
  * 
  * <strong>Concurrent Semantics</strong><br />

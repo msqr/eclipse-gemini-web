@@ -21,7 +21,8 @@ import javax.servlet.ServletContext;
 /**
  * Handle to a web application deployed in a {@link ServletContainer}. <code>ServletContainer</code> implementations
  * will create custom subclasses of this interface and return them from {@link ServletContainer#createWebApplication}.
- * The <code>ServletContainer</code> can store any state need during {@link ServletContainer#startWebApplication(WebApplicationHandle) start} and
+ * The <code>ServletContainer</code> can store any state need during
+ * {@link ServletContainer#startWebApplication(WebApplicationHandle) start} and
  * {@link ServletContainer#stopWebApplication(WebApplicationHandle) stop} in this custom implementation.
  * <p/>
  * Client code <strong>must</strong> return the correct handle to the <code>ServletContainer</code> when starting or
@@ -38,9 +39,8 @@ public interface WebApplicationHandle {
     ServletContext getServletContext();
 
     /**
-     * Gets the {@link ClassLoader} of the deployed web application. May be <code>null</code> if the
-     * web application has not yet been {@link ServletContainer#startWebApplication(WebApplicationHandle)
-     * started}.
+     * Gets the {@link ClassLoader} of the deployed web application. May be <code>null</code> if the web application has
+     * not yet been {@link ServletContainer#startWebApplication(WebApplicationHandle) started}.
      * 
      * @return the <code>ClassLoader</code>.
      */

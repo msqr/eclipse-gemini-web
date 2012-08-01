@@ -26,8 +26,6 @@ import java.util.concurrent.ConcurrentMap;
 import org.eclipse.gemini.web.core.WebApplication;
 import org.eclipse.gemini.web.core.WebApplicationStartFailedException;
 
-
-
 final class WebApplicationStartFailureRetryController {
 
     private final Object monitor = new Object();
@@ -83,6 +81,7 @@ final class WebApplicationStartFailureRetryController {
     private Set<StandardWebApplication> createSetSortedByBundleId() {
         return new TreeSet<StandardWebApplication>(new Comparator<StandardWebApplication>() {
 
+            @Override
             public int compare(StandardWebApplication wa1, StandardWebApplication wa2) {
                 long id1 = wa1.getBundle().getBundleId();
                 long id2 = wa2.getBundle().getBundleId();
@@ -112,5 +111,5 @@ final class WebApplicationStartFailureRetryController {
     void clear() {
         this.failures.clear();
     }
-    
+
 }

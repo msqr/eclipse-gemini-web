@@ -33,102 +33,127 @@ import org.apache.naming.resources.BaseDirContext;
 
 abstract class AbstractReadOnlyDirContext extends BaseDirContext {
 
+    @Override
     public void bind(String name, Object obj, Attributes attrs) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void modifyAttributes(String name, ModificationItem[] mods) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void modifyAttributes(String name, int mod_op, Attributes attrs) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void rebind(String name, Object obj, Attributes attrs) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Object addToEnvironment(String propName, Object propVal) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void bind(String name, Object obj) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void rebind(String name, Object obj) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Object removeFromEnvironment(String propName) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void rename(String oldName, String newName) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void unbind(String name) throws NamingException {
-        throw new UnsupportedOperationException();        
+        throw new UnsupportedOperationException();
     }
 
+    @Override
     public DirContext createSubcontext(String name, Attributes attrs) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public DirContext getSchema(String name) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public DirContext getSchemaClassDefinition(String name) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public NamingEnumeration<SearchResult> search(String name, Attributes matchingAttributes) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public NamingEnumeration<SearchResult> search(String name, Attributes matchingAttributes, String[] attributesToReturn) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public NamingEnumeration<SearchResult> search(String name, String filter, SearchControls cons) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public NamingEnumeration<SearchResult> search(String name, String filterExpr, Object[] filterArgs, SearchControls cons) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Name composeName(Name name, Name prefix) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String composeName(String name, String prefix) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Context createSubcontext(String name) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public void destroySubcontext(String name) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Hashtable<String, Object> getEnvironment() throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public String getNameInNamespace() throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public NameParser getNameParser(String name) throws NamingException {
         throw new UnsupportedOperationException();
     }
 
+    @Override
     public Object lookupLink(String name) throws NamingException {
         throw new UnsupportedOperationException();
     }

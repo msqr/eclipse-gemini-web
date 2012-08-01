@@ -34,7 +34,7 @@ final class BundleClassPathURLExtractor {
 
     public static Set<URI> extractBundleClassPathURLs(Bundle bundle) {
         Set<URI> results = new HashSet<URI>();
-        String bcp = (String) bundle.getHeaders().get(org.osgi.framework.Constants.BUNDLE_CLASSPATH);
+        String bcp = bundle.getHeaders().get(org.osgi.framework.Constants.BUNDLE_CLASSPATH);
         if (bcp != null) {
             String[] entries = bcp.split(",");
             for (String entry : entries) {
@@ -42,7 +42,7 @@ final class BundleClassPathURLExtractor {
                     URL entryUrl = bundle.getEntry(entry);
                     if (entryUrl != null) {
                         try {
-                            URI entryAsJarUrl = new URI("jar", entryUrl.toString() + "!/", null);                        
+                            URI entryAsJarUrl = new URI("jar", entryUrl.toString() + "!/", null);
                             results.add(entryAsJarUrl);
                         } catch (URISyntaxException e) {
                             if (LOGGER.isWarnEnabled()) {
@@ -51,7 +51,8 @@ final class BundleClassPathURLExtractor {
                         }
                     } else {
                         if (LOGGER.isWarnEnabled()) {
-                            LOGGER.warn("Bundle-ClassPath entry '" + entry + "' is not present in bundle " + bundle.getSymbolicName() + " " + bundle.getVersion() + " and has been skipped");
+                            LOGGER.warn("Bundle-ClassPath entry '" + entry + "' is not present in bundle " + bundle.getSymbolicName() + " "
+                                + bundle.getVersion() + " and has been skipped");
                         }
                     }
                 }

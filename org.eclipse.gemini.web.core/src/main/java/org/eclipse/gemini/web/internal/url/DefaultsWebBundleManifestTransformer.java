@@ -21,16 +21,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.osgi.framework.Constants;
-import org.osgi.framework.Version;
-
-
 import org.eclipse.gemini.web.core.InstallationOptions;
 import org.eclipse.gemini.web.core.WebBundleManifestTransformer;
 import org.eclipse.gemini.web.internal.WebContainerUtils;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
 import org.eclipse.virgo.util.osgi.manifest.BundleSymbolicName;
 import org.eclipse.virgo.util.osgi.manifest.ImportedPackage;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
 
 public final class DefaultsWebBundleManifestTransformer implements WebBundleManifestTransformer {
 
@@ -38,6 +36,7 @@ public final class DefaultsWebBundleManifestTransformer implements WebBundleMani
 
     private static final String WEB_INF_CLASSES = "WEB-INF/classes";
 
+    @Override
     public void transform(BundleManifest manifest, URL sourceURL, InstallationOptions options, boolean webBundle) throws IOException {
         if (!webBundle || options.getDefaultWABHeaders()) {
             applyDefaultBundleSymbolicName(sourceURL, manifest);
@@ -79,9 +78,11 @@ public final class DefaultsWebBundleManifestTransformer implements WebBundleMani
         final List<String> entries = new ArrayList<String>();
         WebBundleScanner scanner = new WebBundleScanner(source, new WebBundleScannerCallback() {
 
+            @Override
             public void classFound(String entry) {
             }
 
+            @Override
             public void jarFound(String entry) {
                 entries.add(entry);
             }

@@ -35,52 +35,52 @@ import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * A <code>JarScanner</code> implementation that passes each of the
- * {@link Bundle}'s dependencies to the {@link JarScannerCallback}.
+ * A <code>JarScanner</code> implementation that passes each of the {@link Bundle}'s dependencies to the
+ * {@link JarScannerCallback}.
  * 
  * <p />
- *
+ * 
  * <strong>Concurrent Semantics</strong><br />
- *
+ * 
  * Thread-safe.
- *
+ * 
  */
 final class BundleDependenciesJarScanner implements JarScanner {
-    
+
     private static final String JAR_URL_SUFFIX = "!/";
 
-    private static final String JAR_URL_PREFIX = "jar:";    
-    
+    private static final String JAR_URL_PREFIX = "jar:";
+
     private static final String REFERENCE_URL_PREFIX = "reference";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BundleDependenciesJarScanner.class);
-    
+
     private final BundleDependencyDeterminer bundleDependencyDeterminer;
-    
+
     private final BundleFileResolver bundleFileResolver;
-    
+
     public BundleDependenciesJarScanner(BundleDependencyDeterminer bundleDependencyDeterminer, BundleFileResolver bundleFileResolver) {
         this.bundleDependencyDeterminer = bundleDependencyDeterminer;
         this.bundleFileResolver = bundleFileResolver;
     }
 
+    @Override
     public void scan(ServletContext context, ClassLoader classLoader, JarScannerCallback callback, Set<String> jarsToSkip) {
         if (classLoader instanceof BundleWebappClassLoader) {
-            Bundle bundle = ((BundleWebappClassLoader)classLoader).getBundle();
+            Bundle bundle = ((BundleWebappClassLoader) classLoader).getBundle();
             scanDependentBundles(bundle, callback);
         }
     }
 
-    private void scanDependentBundles(Bundle rootBundle, JarScannerCallback callback) { 
+    private void scanDependentBundles(Bundle rootBundle, JarScannerCallback callback) {
         Set<Bundle> dependencies = this.bundleDependencyDeterminer.getDependencies(rootBundle);
-        
+
         for (Bundle bundle : dependencies) {
             scanBundle(bundle, callback);
         }
     }
-    
+
     private void scanBundle(Bundle bundle, JarScannerCallback callback) {
         File bundleFile = this.bundleFileResolver.resolve(bundle);
         if (bundleFile != null) {
@@ -126,14 +126,14 @@ final class BundleDependenciesJarScanner implements JarScanner {
             scanBundleUrl(bundleUrl, callback);
         }
     }
-    
+
     private void scanBundleUrl(URL url, JarScannerCallback callback) {
         try {
             URLConnection connection = url.openConnection();
-            
+
             if (connection instanceof JarURLConnection) {
-                callback.scan((JarURLConnection)connection);
-            }       
+                callback.scan((JarURLConnection) connection);
+            }
         } catch (IOException e) {
             LOGGER.warn("Failure when attempting to scan bundle via jar URL '" + url + "'.", e);
         }

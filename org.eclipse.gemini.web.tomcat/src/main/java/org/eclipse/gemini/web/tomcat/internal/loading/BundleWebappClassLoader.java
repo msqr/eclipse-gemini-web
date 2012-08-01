@@ -69,7 +69,7 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
     // ------------------------------------------------------------------------
 
     public BundleWebappClassLoader(final Bundle bundle, ClassLoaderCustomizer classLoaderCustomizer) {
-    	// Make the parent class loader consistent with the parent class loader of all the bundles in the framework.
+        // Make the parent class loader consistent with the parent class loader of all the bundles in the framework.
         super(new URL[0], BundleWebappClassLoader.class.getClassLoader().getParent());
         this.bundle = bundle;
         this.classLoaderCustomizer = classLoaderCustomizer;
@@ -80,9 +80,8 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
     }
 
     private ChainedClassLoader createClassLoaderChain(Bundle bundle) {
-        ClassLoader[] loaders = { 
-            BundleDelegatingClassLoader.createBundleClassLoaderFor(bundle), 
-            Context.class.getClassLoader() // catalina classloader
+        ClassLoader[] loaders = { BundleDelegatingClassLoader.createBundleClassLoaderFor(bundle), Context.class.getClassLoader() // catalina
+                                                                                                                                 // classloader
         };
 
         ClassLoader[] chainExtensions = this.classLoaderCustomizer.extendClassLoaderChain(bundle);
@@ -128,6 +127,7 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
     /**
      * {@inheritDoc}
      */
+    @Override
     public void addLifecycleListener(LifecycleListener listener) {
         /* no-op */
     }
@@ -135,6 +135,7 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
     /**
      * {@inheritDoc}
      */
+    @Override
     public LifecycleListener[] findLifecycleListeners() {
         return new LifecycleListener[0];
     }
@@ -142,6 +143,7 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
     /**
      * {@inheritDoc}
      */
+    @Override
     public void removeLifecycleListener(LifecycleListener listener) {
         /* no-op */
     }
@@ -169,6 +171,7 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
     /**
      * {@inheritDoc}
      */
+    @Override
     public void start() throws LifecycleException {
         this.started = true;
     }
@@ -176,6 +179,7 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
     /**
      * {@inheritDoc}
      */
+    @Override
     public void stop() throws LifecycleException {
         // Clearing references should be done before setting started to
         // false, due to possible side effects
@@ -222,6 +226,7 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
         return null;
     }
 
+    @Override
     public InputStream getResourceAsStream(String name) {
         return super.getResourceAsStream(name);
     }
@@ -321,7 +326,7 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
         // Unregister any JDBC drivers loaded by this classloader
         Enumeration<Driver> drivers = DriverManager.getDrivers();
         while (drivers.hasMoreElements()) {
-            Driver driver = (Driver) drivers.nextElement();
+            Driver driver = drivers.nextElement();
             if (driver.getClass().getClassLoader() == this) {
                 try {
                     DriverManager.deregisterDriver(driver);
@@ -343,6 +348,7 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
         java.beans.Introspector.flushCaches();
     }
 
+    @Override
     public Bundle getBundle() {
         return this.bundle;
     }

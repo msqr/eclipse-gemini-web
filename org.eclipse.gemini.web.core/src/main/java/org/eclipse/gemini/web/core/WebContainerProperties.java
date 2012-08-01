@@ -20,14 +20,14 @@ import java.util.Set;
 
 /**
  * <p>
- * WebContainerProperties allows applications running on this RFC66 
- * implementation to obtain the properties used to configure it.
+ * WebContainerProperties allows applications running on this RFC66 implementation to obtain the properties used to
+ * configure it.
  * </p>
- *
+ * 
  * <strong>Concurrent Semantics</strong><br />
- *
+ * 
  * thread-safe
- *
+ * 
  */
 public interface WebContainerProperties {
 
@@ -37,5 +37,5 @@ public interface WebContainerProperties {
      * @return the port number
      */
     Set<ConnectorDescriptor> getConnectorDescriptors();
-    
+
 }

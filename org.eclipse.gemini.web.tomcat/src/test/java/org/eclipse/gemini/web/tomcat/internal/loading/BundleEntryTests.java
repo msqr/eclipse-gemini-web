@@ -27,79 +27,81 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import org.eclipse.gemini.web.tomcat.internal.loading.BundleEntry;
 import org.eclipse.virgo.teststubs.osgi.framework.FindEntriesDelegate;
 import org.eclipse.virgo.teststubs.osgi.framework.StubBundle;
+import org.junit.Before;
+import org.junit.Test;
 
 public class BundleEntryTests {
 
     private final StubBundle testBundle = new StubBundle();
-    
+
     @Before
     public void createEntries() throws MalformedURLException {
-        testBundle.addEntryPaths("", createPathsEnumeration("sub/"));
-        testBundle.addEntryPaths("sub/", createPathsEnumeration("sub/one.txt", "sub/another.sub/"));
-        testBundle.addEntryPaths("sub/another.sub/", createPathsEnumeration("sub/another.sub/two.txt"));     
-        
-        testBundle.addEntry("", new File("src/test/resources/").toURI().toURL());
-        testBundle.addEntry("sub/", new File("src/test/resources/sub/").toURI().toURL());
-        testBundle.addEntry("sub/one.txt", new File("src/test/resources/sub/one.txt").toURI().toURL());
-        testBundle.addEntry("sub/another.sub/", new File("src/test/resources/sub/another.sub/").toURI().toURL());
-        testBundle.addEntry("sub/another.sub/two.txt", new File("src/test/resources/sub/another.sub/two.txt").toURI().toURL());
-        testBundle.addEntry("a/", new File("src/test/resources/a/").toURI().toURL());
-        testBundle.addEntry("a/b/", new File("src/test/resources/a/b/").toURI().toURL());
-        testBundle.addEntry("a/b/c.txt", new File("src/test/resources/a/b/c.txt").toURI().toURL());
-        
-        testBundle.addEntry("/", new File("src/test/resources/").toURI().toURL());
-        testBundle.addEntry("/sub/", new File("src/test/resources/sub/").toURI().toURL());
-        testBundle.addEntry("/sub/one.txt", new File("src/test/resources/sub/one.txt").toURI().toURL());
-        testBundle.addEntry("/sub/another.sub/", new File("src/test/resources/sub/another.sub/").toURI().toURL());
-        testBundle.addEntry("/sub/another.sub/two.txt", new File("src/test/resources/sub/another.sub/two.txt").toURI().toURL());
-        testBundle.addEntry("/a/", new File("src/test/resources/a/").toURI().toURL());
-        testBundle.addEntry("/a/b/", new File("src/test/resources/a/b/").toURI().toURL());
-        testBundle.addEntry("/a/b/c.txt", new File("src/test/resources/a/b/c.txt").toURI().toURL());
-        testBundle.setFindEntriesDelegate(new FindEntriesDelegate() {
+        this.testBundle.addEntryPaths("", createPathsEnumeration("sub/"));
+        this.testBundle.addEntryPaths("sub/", createPathsEnumeration("sub/one.txt", "sub/another.sub/"));
+        this.testBundle.addEntryPaths("sub/another.sub/", createPathsEnumeration("sub/another.sub/two.txt"));
 
-			public Enumeration<?> findEntries(final String path, final String filePattern,
-					boolean recurse) {
-				return new Enumeration<URL>() {
-					
-					private boolean hasMore = true;
+        this.testBundle.addEntry("", new File("src/test/resources/").toURI().toURL());
+        this.testBundle.addEntry("sub/", new File("src/test/resources/sub/").toURI().toURL());
+        this.testBundle.addEntry("sub/one.txt", new File("src/test/resources/sub/one.txt").toURI().toURL());
+        this.testBundle.addEntry("sub/another.sub/", new File("src/test/resources/sub/another.sub/").toURI().toURL());
+        this.testBundle.addEntry("sub/another.sub/two.txt", new File("src/test/resources/sub/another.sub/two.txt").toURI().toURL());
+        this.testBundle.addEntry("a/", new File("src/test/resources/a/").toURI().toURL());
+        this.testBundle.addEntry("a/b/", new File("src/test/resources/a/b/").toURI().toURL());
+        this.testBundle.addEntry("a/b/c.txt", new File("src/test/resources/a/b/c.txt").toURI().toURL());
 
-					public boolean hasMoreElements() {
-						return this.hasMore;
-					}
+        this.testBundle.addEntry("/", new File("src/test/resources/").toURI().toURL());
+        this.testBundle.addEntry("/sub/", new File("src/test/resources/sub/").toURI().toURL());
+        this.testBundle.addEntry("/sub/one.txt", new File("src/test/resources/sub/one.txt").toURI().toURL());
+        this.testBundle.addEntry("/sub/another.sub/", new File("src/test/resources/sub/another.sub/").toURI().toURL());
+        this.testBundle.addEntry("/sub/another.sub/two.txt", new File("src/test/resources/sub/another.sub/two.txt").toURI().toURL());
+        this.testBundle.addEntry("/a/", new File("src/test/resources/a/").toURI().toURL());
+        this.testBundle.addEntry("/a/b/", new File("src/test/resources/a/b/").toURI().toURL());
+        this.testBundle.addEntry("/a/b/c.txt", new File("src/test/resources/a/b/c.txt").toURI().toURL());
+        this.testBundle.setFindEntriesDelegate(new FindEntriesDelegate() {
 
-					public URL nextElement() {
-						if (this.hasMore) {
-							this.hasMore = false;
-							return testBundle.getEntry(path + "/" + filePattern);
-						}
-						return null;
-					}};
-			}});
+            @Override
+            public Enumeration<?> findEntries(final String path, final String filePattern, boolean recurse) {
+                return new Enumeration<URL>() {
+
+                    private boolean hasMore = true;
+
+                    @Override
+                    public boolean hasMoreElements() {
+                        return this.hasMore;
+                    }
+
+                    @Override
+                    public URL nextElement() {
+                        if (this.hasMore) {
+                            this.hasMore = false;
+                            return BundleEntryTests.this.testBundle.getEntry(path + "/" + filePattern);
+                        }
+                        return null;
+                    }
+                };
+            }
+        });
     }
-    
+
     @Test
     public void testList() {
         BundleEntry entry = new BundleEntry(this.testBundle);
         List<BundleEntry> list = entry.list();
-        
+
         BundleEntry subEntry = findByPath(list, "sub/");
         assertNotNull(subEntry);
-        
+
         list = subEntry.list();
         assertNotNull(findByPath(list, "sub/one.txt"));
         assertNotNull(findByPath(list, "sub/another.sub/"));
     }
-    
+
     @Test
     public void testGetEntry() {
         BundleEntry entry = new BundleEntry(this.testBundle);
-        
+
         assertNotNull(entry.getEntry("sub/"));
         assertNotNull(entry.getEntry("sub/one.txt"));
         assertNotNull(entry.getEntry("sub/another.sub/"));
@@ -120,60 +122,60 @@ public class BundleEntryTests {
     @Test
     public void testNames() {
         BundleEntry entry = new BundleEntry(this.testBundle);
-        
+
         BundleEntry e = entry.getEntry("/");
         assertEquals("/", e.getName());
-        
+
         e = entry.getEntry("/sub/");
         assertEquals("sub", e.getName());
-        
+
         e = entry.getEntry("/sub/one.txt");
         assertEquals("one.txt", e.getName());
-        
+
         e = entry.getEntry("");
         assertEquals("/", e.getName());
-        
+
         e = entry.getEntry("sub/");
         assertEquals("sub", e.getName());
-        
+
         e = entry.getEntry("sub/one.txt");
         assertEquals("one.txt", e.getName());
-        
+
         e = entry.getEntry("/a/");
         assertEquals("a", e.getName());
-        
+
         e = entry.getEntry("/a/b/");
         assertEquals("b", e.getName());
-        
+
         e = entry.getEntry("/a/b/c.txt");
         assertEquals("c.txt", e.getName());
-        
+
         e = entry.getEntry("a/");
         assertEquals("a", e.getName());
-        
+
         e = entry.getEntry("a/b/");
         assertEquals("b", e.getName());
-        
+
         e = entry.getEntry("a/b/c.txt");
         assertEquals("c.txt", e.getName());
     }
-    
+
     private BundleEntry findByPath(List<BundleEntry> entries, String entry) {
         for (BundleEntry bundleEntry : entries) {
-            if(bundleEntry.getPath().equals(entry)) {
+            if (bundleEntry.getPath().equals(entry)) {
                 return bundleEntry;
             }
         }
         return null;
     }
-    
+
     private Enumeration<String> createPathsEnumeration(String... paths) {
         Vector<String> vector = new Vector<String>();
-        
+
         for (String path : paths) {
             vector.add(path);
         }
-        
+
         return vector.elements();
     }
 }

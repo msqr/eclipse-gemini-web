@@ -32,20 +32,19 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-import org.osgi.service.url.AbstractURLStreamHandlerService;
-import org.osgi.service.url.URLStreamHandlerService;
-
 import org.eclipse.gemini.web.core.InstallationOptions;
 import org.eclipse.gemini.web.core.WebBundleManifestTransformer;
 import org.eclipse.gemini.web.internal.WebContainerUtils;
 import org.eclipse.gemini.web.internal.url.DirTransformer.DirTransformerCallback;
 import org.eclipse.virgo.util.io.IOUtils;
 import org.eclipse.virgo.util.io.JarTransformer;
-import org.eclipse.virgo.util.io.JarTransformingURLConnection;
 import org.eclipse.virgo.util.io.JarTransformer.JarTransformerCallback;
+import org.eclipse.virgo.util.io.JarTransformingURLConnection;
 import org.eclipse.virgo.util.io.PathReference;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifestFactory;
+import org.osgi.service.url.AbstractURLStreamHandlerService;
+import org.osgi.service.url.URLStreamHandlerService;
 
 /**
  * {@link URLStreamHandlerService} that transforms bundles installed with the <code>war:</code> protocol.
@@ -96,6 +95,7 @@ public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHan
             this.transformer = transformer;
         }
 
+        @Override
         public boolean transformEntry(String entryName, InputStream is, JarOutputStream jos) throws IOException {
             if (JarFile.MANIFEST_NAME.equals(entryName)) {
                 jos.putNextEntry(new ZipEntry(entryName));
@@ -117,7 +117,7 @@ public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHan
             }
 
             boolean webBundle = WebContainerUtils.isWebApplicationBundle(manifest);
-            this.transformer.transform(manifest, sourceURL, options, webBundle);
+            this.transformer.transform(manifest, this.sourceURL, options, webBundle);
 
             toManifest(manifest.toDictionary()).write(outputStream);
         }
@@ -149,6 +149,7 @@ public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHan
             return manifest;
         }
 
+        @Override
         public boolean transformFile(InputStream inputStream, PathReference toFile) throws IOException {
             if (MANIFEST_MF.equals(toFile.getName()) && META_INF.equals(toFile.getParent().getName())) {
                 toFile.getParent().createDirectory();

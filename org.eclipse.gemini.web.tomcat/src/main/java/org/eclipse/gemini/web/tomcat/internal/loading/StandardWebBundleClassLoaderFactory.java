@@ -23,7 +23,6 @@ import org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer;
 import org.eclipse.gemini.web.tomcat.spi.WebBundleClassLoaderFactory;
 import org.osgi.framework.Bundle;
 
-
 /**
  * TODO Document StandardWebBundleClassLoaderFactory
  * <p />
@@ -44,11 +43,14 @@ public class StandardWebBundleClassLoaderFactory implements WebBundleClassLoader
     /**
      * {@inheritDoc}
      */
+    @Override
     public ClassLoader createWebBundleClassLoader(final Bundle webBundle) {
         return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+
+            @Override
             public ClassLoader run() {
-                return new BundleWebappClassLoader(webBundle, classLoaderCustomizer);                
-            }            
+                return new BundleWebappClassLoader(webBundle, StandardWebBundleClassLoaderFactory.this.classLoaderCustomizer);
+            }
         });
     }
 }

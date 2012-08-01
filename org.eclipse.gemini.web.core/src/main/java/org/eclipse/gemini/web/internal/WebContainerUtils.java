@@ -20,10 +20,9 @@ import java.net.URL;
 import java.util.Dictionary;
 import java.util.Locale;
 
+import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
-
-import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
 
 public final class WebContainerUtils {
 
@@ -33,12 +32,12 @@ public final class WebContainerUtils {
      * Constant for the <code>Web-ContextPath</code> manifest header.
      */
     public static final String HEADER_WEB_CONTEXT_PATH = "Web-ContextPath";
-    
+
     /**
      * Constant for the <code>SpringSource-DefaultWABHeaders</code> manifest header.
      */
     public static final String HEADER_DEFAULT_WAB_HEADERS = "org-eclipse-gemini-web-DefaultWABHeaders";
-    
+
     /**
      * Constant for the <code>Web-JSPExtractLocation</code> manifest header.
      */
@@ -78,7 +77,7 @@ public final class WebContainerUtils {
     }
 
     private static String getWebContextPathHeader(Bundle bundle) {
-        return (String) bundle.getHeaders().get(HEADER_WEB_CONTEXT_PATH);
+        return bundle.getHeaders().get(HEADER_WEB_CONTEXT_PATH);
     }
 
     private static boolean hasWebXml(Bundle bundle) {

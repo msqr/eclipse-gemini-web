@@ -30,165 +30,165 @@ import org.osgi.framework.Bundle;
 
 public final class BundleEntry {
 
-	private static final String PATH_SEPARATOR = "/";
-	
-	private static final String DOT = ".";
+    private static final String PATH_SEPARATOR = "/";
 
-	private final String path;
+    private static final String DOT = ".";
 
-	private final Bundle bundle;
+    private final String path;
+
+    private final Bundle bundle;
 
     private final BundleFileResolver bundleFileResolver = BundleFileResolverFactory.createBundleFileResolver();
 
-	public BundleEntry(Bundle bundle) {
-		this(bundle, "");
-	}
+    public BundleEntry(Bundle bundle) {
+        this(bundle, "");
+    }
 
-	private BundleEntry(Bundle bundle, String path) {
-		this.path = path;
-		this.bundle = bundle;
-	}
+    private BundleEntry(Bundle bundle, String path) {
+        this.path = path;
+        this.bundle = bundle;
+    }
 
-	public Bundle getBundle() {
-		return this.bundle;
-	}
+    public Bundle getBundle() {
+        return this.bundle;
+    }
 
-	public List<BundleEntry> list() {
-		List<BundleEntry> entries = new ArrayList<BundleEntry>();
-		Enumeration<?> paths = getEntryPathsFromBundle();
-		if (paths != null) {
-			while (paths.hasMoreElements()) {
-				String subPath = (String) paths.nextElement();
-				entries.add(createBundleEntry(subPath));
-			}
-		}
-		return entries;
-	}
+    public List<BundleEntry> list() {
+        List<BundleEntry> entries = new ArrayList<BundleEntry>();
+        Enumeration<?> paths = getEntryPathsFromBundle();
+        if (paths != null) {
+            while (paths.hasMoreElements()) {
+                String subPath = (String) paths.nextElement();
+                entries.add(createBundleEntry(subPath));
+            }
+        }
+        return entries;
+    }
 
-	private BundleEntry createBundleEntry(String path) {
-		return new BundleEntry(this.bundle, path);
-	}
+    private BundleEntry createBundleEntry(String path) {
+        return new BundleEntry(this.bundle, path);
+    }
 
-	private Enumeration<?> getEntryPathsFromBundle() {
-		final Enumeration<?> ep = this.bundle.getEntryPaths(this.path);
+    private Enumeration<?> getEntryPathsFromBundle() {
+        final Enumeration<?> ep = this.bundle.getEntryPaths(this.path);
 
-		Set<String> paths = new HashSet<String>();
-		if (ep != null) {
-			while (ep.hasMoreElements()) {
-				paths.add((String) ep.nextElement());
-			}
-		}
-		
-		// Ensure web.xml appears even though it may be supplied by a fragment.
-		if ("WEB-INF".equals(this.path) && getEntry("web.xml") != null) {
-			paths.add("WEB-INF/web.xml");
-		}
-		
-		if (paths.isEmpty()) {
-			return null;
-		}
-		
-		final String[] pathArray = paths.toArray(new String[0]);
-		
-		return new Enumeration<String>() {
+        Set<String> paths = new HashSet<String>();
+        if (ep != null) {
+            while (ep.hasMoreElements()) {
+                paths.add((String) ep.nextElement());
+            }
+        }
 
-			private int pos = 0;
+        // Ensure web.xml appears even though it may be supplied by a fragment.
+        if ("WEB-INF".equals(this.path) && getEntry("web.xml") != null) {
+            paths.add("WEB-INF/web.xml");
+        }
 
-			public boolean hasMoreElements() {
-				return pos < pathArray.length;
-			}
+        if (paths.isEmpty()) {
+            return null;
+        }
 
-			public String nextElement() {
-				if (hasMoreElements()) {
-					return pathArray[pos++];
-				}
-				return null;
-			}
+        final String[] pathArray = paths.toArray(new String[0]);
 
-		};
-	}
+        return new Enumeration<String>() {
 
-	public BundleEntry getEntry(String subPath) {
-		String finalPath = this.path + subPath;
-		if (getEntryFromBundle(finalPath) != null) {
-			return createBundleEntry(finalPath);
-		} else {
-			return null;
-		}
-	}
+            private int pos = 0;
 
-	private URL getEntryFromBundle(String path) {
-		/*
-		 * This method has been generalised from this.bundle.getEntry(path) to
-		 * allow web.xml to be supplied by a fragment.
-		 */
-		if (path.endsWith(PATH_SEPARATOR) || path.length() == 0) {
-			return this.bundle.getEntry(path);
-		}
-		String searchPath;
-		String searchFile;
-		int lastSlashIndex = path.lastIndexOf(PATH_SEPARATOR);
-		if (lastSlashIndex == -1) {
-			searchPath = PATH_SEPARATOR;
-			searchFile = path;
-		} else {
-			searchPath = path.substring(0, lastSlashIndex);
-			searchFile = path.substring(lastSlashIndex + 1);
-		}
-		
-		if (searchFile.equals(DOT)) {
-		    return this.bundle.getEntry(path.substring(0, path.length() - 1));
-		}
-		
-		Enumeration<?> entries = this.bundle.findEntries(searchPath,
-				searchFile, false);
+            @Override
+            public boolean hasMoreElements() {
+                return this.pos < pathArray.length;
+            }
 
-		if (entries != null) {
-			if (entries.hasMoreElements()) {
-				return (URL) entries.nextElement();
-			}
-		}
+            @Override
+            public String nextElement() {
+                if (hasMoreElements()) {
+                    return pathArray[this.pos++];
+                }
+                return null;
+            }
 
-		return null;
-	}
+        };
+    }
 
-	public String getName() {
-		String name = this.path;
+    public BundleEntry getEntry(String subPath) {
+        String finalPath = this.path + subPath;
+        if (getEntryFromBundle(finalPath) != null) {
+            return createBundleEntry(finalPath);
+        } else {
+            return null;
+        }
+    }
 
-		if (name.endsWith(PATH_SEPARATOR)) {
-			name = name.substring(0, this.path.length() - 1);
-		}
+    private URL getEntryFromBundle(String path) {
+        /*
+         * This method has been generalised from this.bundle.getEntry(path) to allow web.xml to be supplied by a
+         * fragment.
+         */
+        if (path.endsWith(PATH_SEPARATOR) || path.length() == 0) {
+            return this.bundle.getEntry(path);
+        }
+        String searchPath;
+        String searchFile;
+        int lastSlashIndex = path.lastIndexOf(PATH_SEPARATOR);
+        if (lastSlashIndex == -1) {
+            searchPath = PATH_SEPARATOR;
+            searchFile = path;
+        } else {
+            searchPath = path.substring(0, lastSlashIndex);
+            searchFile = path.substring(lastSlashIndex + 1);
+        }
 
-		int index = name.lastIndexOf(PATH_SEPARATOR);
-		if (index > -1) {
-			name = name.substring(index + 1);
-		}
+        if (searchFile.equals(DOT)) {
+            return this.bundle.getEntry(path.substring(0, path.length() - 1));
+        }
 
-		if (name.length() == 0) {
-			return PATH_SEPARATOR;
-		} else {
-			return name;
-		}
-	}
+        Enumeration<?> entries = this.bundle.findEntries(searchPath, searchFile, false);
 
-	public URL getURL() {
-		return getEntryFromBundle(this.path);
-	}
+        if (entries != null) {
+            if (entries.hasMoreElements()) {
+                return (URL) entries.nextElement();
+            }
+        }
 
-	public String getPath() {
-		return this.path;
-	}
+        return null;
+    }
 
-	public boolean isDirectory() {
-	    URL entryFromBundle = getEntryFromBundle(this.path);
-	    return entryFromBundle.getFile().endsWith(PATH_SEPARATOR);
-	}
+    public String getName() {
+        String name = this.path;
 
-	@Override
-	public String toString() {
-		return String.format("BundleEntry [bundle=%s,path=%s]", this.bundle,
-				this.path);
-	}
+        if (name.endsWith(PATH_SEPARATOR)) {
+            name = name.substring(0, this.path.length() - 1);
+        }
+
+        int index = name.lastIndexOf(PATH_SEPARATOR);
+        if (index > -1) {
+            name = name.substring(index + 1);
+        }
+
+        if (name.length() == 0) {
+            return PATH_SEPARATOR;
+        } else {
+            return name;
+        }
+    }
+
+    public URL getURL() {
+        return getEntryFromBundle(this.path);
+    }
+
+    public String getPath() {
+        return this.path;
+    }
+
+    public boolean isDirectory() {
+        URL entryFromBundle = getEntryFromBundle(this.path);
+        return entryFromBundle.getFile().endsWith(PATH_SEPARATOR);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("BundleEntry [bundle=%s,path=%s]", this.bundle, this.path);
+    }
 
     /**
      * Returns the bundle entry size. If the BundleFileResolver is EquinoxBundleFileResolver then we will use equinox

@@ -20,11 +20,11 @@ package org.eclipse.gemini.web.core;
  * <p>
  * ConnectorDescriptor describes a configured connector to the web layer
  * </p>
- *
+ * 
  * <strong>Concurrent Semantics</strong><br />
- *
+ * 
  * ConnectorDescriptor is thread-safe
- *
+ * 
  */
 public interface ConnectorDescriptor {
 
@@ -32,20 +32,20 @@ public interface ConnectorDescriptor {
      * @return The protocol being used, eg. HTTP-1.1
      */
     String getProtocol();
-    
+
     /**
      * @return The scheme of the connector, eg. http.
      */
     String getScheme();
-    
+
     /**
      * @return The port the connector is listening on, eg. 8080
      */
     int getPort();
-    
+
     /**
      * @return true iff ssl is enabled
      */
     boolean sslEnabled();
-    
+
 }

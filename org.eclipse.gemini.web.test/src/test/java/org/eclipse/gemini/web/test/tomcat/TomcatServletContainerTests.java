@@ -457,11 +457,11 @@ public class TomcatServletContainerTests {
             + "**************  REAL PATH: <%=request.getRealPath(\"META-INF/.\")%>\n");
         File metaInf = new File(webAppDir, "META-INF");
         File manifest = new File(metaInf, "MANIFEST.MF");
-        createFileWithContent(manifest, ""); 
+        createFileWithContent(manifest, "");
 
         Bundle bundle = this.bundleContext.installBundle(LOCATION_PREFIX + webAppDir.getAbsolutePath() + "?Web-ContextPath=/simple-web-app-dir");
         bundle.start();
-		assertNotNull(bundle.getSymbolicName());
+        assertNotNull(bundle.getSymbolicName());
 
         WebApplicationHandle handle = this.container.createWebApplication("/simple-web-app-dir", bundle);
         this.container.startWebApplication(handle);
@@ -589,9 +589,7 @@ public class TomcatServletContainerTests {
         createFileWithContent(testHtml, "Hello World!");
         File metaInf = new File(webAppDir, "META-INF");
         File manifest = new File(metaInf, "MANIFEST.MF");
-        createFileWithContent(manifest, "Manifest-Version: 1.0\n" 
-            + "Bundle-ManifestVersion: 2\n" 
-            + "Web-ContextPath: /simple-web-app-dir\n"
+        createFileWithContent(manifest, "Manifest-Version: 1.0\n" + "Bundle-ManifestVersion: 2\n" + "Web-ContextPath: /simple-web-app-dir\n"
             + "Bundle-SymbolicName: simple-web-app-dir\n\n");
 
         Bundle bundle = this.bundleContext.installBundle("reference:file:" + webAppDir.getAbsolutePath());

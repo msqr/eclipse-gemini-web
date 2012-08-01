@@ -25,91 +25,87 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.gemini.web.core.InstallationOptions;
+import org.eclipse.gemini.web.internal.WebContainerUtils;
+import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
+import org.eclipse.virgo.util.osgi.manifest.BundleManifestFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Version;
 
-
-import org.eclipse.gemini.web.core.InstallationOptions;
-import org.eclipse.gemini.web.internal.WebContainerUtils;
-import org.eclipse.gemini.web.internal.url.DefaultsWebBundleManifestTransformer;
-import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
-import org.eclipse.virgo.util.osgi.manifest.BundleManifestFactory;
-
-
 public class DefaultsWebBundleManifestTransformerTests {
 
-    private DefaultsWebBundleManifestTransformer defaults = new DefaultsWebBundleManifestTransformer();
+    private final DefaultsWebBundleManifestTransformer defaults = new DefaultsWebBundleManifestTransformer();
 
     private URL source;
 
-    private InstallationOptions options = new InstallationOptions(Collections.<String, String>emptyMap());
-    
+    private final InstallationOptions options = new InstallationOptions(Collections.<String, String> emptyMap());
+
     @Before
     public void before() throws MalformedURLException {
-        source = new URL("file:target/resources/simple-war.war");
+        this.source = new URL("file:target/resources/simple-war.war");
     }
-    
+
     @Test
-    public void testDefaultBundleManifestVersion() throws Exception{
+    public void testDefaultBundleManifestVersion() throws Exception {
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
-        this.defaults.transform(manifest, source, options, WebContainerUtils.isWebApplicationBundle(manifest));
+        this.defaults.transform(manifest, this.source, this.options, WebContainerUtils.isWebApplicationBundle(manifest));
         assertEquals(2, manifest.getBundleManifestVersion());
-        
+
     }
-    
+
     @Test
     public void testBundleManifestVersionNotOverridden() throws Exception {
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
         manifest.setBundleManifestVersion(3);
-        this.defaults.transform(manifest, source, options, WebContainerUtils.isWebApplicationBundle(manifest));
+        this.defaults.transform(manifest, this.source, this.options, WebContainerUtils.isWebApplicationBundle(manifest));
         assertEquals(3, manifest.getBundleManifestVersion());
-        
+
     }
-    
+
     @Test
-    public void testDefaultBundleSymbolicName() throws Exception{
+    public void testDefaultBundleSymbolicName() throws Exception {
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
-        this.defaults.transform(manifest, source, options, WebContainerUtils.isWebApplicationBundle(manifest));
+        this.defaults.transform(manifest, this.source, this.options, WebContainerUtils.isWebApplicationBundle(manifest));
         assertNotNull(manifest.getBundleSymbolicName());
         assertNotNull(manifest.getBundleSymbolicName().getSymbolicName());
     }
-    
+
     @Test
-    public void testBundleSymbolicNameNotOverridden() throws Exception{
+    public void testBundleSymbolicNameNotOverridden() throws Exception {
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
         manifest.getBundleSymbolicName().setSymbolicName("bsn");
-        this.defaults.transform(manifest, source, options, WebContainerUtils.isWebApplicationBundle(manifest));
+        this.defaults.transform(manifest, this.source, this.options, WebContainerUtils.isWebApplicationBundle(manifest));
         assertEquals("bsn", manifest.getBundleSymbolicName().getSymbolicName());
     }
-    
+
     @Test
     public void testDefaultBundleClassPath() throws Exception {
-        
+
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
-        this.defaults.transform(manifest, source, options, WebContainerUtils.isWebApplicationBundle(manifest));
+        this.defaults.transform(manifest, this.source, this.options, WebContainerUtils.isWebApplicationBundle(manifest));
         List<String> bcp = manifest.getBundleClasspath();
         assertNotNull(bcp);
         assertEquals(2, bcp.size());
         assertEquals("WEB-INF/classes", bcp.get(0));
     }
-    
+
     @Test
     public void testMergeBundleClassPath() throws Exception {
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
         manifest.getBundleClasspath().add("test");
-        this.defaults.transform(manifest, source, options, WebContainerUtils.isWebApplicationBundle(manifest));
+        this.defaults.transform(manifest, this.source, this.options, WebContainerUtils.isWebApplicationBundle(manifest));
         List<String> bcp = manifest.getBundleClasspath();
         assertNotNull(bcp);
         assertEquals("WEB-INF/classes", bcp.get(0));
         assertEquals("test", bcp.get(1));
     }
-    
+
     @Test
     public void testDefaultImportPackages() throws Exception {
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
-        this.defaults.transform(manifest, source, options, WebContainerUtils.isWebApplicationBundle(manifest));
-        
+        this.defaults.transform(manifest, this.source, this.options, WebContainerUtils.isWebApplicationBundle(manifest));
+
         assertIncludesImport("javax.servlet", new Version("2.5"), manifest);
         assertIncludesImport("javax.servlet.http", new Version("2.5"), manifest);
         assertIncludesImport("javax.servlet.jsp", new Version("2.1"), manifest);
@@ -117,5 +113,5 @@ public class DefaultsWebBundleManifestTransformerTests {
         assertIncludesImport("javax.servlet.jsp.el", new Version("2.1"), manifest);
         assertIncludesImport("javax.el", new Version("1.0"), manifest);
     }
-    
+
 }

@@ -23,32 +23,29 @@ import static org.junit.Assert.assertTrue;
 
 import javax.servlet.ServletContext;
 
+import org.eclipse.gemini.web.core.WebApplication;
+import org.eclipse.gemini.web.core.WebContainer;
+import org.eclipse.virgo.teststubs.osgi.framework.StubBundle;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 
-import org.eclipse.gemini.web.core.WebApplication;
-import org.eclipse.gemini.web.core.WebContainer;
-import org.eclipse.gemini.web.extender.WebContainerBundleCustomizer;
-import org.eclipse.virgo.teststubs.osgi.framework.StubBundle;
-
-
 /**
  */
 public class WebContainerCustomizerTests {
-    
+
     private final StubBundle extenderBundle = new StubBundle();
-    
+
     private final WebContainer container = new StubWebContainer();
-    
-    private final WebContainerBundleCustomizer customizer = new WebContainerBundleCustomizer(container, this.extenderBundle);
+
+    private final WebContainerBundleCustomizer customizer = new WebContainerBundleCustomizer(this.container, this.extenderBundle);
 
     @Test
-    public void testAddWebBundle() {        
+    public void testAddWebBundle() {
         StubBundle bundle = new StubBundle();
         bundle.addHeader("Web-ContextPath", "foo");
 
-        Object result = customizer.addingBundle(bundle, null);
+        Object result = this.customizer.addingBundle(bundle, null);
         assertTrue(result instanceof WebApplication);
 
         StubWebApplication wa = (StubWebApplication) result;
@@ -60,7 +57,7 @@ public class WebContainerCustomizerTests {
     public void testAddNonWebBundle() {
         StubBundle bundle = new StubBundle();
 
-        Object result = customizer.addingBundle(bundle, null);
+        Object result = this.customizer.addingBundle(bundle, null);
         assertNull(result);
     }
 
@@ -69,26 +66,30 @@ public class WebContainerCustomizerTests {
         StubBundle bundle = new StubBundle();
         bundle.addHeader("Web-ContextPath", "foo");
 
-        StubWebApplication wa = (StubWebApplication) container.createWebApplication(bundle, this.extenderBundle);
+        StubWebApplication wa = (StubWebApplication) this.container.createWebApplication(bundle, this.extenderBundle);
 
-        customizer.removedBundle(bundle,null, wa);
+        this.customizer.removedBundle(bundle, null, wa);
         assertFalse(wa.started);
     }
 
     private static class StubWebContainer implements WebContainer {
 
+        @Override
         public WebApplication createWebApplication(Bundle bundle) throws BundleException {
             return new StubWebApplication(bundle);
         }
-        
+
+        @Override
         public WebApplication createWebApplication(Bundle bundle, Bundle extenderBundle) throws BundleException {
             return new StubWebApplication(bundle);
         }
 
+        @Override
         public boolean isWebBundle(Bundle bundle) {
             return bundle.getHeaders().get("Web-ContextPath") != null;
         }
 
+        @Override
         public void halt() {
         }
     }
@@ -103,18 +104,22 @@ public class WebContainerCustomizerTests {
             this.bundle = bundle;
         }
 
+        @Override
         public ServletContext getServletContext() {
             return null;
         }
 
+        @Override
         public void start() {
             this.started = true;
         }
 
+        @Override
         public void stop() {
             this.started = false;
         }
 
+        @Override
         public ClassLoader getClassLoader() {
             return null;
         }

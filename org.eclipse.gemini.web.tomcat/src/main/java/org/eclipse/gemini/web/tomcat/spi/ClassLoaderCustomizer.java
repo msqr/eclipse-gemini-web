@@ -21,7 +21,7 @@ import java.lang.instrument.ClassFileTransformer;
 import org.osgi.framework.Bundle;
 
 public interface ClassLoaderCustomizer {
-	
+
     /**
      * Allows extensions to customize the {@link ClassLoader} chain created for deployed web applications.
      * 

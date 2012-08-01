@@ -21,12 +21,13 @@ import org.osgi.framework.Bundle;
 /**
  * TODO Document WebBundleClassLoaderFactory
  * <p />
- *
+ * 
  * <strong>Concurrent Semantics</strong><br />
- *
+ * 
  * TODO Document concurrent semantics of WebBundleClassLoaderFactory
- *
+ * 
  */
 public interface WebBundleClassLoaderFactory {
+
     ClassLoader createWebBundleClassLoader(Bundle webBundle);
 }

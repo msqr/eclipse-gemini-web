@@ -95,6 +95,7 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
     /**
      * @throws UnsupportedOperationException always
      */
+    @Override
     public void addRepository(String repository) {
         throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support addRepository(String)");
     }
@@ -102,6 +103,7 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
     /**
      * {@inheritDoc}
      */
+    @Override
     public String[] findRepositories() {
         return new String[0];
     }
@@ -109,6 +111,7 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
     /**
      * {@inheritDoc}
      */
+    @Override
     public ClassLoader getClassLoader() {
         return this.classLoader;
     }
@@ -117,6 +120,7 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
      * Return descriptive information about this Loader implementation and the corresponding version number, in the
      * format <code>&lt;description&gt;/&lt;version&gt;</code>.
      */
+    @Override
     public String getInfo() {
         return INFO;
     }
@@ -124,6 +128,7 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean modified() {
 
         synchronized (this.bundleModificationLock) {
@@ -146,6 +151,7 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
     /**
      * {@inheritDoc}
      */
+    @Override
     public void startInternal() throws LifecycleException {
         if (log.isDebugEnabled()) {
             log.debug(sm.getString("webappLoader.starting"));
@@ -165,7 +171,7 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
                 ((Lifecycle) this.classLoader).start();
             }
 
-            DirContextURLStreamHandler.bind((ClassLoader) this.classLoader, getContainer().getResources());
+            DirContextURLStreamHandler.bind(this.classLoader, getContainer().getResources());
 
             registerClassLoaderMBean();
 
@@ -180,6 +186,7 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
     /**
      * {@inheritDoc}
      */
+    @Override
     public void stopInternal() throws LifecycleException {
         if (log.isDebugEnabled()) {
             log.debug(sm.getString("webappLoader.stopping"));
@@ -198,7 +205,7 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
             ((Lifecycle) this.classLoader).stop();
         }
 
-        DirContextURLStreamHandler.unbind((ClassLoader) this.classLoader);
+        DirContextURLStreamHandler.unbind(this.classLoader);
 
         unregisterClassLoaderMBean();
 

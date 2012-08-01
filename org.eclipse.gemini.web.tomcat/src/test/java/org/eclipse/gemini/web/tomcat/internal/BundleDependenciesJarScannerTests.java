@@ -32,7 +32,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 
 import org.apache.tomcat.JarScannerCallback;
-import org.eclipse.gemini.web.tomcat.internal.BundleDependenciesJarScanner;
 import org.eclipse.gemini.web.tomcat.internal.loading.BundleWebappClassLoader;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleDependencyDeterminer;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolver;
@@ -40,93 +39,92 @@ import org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 
-
-
 /**
  */
 public class BundleDependenciesJarScannerTests {
-    
+
     private final BundleDependencyDeterminer dependencyDeterminer = createMock(BundleDependencyDeterminer.class);
-    
+
     private final BundleFileResolver bundleFileResolver = createMock(BundleFileResolver.class);
-    
-    private final BundleDependenciesJarScanner scanner = new BundleDependenciesJarScanner(dependencyDeterminer, bundleFileResolver);
-    
-    private final Bundle bundle = createMock(Bundle.class);        
-    
+
+    private final BundleDependenciesJarScanner scanner = new BundleDependenciesJarScanner(this.dependencyDeterminer, this.bundleFileResolver);
+
+    private final Bundle bundle = createMock(Bundle.class);
+
     private final JarScannerCallback callback = createMock(JarScannerCallback.class);
-    
+
     private final ClassLoaderCustomizer classLoaderCustomizer = createNiceMock(ClassLoaderCustomizer.class);
-    
+
     private final Bundle dependency = createMock(Bundle.class);
-    
+
     @Test
     public void noDependencies() {
-        expect(bundle.getHeaders()).andReturn(new Hashtable<String, String>());
-        expect(dependencyDeterminer.getDependencies(this.bundle)).andReturn(Collections.<Bundle>emptySet());
-        
-        replay(dependencyDeterminer, bundleFileResolver, bundle, callback);
-        
+        expect(this.bundle.getHeaders()).andReturn(new Hashtable<String, String>());
+        expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(Collections.<Bundle> emptySet());
+
+        replay(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
+
         ClassLoader classLoader = new BundleWebappClassLoader(this.bundle, this.classLoaderCustomizer);
-        
-        scanner.scan(null, classLoader, callback, null);
-        
-        verify(dependencyDeterminer, bundleFileResolver, bundle, callback);
+
+        this.scanner.scan(null, classLoader, this.callback, null);
+
+        verify(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
     }
-    
+
     @Test
     public void scanDirectory() throws IOException {
-        expect(bundle.getHeaders()).andReturn(new Hashtable<String, String>());
-        expect(dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<Bundle>(Arrays.asList(this.dependency)));
-        
-        File dependencyFile = new File("src/test/resources");        
+        expect(this.bundle.getHeaders()).andReturn(new Hashtable<String, String>());
+        expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<Bundle>(Arrays.asList(this.dependency)));
+
+        File dependencyFile = new File("src/test/resources");
         expect(this.bundleFileResolver.resolve(this.dependency)).andReturn(dependencyFile);
         this.callback.scan(dependencyFile);
-        
-        replay(dependencyDeterminer, bundleFileResolver, bundle, callback);
-        
+
+        replay(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
+
         ClassLoader classLoader = new BundleWebappClassLoader(this.bundle, this.classLoaderCustomizer);
-        
-        scanner.scan(null, classLoader, callback, null);
-        
-        verify(dependencyDeterminer, bundleFileResolver, bundle, callback);
+
+        this.scanner.scan(null, classLoader, this.callback, null);
+
+        verify(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
     }
-    
+
     @Test
     public void scanFile() throws IOException {
-        expect(bundle.getHeaders()).andReturn(new Hashtable<String, String>());
-        expect(dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<Bundle>(Arrays.asList(this.dependency)));
-        
-        File dependencyFile = new File("");        
+        expect(this.bundle.getHeaders()).andReturn(new Hashtable<String, String>());
+        expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<Bundle>(Arrays.asList(this.dependency)));
+
+        File dependencyFile = new File("");
         expect(this.bundleFileResolver.resolve(this.dependency)).andReturn(dependencyFile);
         this.callback.scan(isA(JarURLConnection.class));
-        
-        replay(dependencyDeterminer, bundleFileResolver, bundle, callback);
-        
+
+        replay(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
+
         ClassLoader classLoader = new BundleWebappClassLoader(this.bundle, this.classLoaderCustomizer);
-        
-        scanner.scan(null, classLoader, callback, null);
-        
-        verify(dependencyDeterminer, bundleFileResolver, bundle, callback);
+
+        this.scanner.scan(null, classLoader, this.callback, null);
+
+        verify(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
     }
-    
+
     @Test
     public void scanJarUrlConnection() throws IOException {
-        expect(bundle.getHeaders()).andReturn(new Hashtable<String, String>());
-        expect(dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<Bundle>(Arrays.asList(this.dependency))).times(2);
-        expect(dependency.getLocation()).andReturn("file:src/test/resources/bundle.jar").andReturn("reference:file:src/test/resources/bundle.jar");
+        expect(this.bundle.getHeaders()).andReturn(new Hashtable<String, String>());
+        expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<Bundle>(Arrays.asList(this.dependency))).times(2);
+        expect(this.dependency.getLocation()).andReturn("file:src/test/resources/bundle.jar").andReturn(
+            "reference:file:src/test/resources/bundle.jar");
 
         expect(this.bundleFileResolver.resolve(this.dependency)).andReturn(null).times(2);
         this.callback.scan(isA(JarURLConnection.class));
 
-        replay(dependencyDeterminer, bundleFileResolver, bundle, callback, dependency);
+        replay(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback, this.dependency);
 
         ClassLoader classLoader = new BundleWebappClassLoader(this.bundle, this.classLoaderCustomizer);
 
-        scanner.scan(null, classLoader, callback, null);
+        this.scanner.scan(null, classLoader, this.callback, null);
 
-        scanner.scan(null, classLoader, callback, null);
+        this.scanner.scan(null, classLoader, this.callback, null);
 
-        verify(dependencyDeterminer, bundleFileResolver, bundle, callback);
+        verify(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
     }
 }

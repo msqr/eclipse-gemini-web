@@ -72,6 +72,7 @@ public class DirTransformerTests {
         final List<PathReference> transformedFiles = new ArrayList<PathReference>();
         DirTransformer transformer = new DirTransformer(new DirTransformerCallback() {
 
+            @Override
             public boolean transformFile(InputStream inputStream, PathReference toFile) throws IOException {
                 transformedFiles.add(toFile);
                 return false;
@@ -108,6 +109,7 @@ public class DirTransformerTests {
 
         DirTransformer transformer = new DirTransformer(new DirTransformerCallback() {
 
+            @Override
             public boolean transformFile(InputStream inputStream, PathReference toFile) throws IOException {
                 if (MANIFEST_MF.equals(toFile.getName()) && META_INF.equals(toFile.getParent().getName())) {
                     toFile.getParent().createDirectory();
@@ -146,6 +148,7 @@ public class DirTransformerTests {
 
         transformer = new DirTransformer(new DirTransformerCallback() {
 
+            @Override
             public boolean transformFile(InputStream inputStream, PathReference toFile) throws IOException {
                 return false;
             }

@@ -16,21 +16,23 @@
 
 package org.eclipse.gemini.web.tomcat.internal;
 
-
 /**
  */
 public class DummyManagedConnector implements DummyManagedConnectorMBean {
 
+    @Override
     public String getmodelerType() {
         return "foobar";
     }
 
+    @Override
     public String getname() {
         return "http-something";
     }
 
+    @Override
     public boolean getsSLEnabled() {
         return true;
     }
-    
+
 }

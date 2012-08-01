@@ -51,7 +51,8 @@ public interface WebApplication {
      * <p/>
      * If the application fails to start an {@link EventAdmin} event is emitted to the
      * <code>org/osgi/services/web/FAILED</code> topic and a {@link WebApplicationStartFailedException} is thrown.
-     * @throws WebApplicationStartFailedException 
+     * 
+     * @throws WebApplicationStartFailedException
      */
     void start() throws WebApplicationStartFailedException;
 

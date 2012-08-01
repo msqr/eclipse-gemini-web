@@ -40,7 +40,7 @@ final class DirTransformingURLConnection extends URLConnection {
     private final DirTransformer transformer;
 
     private final boolean ensureManifestIsPresent;
-    
+
     private final Object monitor = new Object();
 
     private URL transformedURL;
@@ -90,7 +90,7 @@ final class DirTransformingURLConnection extends URLConnection {
      */
     @Override
     public InputStream getInputStream() throws IOException {
-        synchronized (monitor) {
+        synchronized (this.monitor) {
             this.transformer.transform(this.url, this.transformedURL, this.ensureManifestIsPresent);
             return this.transformedURL.openStream();
         }
@@ -111,13 +111,13 @@ final class DirTransformingURLConnection extends URLConnection {
      */
     @Override
     public URL getURL() {
-        synchronized (monitor) {
+        synchronized (this.monitor) {
             return this.transformedURL;
         }
     }
 
     void setTransformedURL(URL transformedURL) {
-        synchronized (monitor) {
+        synchronized (this.monitor) {
             this.transformedURL = transformedURL;
         }
     }

@@ -16,7 +16,6 @@
 
 package org.eclipse.gemini.web.core.spi;
 
-
 public class ServletContainerException extends RuntimeException {
 
     private static final long serialVersionUID = -4955082179218908312L;
@@ -36,5 +35,4 @@ public class ServletContainerException extends RuntimeException {
         super(cause);
     }
 
-    
 }

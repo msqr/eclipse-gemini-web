@@ -53,6 +53,7 @@ public class DirTransformingURLConnectionTests {
         final List<PathReference> files = new ArrayList<PathReference>();
         DirTransformer transformer = new DirTransformer(new DirTransformerCallback() {
 
+            @Override
             public boolean transformFile(InputStream inputStream, PathReference toFile) throws IOException {
                 files.add(toFile);
                 return false;

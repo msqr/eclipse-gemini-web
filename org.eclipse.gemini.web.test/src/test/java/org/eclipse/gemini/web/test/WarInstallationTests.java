@@ -18,15 +18,14 @@ package org.eclipse.gemini.web.test;
 
 import static org.junit.Assert.assertNotNull;
 
+import org.eclipse.virgo.test.framework.OsgiTestRunner;
+import org.eclipse.virgo.test.framework.TestFrameworkUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-
-import org.eclipse.virgo.test.framework.OsgiTestRunner;
-import org.eclipse.virgo.test.framework.TestFrameworkUtils;
 
 @RunWith(OsgiTestRunner.class)
 public class WarInstallationTests {
@@ -41,7 +40,7 @@ public class WarInstallationTests {
     @Test
     public void testInstallSimpleWar() throws BundleException {
         String location = "webbundle:file:../org.eclipse.gemini.web.core/target/resources/simple-war.war?Web-ContextPath=/";
-        
+
         Bundle bundle = this.bundleContext.installBundle(location);
         assertNotNull(bundle);
         assertNotNull(bundle.getSymbolicName());

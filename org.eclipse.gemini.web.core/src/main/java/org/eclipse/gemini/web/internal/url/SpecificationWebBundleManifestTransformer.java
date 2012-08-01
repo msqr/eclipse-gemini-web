@@ -21,10 +21,6 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
-import org.osgi.framework.Constants;
-import org.osgi.framework.Version;
-
-
 import org.eclipse.gemini.web.core.InstallationOptions;
 import org.eclipse.gemini.web.core.WebBundleManifestTransformer;
 import org.eclipse.gemini.web.internal.WebContainerUtils;
@@ -33,6 +29,8 @@ import org.eclipse.virgo.util.osgi.manifest.parse.HeaderDeclaration;
 import org.eclipse.virgo.util.osgi.manifest.parse.HeaderParser;
 import org.eclipse.virgo.util.osgi.manifest.parse.HeaderParserFactory;
 import org.eclipse.virgo.util.osgi.manifest.parse.ParserLogger;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
 
 /**
  * Applies user installation options onto a {@link BundleManifest}.
@@ -43,6 +41,7 @@ public final class SpecificationWebBundleManifestTransformer implements WebBundl
 
     private static final int MINIMUM_VALID_BUNDLE_MANIFEST_VERSION = 2;
 
+    @Override
     public void transform(BundleManifest manifest, URL sourceURL, InstallationOptions options, boolean webBundle) throws IOException {
         if (options == null) {
             options = new InstallationOptions(Collections.<String, String> emptyMap());
@@ -179,7 +178,7 @@ public final class SpecificationWebBundleManifestTransformer implements WebBundl
     }
 
     /**
-     * @param isWebApplicationBundle 
+     * @param isWebApplicationBundle
      */
     private void transformWebContextPath(BundleManifest manifest, InstallationOptions options, boolean isWebApplicationBundle) {
         String webContextPathOption = options.getWebContextPath();
@@ -207,10 +206,12 @@ public final class SpecificationWebBundleManifestTransformer implements WebBundl
 
     private static class TransformerParserLogger implements ParserLogger {
 
+        @Override
         public String[] errorReports() {
             return null;
         }
 
+        @Override
         public void outputErrorMsg(Exception re, String item) {
 
         }

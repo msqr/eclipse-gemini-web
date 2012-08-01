@@ -89,6 +89,7 @@ public class WebBundleUrl {
         return sb.toString();
     }
 
+    @Override
     public final String toString() {
         return this.url.toString();
     }

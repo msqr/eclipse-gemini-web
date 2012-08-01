@@ -25,39 +25,37 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Set;
 
+import org.eclipse.virgo.teststubs.osgi.framework.StubBundle;
 import org.junit.Test;
 import org.osgi.framework.Constants;
-
-import org.eclipse.gemini.web.tomcat.internal.loading.BundleClassPathURLExtractor;
-import org.eclipse.virgo.teststubs.osgi.framework.StubBundle;
 
 /**
  */
 public class BundleClassPathURLExtractorTests {
-    
+
     private final StubBundle bundle = new StubBundle();
-    
+
     @Test
     public void extraction() throws MalformedURLException, URISyntaxException {
-        bundle.addHeader(Constants.BUNDLE_CLASSPATH, ".,foo.jar,cp/bar.jar");
-        
-        bundle.addEntry(".", new URL("file:."));
-        bundle.addEntry("foo.jar", new URL("file:foo.jar"));
-        bundle.addEntry("cp/bar.jar", new URL("file:cp/bar.jar"));
-        
+        this.bundle.addHeader(Constants.BUNDLE_CLASSPATH, ".,foo.jar,cp/bar.jar");
+
+        this.bundle.addEntry(".", new URL("file:."));
+        this.bundle.addEntry("foo.jar", new URL("file:foo.jar"));
+        this.bundle.addEntry("cp/bar.jar", new URL("file:cp/bar.jar"));
+
         Set<URI> classPathURLs = BundleClassPathURLExtractor.extractBundleClassPathURLs(this.bundle);
         assertEquals(2, classPathURLs.size());
         assertTrue(classPathURLs.contains(new URI("jar:file:foo.jar!/")));
         assertTrue(classPathURLs.contains(new URI("jar:file:cp/bar.jar!/")));
     }
-    
+
     @Test
     public void extractionWithMissingEntry() throws MalformedURLException, URISyntaxException {
-        bundle.addHeader(Constants.BUNDLE_CLASSPATH, ".,foo.jar,cp/bar.jar");
-        
-        bundle.addEntry(".", new URL("file:."));
-        bundle.addEntry("cp/bar.jar", new URL("file:cp/bar.jar"));
-        
+        this.bundle.addHeader(Constants.BUNDLE_CLASSPATH, ".,foo.jar,cp/bar.jar");
+
+        this.bundle.addEntry(".", new URL("file:."));
+        this.bundle.addEntry("cp/bar.jar", new URL("file:cp/bar.jar"));
+
         Set<URI> classPathURLs = BundleClassPathURLExtractor.extractBundleClassPathURLs(this.bundle);
         assertEquals(1, classPathURLs.size());
         assertTrue(classPathURLs.contains(new URI("jar:file:cp/bar.jar!/")));

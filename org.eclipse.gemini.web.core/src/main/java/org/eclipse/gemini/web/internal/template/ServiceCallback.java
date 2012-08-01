@@ -17,5 +17,6 @@
 package org.eclipse.gemini.web.internal.template;
 
 public interface ServiceCallback<S, T> {
+
     T doWithService(S service);
 }

@@ -44,7 +44,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.event.EventConstants;
 
-
 /**
  * TODO: Need a better implementation of this - abstraction is poor :)
  * 
@@ -99,6 +98,7 @@ final class EventManager {
         if (this.template != null) {
             this.template.executeWithService(new ServiceCallback<EventAdmin, Void>() {
 
+                @Override
                 public Void doWithService(EventAdmin eventAdmin) {
                     Dictionary<String, Object> props = new Hashtable<String, Object>();
                     if (applicationBundle.getSymbolicName() != null) {

@@ -87,8 +87,8 @@ final class TomcatConfigLocator {
         /*
          * Search for the framework property 'org.eclipse.gemini.web.tomcat.config.path'
          * 
-         * Note: this is supposed to search framework and system properties but appears to ignore system properties which
-         * are set after the framework has initialised. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=319679.
+         * Note: this is supposed to search framework and system properties but appears to ignore system properties
+         * which are set after the framework has initialised. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=319679.
          */
         String path = context.getProperty(TomcatConfigLocator.CONFIG_PATH_FRAMEWORK_PROPERTY);
         if (path != null) {

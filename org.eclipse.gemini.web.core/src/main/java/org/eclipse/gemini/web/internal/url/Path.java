@@ -49,7 +49,7 @@ final class Path {
 
     private String head() {
         if (!isEmpty()) {
-            return baseComponents[0];
+            return this.baseComponents[0];
         } else {
             throw new IllegalStateException("head not applicable to an empty path");
         }
@@ -96,13 +96,13 @@ final class Path {
 
     public Path applyRelativePath(Path relativePath) {
         try {
-        Path b = this;
-        Path r = relativePath;
-        while (r.isUp()) {
-            r = r.tail();
-            b = b.front();
-        }
-        return b.append(r);
+            Path b = this;
+            Path r = relativePath;
+            while (r.isUp()) {
+                r = r.tail();
+                b = b.front();
+            }
+            return b.append(r);
         } catch (IllegalStateException s) {
             throw new IllegalArgumentException("relative path cannot be applied", s);
         }
@@ -129,7 +129,7 @@ final class Path {
     public String toString() {
         StringBuffer s = new StringBuffer();
         boolean first = true;
-        for (String c : baseComponents) {
+        for (String c : this.baseComponents) {
             if (!first) {
                 s.append(PATH_SEPARATOR);
             }
@@ -144,21 +144,25 @@ final class Path {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Arrays.hashCode(baseComponents);
+        result = prime * result + Arrays.hashCode(this.baseComponents);
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         Path other = (Path) obj;
-        if (!Arrays.equals(baseComponents, other.baseComponents))
+        if (!Arrays.equals(this.baseComponents, other.baseComponents)) {
             return false;
+        }
         return true;
     }
 

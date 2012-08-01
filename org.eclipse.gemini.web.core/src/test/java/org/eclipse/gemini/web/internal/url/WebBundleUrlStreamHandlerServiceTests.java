@@ -16,9 +16,9 @@
 
 package org.eclipse.gemini.web.internal.url;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,16 +31,13 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
-import org.eclipse.gemini.web.internal.url.SpecificationWebBundleManifestTransformer;
-import org.eclipse.gemini.web.internal.url.WebBundleUrl;
-import org.eclipse.gemini.web.internal.url.WebBundleUrlStreamHandlerService;
 import org.eclipse.virgo.util.io.FileSystemUtils;
 import org.eclipse.virgo.util.io.IOUtils;
 import org.eclipse.virgo.util.io.PathReference;
@@ -53,11 +50,11 @@ public class WebBundleUrlStreamHandlerServiceTests {
         WebBundleUrl url = new TestWarUrl("file:target/resources/simple-war.war?Web-ContextPath=/", null);
         URLConnection connection = url.toURL().openConnection();
         assertNotNull(connection);
-        
+
         InputStream inputStream = connection.getInputStream();
         JarInputStream jarInputStream = new JarInputStream(inputStream);
         Manifest manifest = jarInputStream.getManifest();
-        
+
         if (manifest != null) {
             Attributes mainAttributes = manifest.getMainAttributes();
             Set<Entry<Object, Object>> entrySet = mainAttributes.entrySet();
@@ -66,7 +63,7 @@ public class WebBundleUrlStreamHandlerServiceTests {
             }
         }
     }
-    
+
     @Test
     public void testOpenDirConnection() throws Exception {
         URL directory = new URL("file:target/test-classes/web-app-dir");
@@ -159,7 +156,7 @@ public class WebBundleUrlStreamHandlerServiceTests {
         writer.close();
         IOUtils.closeQuietly(os);
     }
-    
+
     private static class TestWarUrl extends WebBundleUrl {
 
         public TestWarUrl(String location, Map<String, String> options) throws MalformedURLException {
@@ -173,6 +170,6 @@ public class WebBundleUrlStreamHandlerServiceTests {
         @Override
         protected URLStreamHandler createURLStreamHandler() {
             return new WebBundleUrlStreamHandlerService(new SpecificationWebBundleManifestTransformer());
-        }                
+        }
     }
 }

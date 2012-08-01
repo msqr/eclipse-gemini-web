@@ -21,13 +21,12 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.osgi.framework.Constants;
-import org.osgi.framework.Version;
-
-import org.eclipse.virgo.util.osgi.manifest.VersionRange;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
 import org.eclipse.virgo.util.osgi.manifest.ExportedPackage;
 import org.eclipse.virgo.util.osgi.manifest.ImportedPackage;
+import org.eclipse.virgo.util.osgi.manifest.VersionRange;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
 
 public final class ManifestAsserts {
 
@@ -35,7 +34,7 @@ public final class ManifestAsserts {
         List<ImportedPackage> importedPackages = manifest.getImportPackage().getImportedPackages();
         for (ImportedPackage packageImport : importedPackages) {
             String range = packageImport.getAttributes().get(Constants.VERSION_ATTRIBUTE);
-            VersionRange vr = (range == null ? VersionRange.NATURAL_NUMBER_RANGE : new VersionRange(range));
+            VersionRange vr = range == null ? VersionRange.NATURAL_NUMBER_RANGE : new VersionRange(range);
             String importName = packageImport.getPackageName();
             if (importName.equals(packageName)) {
                 if (vr.includes(version)) {
@@ -53,7 +52,7 @@ public final class ManifestAsserts {
         List<Version> nearMatches = new ArrayList<Version>();
         for (ExportedPackage packageExport : exportedPackages) {
             String v = packageExport.getAttributes().get(Constants.VERSION_ATTRIBUTE);
-            Version pv = (v == null ? Version.emptyVersion : new Version(v));
+            Version pv = v == null ? Version.emptyVersion : new Version(v);
             if (packageExport.getPackageName().equals(packageName)) {
                 if (pv.equals(version)) {
                     return;

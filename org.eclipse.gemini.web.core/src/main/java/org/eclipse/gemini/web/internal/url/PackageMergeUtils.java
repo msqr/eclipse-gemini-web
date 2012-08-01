@@ -19,12 +19,11 @@ package org.eclipse.gemini.web.internal.url;
 import java.util.List;
 import java.util.Map;
 
-import org.osgi.framework.Constants;
-import org.osgi.framework.Version;
-
 import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
 import org.eclipse.virgo.util.osgi.manifest.ExportedPackage;
 import org.eclipse.virgo.util.osgi.manifest.ImportedPackage;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Version;
 
 public class PackageMergeUtils {
 
@@ -44,7 +43,7 @@ public class PackageMergeUtils {
 
     public static void mergeExportPackage(BundleManifest manifest, String name, Map<String, String> attributes, Map<String, String> directives) {
         String versionAttribute = attributes.get(Constants.VERSION_ATTRIBUTE);
-        Version version = (versionAttribute == null ? Version.emptyVersion : new Version(versionAttribute));
+        Version version = versionAttribute == null ? Version.emptyVersion : new Version(versionAttribute);
 
         ExportedPackage packageExport = findExportedPackage(manifest, name, version);
 
@@ -54,7 +53,7 @@ public class PackageMergeUtils {
 
         packageExport.getAttributes().clear();
         packageExport.getAttributes().putAll(attributes);
-        
+
         packageExport.getDirectives().clear();
         packageExport.getDirectives().putAll(directives);
     }
