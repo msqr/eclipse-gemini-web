@@ -31,10 +31,7 @@
             <dependency org="javax.ejb" name="com.springsource.javax.ejb" rev="${javax.ejb}" conf="compile->runtime,provided"/>
             <dependency org="javax.el" name="javax.el" rev="${javax.el}" conf="compile->runtime"/>
             <dependency org="javax.persistence" name="com.springsource.javax.persistence" rev="${javax.persistence}" conf="compile->runtime"/>
-            <dependency org="javax.xml.soap" name="com.springsource.javax.xml.soap" rev="${javax.xml.soap}" />
-            <dependency org="javax.xml.bind" name="com.springsource.javax.xml.bind" rev="${javax.xml.bind}" />
-            <dependency org="javax.xml.stream" name="com.springsource.javax.xml.stream" rev="${javax.xml.stream}" />
-            <dependency org="javax.xml.rpc" name="com.springsource.javax.xml.rpc" rev="${javax.xml.rpc}" />
+            <dependency org="javax.xml.rpc" name="com.springsource.javax.xml.rpc" rev="${javax.xml.rpc}" conf="compile->runtime"/>
             <dependency org="org.eclipse.virgo.mirrored" name="org.apache.jasper" rev="${org.apache.jasper}" conf="compile->runtime"/>
             <dependency org="org.eclipse.virgo.mirrored" name="org.apache.el" rev="${org.apache.el}" conf="compile->runtime"/>
             <dependency org="org.eclipse.virgo.mirrored" name="org.eclipse.jdt.core.compiler.batch" rev="${org.eclipse.jdt}" conf="compile->runtime"/>
