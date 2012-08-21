@@ -23,8 +23,12 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class WebContainerBundleCustomizer implements BundleTrackerCustomizer<Object> {
+
+    private static final Logger logger = LoggerFactory.getLogger(WebContainerBundleCustomizer.class);
 
     private final WebContainer container;
 
@@ -44,9 +48,12 @@ final class WebContainerBundleCustomizer implements BundleTrackerCustomizer<Obje
                 handle = webApplication;
                 webApplication.start();
             } catch (BundleException e) {
-                e.printStackTrace();
+                logger.error("Exception occurred during web application startup.", e);
             } catch (WebApplicationStartFailedException _) {
                 // ignore in order to track this bundle
+                if (logger.isDebugEnabled()) {
+                    logger.debug("", _);
+                }
             }
         }
         return handle;

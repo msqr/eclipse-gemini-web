@@ -7,5 +7,7 @@ Bundle-Activator: org.eclipse.gemini.web.extender.ExtenderActivator
 Import-Template: org.eclipse.gemini.web.*;version="${version}",
  org.osgi.framework.*;version="0",
  org.osgi.util.tracker.*;version="0",
- javax.servlet;version="3.0.0"
+ javax.servlet;version="3.0.0",
+ org.slf4j;version="${org.slf4j.api:[=.=.=, =.+1)}"
+
 
