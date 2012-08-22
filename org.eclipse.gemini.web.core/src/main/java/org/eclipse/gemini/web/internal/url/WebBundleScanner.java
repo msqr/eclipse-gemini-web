@@ -35,13 +35,10 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
+import org.eclipse.gemini.web.internal.WebContainerUtils;
 import org.eclipse.virgo.util.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 final class WebBundleScanner {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebBundleScanner.class);
 
     private static final String LIB_DIR_SUFFIX = File.separator + "WEB-INF" + File.separator + "lib";
 
@@ -103,7 +100,7 @@ final class WebBundleScanner {
         synchronized (this.monitor) {
             this.scannedJars.clear();
             this.sourceZipEntries.clear();
-            if (isDirectory()) {
+            if (WebContainerUtils.isDirectory(this.source)) {
                 scanWarDirectory();
             } else {
                 scanWarFile();
@@ -113,7 +110,7 @@ final class WebBundleScanner {
 
     private void scanWarDirectory() throws IOException {
         try {
-            File bundleDir = sourceAsFile();
+            File bundleDir = WebContainerUtils.sourceAsFile(this.source);
             File libDir = new File(bundleDir, LIB_DIR_SUFFIX);
             if (libDir.isDirectory()) {
                 doScanLibDirectory(libDir);
@@ -237,7 +234,7 @@ final class WebBundleScanner {
     }
 
     private void scanNestedJarInWar(Path directoryPath, String jarPath) throws IOException {
-        if (isDirectory()) {
+        if (WebContainerUtils.isDirectory(this.source)) {
             scanNestedJarInWarDirectory(directoryPath, jarPath);
         } else {
             scanNestedJarInWarFile(directoryPath, jarPath);
@@ -247,7 +244,7 @@ final class WebBundleScanner {
     private void scanNestedJarInWarDirectory(Path directoryPath, String jarPath) throws IOException {
         Path entryPath = directoryPath.applyRelativePath(new Path(jarPath));
         try {
-            File bundleDir = sourceAsFile();
+            File bundleDir = WebContainerUtils.sourceAsFile(this.source);
             File nestedJar = new File(entryPath.toString());
             if (!nestedJar.isAbsolute()) {
                 nestedJar = new File(bundleDir, entryPath.toString());
@@ -348,26 +345,6 @@ final class WebBundleScanner {
 
     private void notifyClassFound(String entryName) {
         this.callBack.classFound(entryName);
-    }
-
-    private boolean isDirectory() {
-        if (FILE_SCHEME.equals(this.source.getProtocol())) {
-            try {
-                return sourceAsFile().isDirectory();
-            } catch (URISyntaxException e) {
-                LOGGER.warn("Unable to determine if bundle '" + this.source + "'is a directory.", e);
-            }
-        }
-        return false;
-    }
-
-    private File sourceAsFile() throws URISyntaxException {
-        URI uri = this.source.toURI();
-        if (uri.isOpaque()) {
-            return new File(uri.getSchemeSpecificPart());
-        } else {
-            return new File(uri);
-        }
     }
 
     private static String normalizePath(String path) {

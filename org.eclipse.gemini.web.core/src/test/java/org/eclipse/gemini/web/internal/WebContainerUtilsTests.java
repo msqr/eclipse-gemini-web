@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -43,38 +43,54 @@ public class WebContainerUtilsTests {
 
     @Test
     public void testGetBaseNameFilePath() {
-        String name = WebContainerUtils.getBaseName("/path/to/app.war");
+        String name = WebContainerUtils.getBaseName("/path/to/app.war", false);
         assertEquals("app", name);
     }
 
     @Test
     public void testGetBaseNameDirPath() {
-        String name = WebContainerUtils.getBaseName("/path/to/app.war/");
-        assertEquals("app", name);
+        String name = WebContainerUtils.getBaseName("/path/to/app.war/", true);
+        assertEquals("app.war", name);
     }
 
     @Test
     public void testIsWebBundleWithWarExtension() {
         Bundle bundle = createNiceMock(Bundle.class);
         expect(bundle.getLocation()).andReturn("file:foo.war").anyTimes();
+        expect(bundle.getHeaders()).andReturn(EMPTY_PROPERTIES);
         replay(bundle);
         assertTrue(WebContainerUtils.isWebBundle(bundle));
+        assertEquals("foo", WebContainerUtils.getContextPath(bundle));
     }
 
     @Test
     public void testIsWebBundleWithUpperCaseWarExtension() {
         Bundle bundle = createNiceMock(Bundle.class);
         expect(bundle.getLocation()).andReturn("file:foo.WAR").anyTimes();
+        expect(bundle.getHeaders()).andReturn(EMPTY_PROPERTIES);
         replay(bundle);
         assertTrue(WebContainerUtils.isWebBundle(bundle));
+        assertEquals("foo", WebContainerUtils.getContextPath(bundle));
     }
 
     @Test
     public void testIsWebBundleWithWarExtensionAndTrailingSlash() {
         Bundle bundle = createNiceMock(Bundle.class);
         expect(bundle.getLocation()).andReturn("file:foo.war/").anyTimes();
+        expect(bundle.getHeaders()).andReturn(EMPTY_PROPERTIES);
         replay(bundle);
         assertTrue(WebContainerUtils.isWebBundle(bundle));
+        assertEquals("foo", WebContainerUtils.getContextPath(bundle));
+    }
+
+    @Test
+    public void testIsWebBundleWithWarExtensionAndDirectory() {
+        Bundle bundle = createNiceMock(Bundle.class);
+        expect(bundle.getLocation()).andReturn("file:src/test/resources/contains-system-bundle-package.war").anyTimes();
+        expect(bundle.getHeaders()).andReturn(EMPTY_PROPERTIES);
+        replay(bundle);
+        assertTrue(WebContainerUtils.isWebBundle(bundle));
+        assertEquals("contains-system-bundle-package.war", WebContainerUtils.getContextPath(bundle));
     }
 
     @Test
@@ -242,4 +258,12 @@ public class WebContainerUtilsTests {
         assertEquals(TEST_BUNDLE_VERSION, new Version(stringVersion));
     }
 
+    @Test
+    public void testIsDirectory() throws Exception {
+        URL fileURL = new URL("file:foo.war");
+        assertEquals("foo", WebContainerUtils.createDefaultBundleSymbolicName(fileURL));
+
+        URL dirURL = new URL("file:src/test/resources/contains-system-bundle-package.war");
+        assertEquals("contains-system-bundle-package.war", WebContainerUtils.createDefaultBundleSymbolicName(dirURL));
+    }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,6 +16,10 @@
 
 package org.eclipse.gemini.web.internal;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Dictionary;
 import java.util.Locale;
@@ -23,6 +27,8 @@ import java.util.Locale;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class WebContainerUtils {
 
@@ -52,6 +58,10 @@ public final class WebContainerUtils {
     static final String OSGI_WEB_SYMBOLICNAME = "osgi.web.symbolicname";
 
     static final String BUNDLE_VERSION_HEADER = "bundle-version";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebContainerUtils.class);
+
+    private static final String FILE_SCHEME = "file";
 
     private WebContainerUtils() {
     }
@@ -88,17 +98,24 @@ public final class WebContainerUtils {
         String contextPath = getWebContextPathHeader(bundle);
 
         if (contextPath == null) {
-            contextPath = getBaseName(bundle.getLocation());
+            boolean isDirectory;
+            try {
+                isDirectory = isDirectory(new URL(bundle.getLocation()));
+            } catch (MalformedURLException e) {
+                LOGGER.warn("Unable to determine if bundle '" + bundle.getLocation() + "'is a directory.", e);
+                isDirectory = false;
+            }
+            contextPath = getBaseName(bundle.getLocation(), isDirectory);
         }
 
         return contextPath;
     }
 
     public static String createDefaultBundleSymbolicName(URL source) {
-        return getBaseName(source.getPath());
+        return getBaseName(source.getPath(), isDirectory(source));
     }
 
-    static String getBaseName(String path) {
+    static String getBaseName(String path, boolean isDirectory) {
         String base = path;
         base = unifySeparators(base);
         if (base.endsWith("/")) {
@@ -108,7 +125,9 @@ public final class WebContainerUtils {
         base = stripQuery(base);
         base = stripSchemeAndDrive(base);
         base = stripLeadingPathElements(base);
-        base = stripExtension(base);
+        if (!isDirectory) {
+            base = stripExtension(base);
+        }
         return base;
     }
 
@@ -202,5 +221,25 @@ public final class WebContainerUtils {
 
     private static boolean specifiesWebContextPath(BundleManifest manifest) {
         return manifest.getHeader(WebContainerUtils.HEADER_WEB_CONTEXT_PATH) != null;
+    }
+
+    public static boolean isDirectory(URL source) {
+        if (FILE_SCHEME.equals(source.getProtocol())) {
+            try {
+                return sourceAsFile(source).isDirectory();
+            } catch (URISyntaxException e) {
+                LOGGER.warn("Unable to determine if bundle '" + source + "'is a directory.", e);
+            }
+        }
+        return false;
+    }
+
+    public static File sourceAsFile(URL source) throws URISyntaxException {
+        URI uri = source.toURI();
+        if (uri.isOpaque()) {
+            return new File(uri.getSchemeSpecificPart());
+        } else {
+            return new File(uri);
+        }
     }
 }
