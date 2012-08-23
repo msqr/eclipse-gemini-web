@@ -42,6 +42,12 @@ public class WebContainerUtilsTests {
     private static final Dictionary<String, String> EMPTY_PROPERTIES = new Hashtable<String, String>();
 
     @Test
+    public void testGetBaseNameNoExtension() {
+        String name = WebContainerUtils.getBaseName("/path/to/dir/", false);
+        assertEquals("dir", name);
+    }
+
+    @Test
     public void testGetBaseNameFilePath() {
         String name = WebContainerUtils.getBaseName("/path/to/app.war", false);
         assertEquals("app", name);
@@ -174,6 +180,18 @@ public class WebContainerUtilsTests {
     }
 
     @Test
+    public void testContextPathDefaultedMalformedException() throws Exception {
+        Dictionary<String, String> p = new Hashtable<String, String>();
+
+        Bundle bundle = createNiceMock(Bundle.class);
+        expect(bundle.getLocation()).andReturn("jar:bar.war").anyTimes();
+        expect(bundle.getHeaders()).andReturn(p).anyTimes();
+        replay(bundle);
+
+        assertEquals("bar", WebContainerUtils.getContextPath(bundle));
+    }
+
+    @Test
     public void testContextPathDefaultedWindowsPath() throws Exception {
         Dictionary<String, String> p = new Hashtable<String, String>();
 
@@ -265,5 +283,8 @@ public class WebContainerUtilsTests {
 
         URL dirURL = new URL("file:src/test/resources/contains-system-bundle-package.war");
         assertEquals("contains-system-bundle-package.war", WebContainerUtils.createDefaultBundleSymbolicName(dirURL));
+
+        URL jarURL = new URL("jar:file:foo.war!/");
+        assertEquals("foo", WebContainerUtils.createDefaultBundleSymbolicName(jarURL));
     }
 }

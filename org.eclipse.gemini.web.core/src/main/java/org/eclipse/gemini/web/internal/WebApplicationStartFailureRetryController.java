@@ -25,8 +25,12 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.eclipse.gemini.web.core.WebApplication;
 import org.eclipse.gemini.web.core.WebApplicationStartFailedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class WebApplicationStartFailureRetryController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebApplicationStartFailureRetryController.class);
 
     private final Object monitor = new Object();
 
@@ -63,6 +67,9 @@ final class WebApplicationStartFailureRetryController {
                     failedWebApplication.start();
                 } catch (WebApplicationStartFailedException _) {
                     // ignore as the web application will have been added to the new contextFailures set
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("", _);
+                    }
                 }
             }
         }

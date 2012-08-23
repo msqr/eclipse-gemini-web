@@ -37,6 +37,8 @@ import java.util.zip.ZipEntry;
 
 import org.eclipse.gemini.web.internal.WebContainerUtils;
 import org.eclipse.virgo.util.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class WebBundleScanner {
 
@@ -71,6 +73,8 @@ final class WebBundleScanner {
     private final boolean findClassesInNestedJars;
 
     private final Set<String> scannedJars = new HashSet<String>();
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebBundleScanner.class);
 
     WebBundleScanner(URL source, WebBundleScannerCallback callBack) {
         this(source, callBack, false);
@@ -210,6 +214,9 @@ final class WebBundleScanner {
                             scanNestedJarInWar(jarPathx, classPathItem);
                         } catch (IllegalArgumentException _) {
                             // skip invalid relative paths which try to escape the WAR
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("", _);
+                            }
                         }
                     }
                 }
@@ -338,6 +345,9 @@ final class WebBundleScanner {
                 try {
                     jarFile.close();
                 } catch (IOException _) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("", _);
+                    }
                 }
             }
         }

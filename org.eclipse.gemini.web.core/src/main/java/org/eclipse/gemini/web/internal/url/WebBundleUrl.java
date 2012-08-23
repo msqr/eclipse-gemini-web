@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -33,6 +33,12 @@ import org.eclipse.gemini.web.internal.WebContainerUtils;
  * Encapsulates the state of a <code>war:</code> URL.
  */
 public class WebBundleUrl {
+
+    private static final String AMPERSAND = "&";
+
+    private static final char EQUAL_SIGN = '=';
+
+    private static final char QUESTION_MARK = '?';
 
     public static final String SCHEME = WebContainerUtils.WEB_BUNDLE_SCHEME;
 
@@ -113,9 +119,9 @@ public class WebBundleUrl {
     private static Map<String, String> parseQueryString(String query) {
         Map<String, String> options = new HashMap<String, String>();
         if (query != null) {
-            String[] parms = query.split("&");
+            String[] parms = query.split(AMPERSAND);
             for (String parm : parms) {
-                int equals = parm.indexOf("=");
+                int equals = parm.indexOf(EQUAL_SIGN);
                 if (equals == -1) {
                     throw new IllegalArgumentException("Missing '=' in URL parameter '" + parm + "'");
                 }
@@ -135,9 +141,9 @@ public class WebBundleUrl {
 
     private static void appendQueryStringIfNecessary(Map<?, ?> options, StringBuilder sb) {
         if (options != null && !options.isEmpty()) {
-            sb.append("?");
+            sb.append(QUESTION_MARK);
             for (Map.Entry<?, ?> entry : options.entrySet()) {
-                sb.append(entry.getKey()).append("=").append(entry.getValue()).append("&");
+                sb.append(entry.getKey()).append(EQUAL_SIGN).append(entry.getValue()).append(AMPERSAND);
             }
             sb.deleteCharAt(sb.length() - 1);
         }

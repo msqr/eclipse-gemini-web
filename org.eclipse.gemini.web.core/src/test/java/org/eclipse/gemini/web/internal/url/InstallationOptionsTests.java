@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,8 +17,10 @@
 package org.eclipse.gemini.web.internal.url;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,6 +63,7 @@ public class InstallationOptionsTests {
         assertNull(options.getExportPackageDeclaration());
         assertNull(options.getWebContextPath());
         assertNull(options.getWebJSPExtractLocation());
+        assertFalse(options.getDefaultWABHeaders());
     }
 
     @Test
@@ -86,6 +89,8 @@ public class InstallationOptionsTests {
         map.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, contextPath);
         map.put(WebContainerUtils.HEADER_WEB_JSP_EXTRACT_LOCATION, extractLocation);
 
+        map.put(WebContainerUtils.HEADER_DEFAULT_WAB_HEADERS, "");
+
         InstallationOptions options = new InstallationOptions(map);
         assertEquals(symbolicName, options.getBundleSymbolicName());
         assertEquals(bundleManifestVersion, options.getBundleManifestVersion());
@@ -94,6 +99,11 @@ public class InstallationOptionsTests {
         assertEquals(exportPackage, options.getExportPackageDeclaration());
         assertEquals(contextPath, options.getWebContextPath());
         assertEquals(extractLocation, options.getWebJSPExtractLocation());
+        assertTrue(options.getDefaultWABHeaders());
+
+        options.setDefaultWABHeaders(false);
+
+        assertFalse(options.getDefaultWABHeaders());
     }
 
     @Test

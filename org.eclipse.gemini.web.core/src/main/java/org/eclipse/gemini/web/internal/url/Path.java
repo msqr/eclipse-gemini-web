@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 VMware Inc.
+ * Copyright (c) 2010, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -154,6 +154,9 @@ final class Path {
             return true;
         }
         if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof Path)) {
             return false;
         }
         if (getClass() != obj.getClass()) {

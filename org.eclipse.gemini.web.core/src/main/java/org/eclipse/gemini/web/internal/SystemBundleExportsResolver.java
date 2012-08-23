@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -32,13 +32,13 @@ final class SystemBundleExportsResolver {
 
     static final String VERSION = "version";
 
-    private static final String OSGI_RESOLVER_MODE = "osgi.resolverMode";
+    static final String OSGI_RESOLVER_MODE = "osgi.resolverMode";
 
-    private static final String OSGI_RESOLVER_MODE_STRICT = "strict";
+    static final String OSGI_RESOLVER_MODE_STRICT = "strict";
 
-    private static final String INTERNAL_DIRECTIVE = "x-internal";
+    static final String INTERNAL_DIRECTIVE = "x-internal";
 
-    private static final String FRIENDS_DIRECTIVE = "x-friends";
+    static final String FRIENDS_DIRECTIVE = "x-friends";
 
     private final BundleContext bundleContext;
 

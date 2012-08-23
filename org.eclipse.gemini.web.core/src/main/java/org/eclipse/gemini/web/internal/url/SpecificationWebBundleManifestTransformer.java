@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -38,6 +38,8 @@ import org.osgi.framework.Version;
  * 
  */
 public final class SpecificationWebBundleManifestTransformer implements WebBundleManifestTransformer {
+
+    private static final char SLASH = '/';
 
     private static final int MINIMUM_VALID_BUNDLE_MANIFEST_VERSION = 2;
 
@@ -164,7 +166,7 @@ public final class SpecificationWebBundleManifestTransformer implements WebBundl
             if (entry.length() == 0) {
                 diagnoseInvalidEntry(entry, bundleClassPath);
             }
-            if (entry.endsWith("/")) {
+            if (entry.charAt(entry.length() - 1) == SLASH) {
                 if (entry.length() == 1) {
                     diagnoseInvalidEntry(entry, bundleClassPath);
                 }
@@ -197,10 +199,10 @@ public final class SpecificationWebBundleManifestTransformer implements WebBundl
         if (trimmedWebContextPathOption.length() == 0) {
             throw new IllegalArgumentException(WebContainerUtils.HEADER_WEB_CONTEXT_PATH + " URL parameter value is missing");
         }
-        if (trimmedWebContextPathOption.startsWith("/")) {
+        if (trimmedWebContextPathOption.charAt(0) == SLASH) {
             return trimmedWebContextPathOption;
         } else {
-            return "/" + trimmedWebContextPathOption;
+            return SLASH + trimmedWebContextPathOption;
         }
     }
 
