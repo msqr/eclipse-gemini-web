@@ -93,6 +93,8 @@ public class TomcatServletContainerTests {
 
     private static final String LOCATION_BUNDLE_CUSTOMIZER = "file:../org.eclipse.gemini.web.test/target/resources/customizer-bundle.jar";
 
+    private static final String LOCATION_WAR_WITH_RESOURCE_REFERENCES = "../org.eclipse.gemini.web.test/target/resources/war-with-resource-references.war?Web-ContextPath=/war-with-resource-references";
+
     private BundleContext bundleContext;
 
     private ServletContainer container;
@@ -151,6 +153,9 @@ public class TomcatServletContainerTests {
         this.container.startWebApplication(handle);
         try {
             validateURL("http://localhost:8080/war-with-servlet/test");
+            validateURLExpectedContent("http://localhost:8080/war-with-servlet/", new String[] { "path info: /", "servlet path: ", "context path: " });
+            validateURLExpectedContent("http://localhost:8080/war-with-servlet/alabala", new String[] { "path info: null", "servlet path: /alabala",
+                "context path: /war-with-servlet" });
         } finally {
             this.container.stopWebApplication(handle);
         }
@@ -525,6 +530,30 @@ public class TomcatServletContainerTests {
             this.container.stopWebApplication(handle);
             bundle.uninstall();
             customizer.uninstall();
+        }
+    }
+
+    @Test
+    public void testWarWithResourceRefereces() throws Exception {
+        String location = LOCATION_PREFIX + LOCATION_WAR_WITH_RESOURCE_REFERENCES;
+        Bundle bundle = this.bundleContext.installBundle(location);
+        bundle.start();
+
+        WebApplicationHandle handle = this.container.createWebApplication("/war-with-resource-references", bundle);
+        this.container.startWebApplication(handle);
+        try {
+            validateURLExpectedContent("http://localhost:8080/war-with-resource-references/Bug52792Servlet",
+                "Name [unknown-resource] is not bound in this Context. Unable to find [unknown-resource].");
+            validateURLExpectedContent("http://localhost:8080/war-with-resource-references/Bug52974Servlet", new String[] {
+                "@Resource injection - field: resource", "@Resource injection - method: resource1" });
+            validateURLExpectedContent("http://localhost:8080/war-with-resource-references/Bug53180Servlet", "Resource: resource");
+            validateURLExpectedContent("http://localhost:8080/war-with-resource-references/Bug53333Servlet", new String[] { "resource1: 1",
+                "resource2: 2" });
+            validateURLExpectedContent("http://localhost:8080/war-with-resource-references/Bug53090Servlet",
+                "Resource injection: super class: resource");
+        } finally {
+            this.container.stopWebApplication(handle);
+            bundle.uninstall();
         }
     }
 

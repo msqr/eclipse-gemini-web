@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+  <display-name>war-with-resource-references</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+  <env-entry>
+    <env-entry-name>resource</env-entry-name>
+    <env-entry-type>java.lang.String</env-entry-type>
+    <env-entry-value>resource</env-entry-value>
+    <injection-target>
+      <injection-target-class>test.Bug53180Servlet</injection-target-class>
+      <injection-target-name>resource</injection-target-name>
+    </injection-target>
+  </env-entry>
+  <env-entry>
+    <env-entry-name>resource1</env-entry-name>
+    <env-entry-value>1</env-entry-value>
+    <injection-target>
+      <injection-target-class>test.Bug53333Servlet</injection-target-class>
+      <injection-target-name>resource1</injection-target-name>
+    </injection-target>
+  </env-entry>
+  <env-entry>
+    <env-entry-name>resource2</env-entry-name>
+    <env-entry-value>2</env-entry-value>
+    <env-entry-type>java.lang.String</env-entry-type>
+    <injection-target>
+      <injection-target-class>test.Bug53333Servlet</injection-target-class>
+      <injection-target-name>resource2</injection-target-name>
+    </injection-target>
+  </env-entry>
+  <env-entry>
+    <env-entry-name>resource3</env-entry-name>
+    <env-entry-type>java.lang.String</env-entry-type>
+    <env-entry-value>resource</env-entry-value>
+    <injection-target>
+      <injection-target-class>test.SuperClass</injection-target-class>
+      <injection-target-name>resource</injection-target-name>
+    </injection-target>
+  </env-entry>
+</web-app>
