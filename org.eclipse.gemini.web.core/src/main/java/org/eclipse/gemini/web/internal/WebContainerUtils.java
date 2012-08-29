@@ -17,7 +17,6 @@
 package org.eclipse.gemini.web.internal;
 
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -98,14 +97,7 @@ public final class WebContainerUtils {
         String contextPath = getWebContextPathHeader(bundle);
 
         if (contextPath == null) {
-            boolean isDirectory;
-            try {
-                isDirectory = isDirectory(new URL(bundle.getLocation()));
-            } catch (MalformedURLException e) {
-                LOGGER.warn("Unable to determine if bundle '" + bundle.getLocation() + "'is a directory.", e);
-                isDirectory = false;
-            }
-            contextPath = getBaseName(bundle.getLocation(), isDirectory);
+            contextPath = getBaseName(bundle.getLocation(), false);
         }
 
         return contextPath;

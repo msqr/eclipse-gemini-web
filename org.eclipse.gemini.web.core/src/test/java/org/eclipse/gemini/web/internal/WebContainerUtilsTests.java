@@ -90,16 +90,6 @@ public class WebContainerUtilsTests {
     }
 
     @Test
-    public void testIsWebBundleWithWarExtensionAndDirectory() {
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getLocation()).andReturn("file:src/test/resources/contains-system-bundle-package.war").anyTimes();
-        expect(bundle.getHeaders()).andReturn(EMPTY_PROPERTIES);
-        replay(bundle);
-        assertTrue(WebContainerUtils.isWebBundle(bundle));
-        assertEquals("contains-system-bundle-package.war", WebContainerUtils.getContextPath(bundle));
-    }
-
-    @Test
     public void testIsWebBundleWithWarExtensionAndTrailingSlashes() {
         Bundle bundle = createNiceMock(Bundle.class);
         expect(bundle.getLocation()).andReturn("file:foo.war//").anyTimes();
@@ -180,18 +170,6 @@ public class WebContainerUtilsTests {
     }
 
     @Test
-    public void testContextPathDefaultedMalformedException() throws Exception {
-        Dictionary<String, String> p = new Hashtable<String, String>();
-
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getLocation()).andReturn("jar:bar.war").anyTimes();
-        expect(bundle.getHeaders()).andReturn(p).anyTimes();
-        replay(bundle);
-
-        assertEquals("bar", WebContainerUtils.getContextPath(bundle));
-    }
-
-    @Test
     public void testContextPathDefaultedWindowsPath() throws Exception {
         Dictionary<String, String> p = new Hashtable<String, String>();
 
@@ -208,10 +186,13 @@ public class WebContainerUtilsTests {
         Dictionary<String, String> p = new Hashtable<String, String>();
 
         Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getLocation()).andReturn("file:../formtags.war?Import-Package:org.foo.bar").anyTimes();
+        expect(bundle.getLocation()).andReturn("file:../formtags.war?Import-Package:org.foo.bar").andReturn("initial@file:../formtags.war").andReturn(
+            "file:../formtags.war#fragment");
         expect(bundle.getHeaders()).andReturn(p).anyTimes();
         replay(bundle);
 
+        assertEquals("formtags", WebContainerUtils.getContextPath(bundle));
+        assertEquals("formtags", WebContainerUtils.getContextPath(bundle));
         assertEquals("formtags", WebContainerUtils.getContextPath(bundle));
     }
 
