@@ -147,15 +147,22 @@ public class WebappConfigLocator {
                 return contextXml.toURI().toURL();
             }
         } else {
-            JarFile jar;
+            JarFile jar = null;
             try {
                 jar = new JarFile(docBaseFile);
+                ZipEntry contextXmlEntry = jar.getEntry(CONTEXT_XML);
+                if (contextXmlEntry != null) {
+                    return new URL(JAR_SCHEMA + docBaseFile.toURI().toString() + JAR_TO_ENTRY_SEPARATOR + CONTEXT_XML);
+                }
             } catch (IOException e) {
                 throw new ServletContainerException("Cannot open for reading " + docBaseFile.getAbsolutePath(), e);
-            }
-            ZipEntry contextXmlEntry = jar.getEntry(CONTEXT_XML);
-            if (contextXmlEntry != null) {
-                return new URL(JAR_SCHEMA + docBaseFile.toURI().toString() + JAR_TO_ENTRY_SEPARATOR + CONTEXT_XML);
+            } finally {
+                if (jar != null) {
+                    try {
+                        jar.close();
+                    } catch (IOException _) {
+                    }
+                }
             }
         }
         return null;
