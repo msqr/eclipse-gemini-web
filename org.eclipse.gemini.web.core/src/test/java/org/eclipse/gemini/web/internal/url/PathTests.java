@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 VMware Inc.
+ * Copyright (c) 2010, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -31,6 +31,7 @@ public class PathTests {
     @Test
     public void testPathStringConstructor() {
         Assert.assertEquals("", new Path("").toString());
+        Assert.assertEquals("", new Path(".").toString());
         Assert.assertEquals("a", new Path("a").toString());
         Assert.assertEquals("a", new Path("./a").toString());
         Assert.assertEquals("a/b", new Path("a/b").toString());
@@ -102,6 +103,13 @@ public class PathTests {
         Path r = new Path("../c");
         // The implementation does not compress out embedded "heres".
         Assert.assertEquals(new Path("a/./c"), p.applyRelativePath(r));
+    }
+
+    @Test
+    public void testEmptyRelativePath() {
+        Path p = new Path("a");
+        Path r = new Path();
+        Assert.assertEquals(p, p.applyRelativePath(r));
     }
 
     @Test(expected = IllegalArgumentException.class)

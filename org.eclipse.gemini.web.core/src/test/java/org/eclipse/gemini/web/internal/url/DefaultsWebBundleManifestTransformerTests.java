@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -29,8 +29,10 @@ import org.eclipse.gemini.web.core.InstallationOptions;
 import org.eclipse.gemini.web.internal.WebContainerUtils;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifestFactory;
+import org.eclipse.virgo.util.osgi.manifest.ImportedPackage;
 import org.junit.Before;
 import org.junit.Test;
+import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
 public class DefaultsWebBundleManifestTransformerTests {
@@ -99,6 +101,17 @@ public class DefaultsWebBundleManifestTransformerTests {
         assertNotNull(bcp);
         assertEquals("WEB-INF/classes", bcp.get(0));
         assertEquals("test", bcp.get(1));
+
+        manifest = BundleManifestFactory.createBundleManifest();
+        manifest.getBundleClasspath().add("test");
+        manifest.getBundleClasspath().add("WEB-INF/lib/org.slf4j.api-1.6.4.v20120130-2120.jar");
+        manifest.getBundleClasspath().add("WEB-INF/classes");
+        this.defaults.transform(manifest, this.source, this.options, WebContainerUtils.isWebApplicationBundle(manifest));
+        bcp = manifest.getBundleClasspath();
+        assertNotNull(bcp);
+        assertEquals("test", bcp.get(0));
+        assertEquals("WEB-INF/lib/org.slf4j.api-1.6.4.v20120130-2120.jar", bcp.get(1));
+        assertEquals("WEB-INF/classes", bcp.get(2));
     }
 
     @Test
@@ -112,6 +125,24 @@ public class DefaultsWebBundleManifestTransformerTests {
         assertIncludesImport("javax.servlet.jsp.tagext", new Version("2.1"), manifest);
         assertIncludesImport("javax.servlet.jsp.el", new Version("2.1"), manifest);
         assertIncludesImport("javax.el", new Version("1.0"), manifest);
+    }
+
+    @Test
+    public void testImportPackagesNotOverridden() throws Exception {
+        BundleManifest manifest = BundleManifestFactory.createBundleManifest();
+        ImportedPackage importedPackage = manifest.getImportPackage().addImportedPackage("javax.servlet");
+        importedPackage.getAttributes().put(Constants.VERSION_ATTRIBUTE, "3.0");
+        this.options.setDefaultWABHeaders(false);
+        this.defaults.transform(manifest, this.source, this.options, WebContainerUtils.isWebApplicationBundle(manifest));
+
+        assertEquals(1, manifest.getImportPackage().getImportedPackages().size());
+        assertIncludesImport("javax.servlet", new Version("3.0"), manifest);
+
+        this.options.setDefaultWABHeaders(true);
+        this.defaults.transform(manifest, this.source, this.options, WebContainerUtils.isWebApplicationBundle(manifest));
+
+        assertIncludesImport("javax.servlet", new Version("3.0"), manifest);
+        assertIncludesImport("javax.servlet.http", new Version("2.5"), manifest);
     }
 
 }

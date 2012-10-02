@@ -22,8 +22,8 @@ import org.eclipse.gemini.web.core.spi.ServletContainer;
 import org.eclipse.gemini.web.core.spi.ServletContainerException;
 import org.eclipse.gemini.web.core.spi.WebApplicationHandle;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +40,12 @@ final class StandardWebContainer implements WebContainer {
 
     private final WebApplicationStartFailureRetryController retryController = new WebApplicationStartFailureRetryController();
 
-    public StandardWebContainer(ServletContainer servletContainer, EventManager eventManager) {
+    private final BundleContext bundleContext;
+
+    public StandardWebContainer(ServletContainer servletContainer, EventManager eventManager, BundleContext bundleContext) {
         this.servletContainer = servletContainer;
         this.eventManager = eventManager;
+        this.bundleContext = bundleContext;
     }
 
     @Override
@@ -59,7 +62,7 @@ final class StandardWebContainer implements WebContainer {
             WebApplicationHandle handle = this.servletContainer.createWebApplication(WebContainerUtils.getContextPath(bundle), bundle);
             handle.getServletContext().setAttribute(ATTRIBUTE_BUNDLE_CONTEXT, bundle.getBundleContext());
             return new StandardWebApplication(bundle, extender, handle, this.servletContainer, this.eventManager, this.retryController,
-                FrameworkUtil.getBundle(this.getClass()).getBundleContext());
+                this.bundleContext);
         } catch (ServletContainerException ex) {
             if (LOGGER.isErrorEnabled()) {
                 LOGGER.error("Failed to create web application for bundle '" + bundle + "'", ex);

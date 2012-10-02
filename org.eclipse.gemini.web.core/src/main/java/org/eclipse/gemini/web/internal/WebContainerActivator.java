@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -112,7 +112,7 @@ public class WebContainerActivator implements BundleActivator {
         public WebContainer addingService(ServiceReference<ServletContainer> reference) {
             ServletContainer container = this.context.getService(reference);
 
-            WebContainer webContainer = new StandardWebContainer(container, this.eventManager);
+            WebContainer webContainer = new StandardWebContainer(container, this.eventManager, this.context);
 
             ServiceRegistration<WebContainer> reg = this.context.registerService(WebContainer.class, webContainer, null);
             this.regTracker.track(reg);

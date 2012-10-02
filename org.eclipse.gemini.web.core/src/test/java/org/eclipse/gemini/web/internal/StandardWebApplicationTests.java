@@ -21,11 +21,11 @@ import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.eclipse.gemini.web.core.WebContainer.EVENT_PROPERTY_COLLISION_BUNDLES;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import java.util.List;
 
 import javax.servlet.ServletContext;
 
@@ -35,14 +35,29 @@ import org.eclipse.gemini.web.core.spi.ServletContainerException;
 import org.eclipse.gemini.web.core.spi.WebApplicationHandle;
 import org.eclipse.virgo.teststubs.osgi.framework.StubBundle;
 import org.eclipse.virgo.teststubs.osgi.framework.StubBundleContext;
-import org.eclipse.virgo.teststubs.osgi.framework.StubFilter;
-import org.eclipse.virgo.teststubs.osgi.framework.StubServiceRegistration;
+import org.eclipse.virgo.teststubs.osgi.service.event.StubEventAdmin;
+import org.eclipse.virgo.teststubs.osgi.support.ObjectClassFilter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.Filter;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.Version;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 
 public class StandardWebApplicationTests {
+
+    private static final String EVENT_FAILED = "org/osgi/service/web/FAILED";
+
+    private static final String EVENT_UNDEPLOYED = "org/osgi/service/web/UNDEPLOYED";
+
+    private static final String EVENT_DEPLOYED = "org/osgi/service/web/DEPLOYED";
+
+    private static final String FILTER_EVENT_ADMIN = "(objectClass=org.osgi.service.event.EventAdmin)";
+
+    private static final String HEADER_WEB_CONTEXT_PATH = "Web-ContextPath";
 
     private static final String CONTEXT_PATH = "context-path";
 
@@ -62,71 +77,120 @@ public class StandardWebApplicationTests {
 
     private ServletContext servletContext;
 
-    private StubFilter filter;
+    private Filter filter;
+
+    private StubEventAdmin eventAdmin;
 
     @Before
     public void setUp() throws Exception {
         this.webApplicationHandle = createMock(WebApplicationHandle.class);
         this.servletContainer = createMock(ServletContainer.class);
         this.servletContext = createMock(ServletContext.class);
-        this.filter = createMock(StubFilter.class);
+        this.filter = new ObjectClassFilter(EventAdmin.class.getName());
+        this.eventAdmin = new StubEventAdmin();
         this.extender = new StubBundle();
         this.bundle = new StubBundle();
+        this.bundle.addHeader(HEADER_WEB_CONTEXT_PATH, CONTEXT_PATH);
         this.thisBundle = new StubBundle();
-        ((StubBundleContext) this.bundle.getBundleContext()).addFilter("(objectClass=org.osgi.service.event.EventAdmin)", this.filter);
+        expect(this.webApplicationHandle.getServletContext()).andReturn(this.servletContext).anyTimes();
+        expect(this.servletContext.getContextPath()).andReturn(CONTEXT_PATH).anyTimes();
+        ((StubBundleContext) this.thisBundle.getBundleContext()).addFilter(FILTER_EVENT_ADMIN, this.filter);
+        ((StubBundleContext) this.thisBundle.getBundleContext()).registerService(EventAdmin.class, this.eventAdmin, null);
+        ((StubBundleContext) this.thisBundle.getBundleContext()).addInstalledBundle(this.bundle);
+
+        this.eventManager = new EventManager(this.thisBundle.getBundleContext());
+        this.eventManager.start();
     }
 
     @After
     public void tearDown() throws Exception {
-        verify(this.webApplicationHandle, this.servletContainer, this.servletContext, this.filter);
+        this.eventManager.stop();
+        verify(this.webApplicationHandle, this.servletContainer, this.servletContext);
+    }
+
+    @Test
+    public void testStartTwice() throws Exception {
+        this.servletContainer.startWebApplication(this.webApplicationHandle);
+        expectLastCall().anyTimes();
+
+        replay(this.webApplicationHandle, this.servletContainer, this.servletContext);
+
+        StandardWebApplication standardWebApplication = createStandardWebApplication(true);
+
+        standardWebApplication.start();
+        Event event = this.eventAdmin.awaitSendingOfEvent(EVENT_DEPLOYED, 10);
+        assertNotNull(event);
+
+        standardWebApplication.start();
+        event = this.eventAdmin.awaitSendingOfEvent(EVENT_DEPLOYED, 10);
+        assertNull(event);
+    }
+
+    @Test
+    public void testStopWithoutStart() throws Exception {
+        this.servletContainer.startWebApplication(this.webApplicationHandle);
+        expectLastCall().anyTimes();
+
+        replay(this.webApplicationHandle, this.servletContainer, this.servletContext);
+
+        StandardWebApplication standardWebApplication = createStandardWebApplication(true);
+
+        standardWebApplication.stop();
+        Event event = this.eventAdmin.awaitSendingOfEvent(EVENT_UNDEPLOYED, 10);
+        assertNull(event);
     }
 
     @Test
     public void testStartStop() throws Exception {
-        expect(this.webApplicationHandle.getServletContext()).andReturn(this.servletContext).anyTimes();
-        expect(this.servletContext.getContextPath()).andReturn(CONTEXT_PATH).anyTimes();
         this.servletContainer.startWebApplication(this.webApplicationHandle);
         expectLastCall().anyTimes();
         this.servletContainer.stopWebApplication(this.webApplicationHandle);
         expectLastCall().anyTimes();
 
-        replay(this.webApplicationHandle, this.servletContainer, this.servletContext, this.filter);
+        replay(this.webApplicationHandle, this.servletContainer, this.servletContext);
 
         StandardWebApplication standardWebApplication = createStandardWebApplication(true);
 
         standardWebApplication.start();
-        List<StubServiceRegistration<Object>> serviceRegistration = ((StubBundleContext) this.bundle.getBundleContext()).getServiceRegistrations();
-        assertNotNull(serviceRegistration);
-        assertTrue(serviceRegistration.size() == 1);
-        assertTrue(this.bundle.getBundleContext().getService(serviceRegistration.get(0).getReference()) instanceof ServletContext);
+        ServiceReference<?>[] serviceReferences = this.bundle.getBundleContext().getAllServiceReferences(ServletContext.class.getName(), null);
+        assertNotNull(serviceReferences);
+        assertTrue(serviceReferences.length == 1);
+        Event event = this.eventAdmin.awaitSendingOfEvent(EVENT_DEPLOYED, 10);
+        assertNotNull(event);
 
         standardWebApplication.stop();
-        serviceRegistration = ((StubBundleContext) this.bundle.getBundleContext()).getServiceRegistrations();
-        assertNotNull(serviceRegistration);
-        assertTrue(serviceRegistration.size() == 0);
+        serviceReferences = this.bundle.getBundleContext().getAllServiceReferences(ServletContext.class.getName(), null);
+        assertNull(serviceReferences);
+        event = this.eventAdmin.awaitSendingOfEvent(EVENT_UNDEPLOYED, 10);
+        assertNotNull(event);
 
         standardWebApplication = createStandardWebApplication(false);
 
         standardWebApplication.start();
-        serviceRegistration = ((StubBundleContext) this.bundle.getBundleContext()).getServiceRegistrations();
-        assertNotNull(serviceRegistration);
-        assertTrue(serviceRegistration.size() == 1);
-        assertTrue(this.bundle.getBundleContext().getService(serviceRegistration.get(0).getReference()) instanceof ServletContext);
+        serviceReferences = this.bundle.getBundleContext().getAllServiceReferences(ServletContext.class.getName(), null);
+        assertNotNull(serviceReferences);
+        assertTrue(serviceReferences.length == 1);
+        event = this.eventAdmin.awaitSendingOfEvent(EVENT_DEPLOYED, 10);
+        assertNotNull(event);
 
         standardWebApplication.stop();
-        serviceRegistration = ((StubBundleContext) this.bundle.getBundleContext()).getServiceRegistrations();
-        assertNotNull(serviceRegistration);
-        assertTrue(serviceRegistration.size() == 0);
+        serviceReferences = this.bundle.getBundleContext().getAllServiceReferences(ServletContext.class.getName(), null);
+        assertNull(serviceReferences);
+        event = this.eventAdmin.awaitSendingOfEvent(EVENT_UNDEPLOYED, 10);
+        assertNotNull(event);
     }
 
     @Test
     public void testFailedStart1() throws Exception {
-        expect(this.webApplicationHandle.getServletContext()).andReturn(this.servletContext).anyTimes();
-        expect(this.servletContext.getContextPath()).andReturn(CONTEXT_PATH).anyTimes();
         this.servletContainer.startWebApplication(this.webApplicationHandle);
         expectLastCall().andThrow(new ServletContainerException("Start failes."));
+        StubBundle otherBundleWithSameContextPath = new StubBundle(2L, "test", new Version("1.0.0"), "test");
+        otherBundleWithSameContextPath.addHeader(HEADER_WEB_CONTEXT_PATH, CONTEXT_PATH);
+        this.bundle.addHeader(HEADER_WEB_CONTEXT_PATH, CONTEXT_PATH);
+        ((StubBundleContext) this.thisBundle.getBundleContext()).addInstalledBundle(otherBundleWithSameContextPath);
+        ((StubBundleContext) this.thisBundle.getBundleContext()).addInstalledBundle(this.bundle);
 
-        replay(this.webApplicationHandle, this.servletContainer, this.servletContext, this.filter);
+        replay(this.webApplicationHandle, this.servletContainer, this.servletContext);
 
         StandardWebApplication standardWebApplication = createStandardWebApplication(true);
 
@@ -137,21 +201,21 @@ public class StandardWebApplicationTests {
             System.out.println(e.getMessage());
         }
 
-        List<StubServiceRegistration<Object>> serviceRegistration = ((StubBundleContext) this.bundle.getBundleContext()).getServiceRegistrations();
-        assertNotNull(serviceRegistration);
-        assertTrue(serviceRegistration.size() == 0);
+        ServiceReference<?>[] serviceReferences = this.bundle.getBundleContext().getAllServiceReferences(ServletContext.class.getName(), null);
+        assertNull(serviceReferences);
+        Event event = this.eventAdmin.awaitSendingOfEvent(EVENT_FAILED, 10);
+        assertNotNull(event);
+        assertNotNull(event.getProperty(EVENT_PROPERTY_COLLISION_BUNDLES));
     }
 
     @Test
     public void testFailedStart2() throws Exception {
-        expect(this.webApplicationHandle.getServletContext()).andReturn(this.servletContext).anyTimes();
-        expect(this.servletContext.getContextPath()).andReturn(CONTEXT_PATH).anyTimes();
         this.servletContainer.startWebApplication(this.webApplicationHandle);
         expectLastCall().anyTimes();
         this.servletContainer.stopWebApplication(this.webApplicationHandle);
         expectLastCall().anyTimes();
 
-        replay(this.webApplicationHandle, this.servletContainer, this.servletContext, this.filter);
+        replay(this.webApplicationHandle, this.servletContainer, this.servletContext);
 
         StandardWebApplication standardWebApplication = createStandardWebApplication(true);
 
@@ -164,9 +228,8 @@ public class StandardWebApplicationTests {
             System.out.println(e.getMessage());
         }
 
-        List<StubServiceRegistration<Object>> serviceRegistration = ((StubBundleContext) this.bundle.getBundleContext()).getServiceRegistrations();
-        assertNotNull(serviceRegistration);
-        assertTrue(serviceRegistration.size() == 0);
+        Event event = this.eventAdmin.awaitSendingOfEvent(EVENT_FAILED, 10);
+        assertNotNull(event);
 
         this.bundle.setState(Bundle.ACTIVE);
 
@@ -181,13 +244,11 @@ public class StandardWebApplicationTests {
             System.out.println(e.getMessage());
         }
 
-        serviceRegistration = ((StubBundleContext) this.bundle.getBundleContext()).getServiceRegistrations();
-        assertNotNull(serviceRegistration);
-        assertTrue(serviceRegistration.size() == 0);
+        event = this.eventAdmin.awaitSendingOfEvent(EVENT_FAILED, 10);
+        assertNotNull(event);
     }
 
     private StandardWebApplication createStandardWebApplication(boolean withExtender) {
-        this.eventManager = new EventManager(this.bundle.getBundleContext());
         this.webApplicationStartFailureRetryController = new WebApplicationStartFailureRetryController();
 
         if (withExtender) {

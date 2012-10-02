@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -153,7 +153,7 @@ public class SpecificationWebBundleManifestTransformerTests {
 
         Map<String, String> options = new HashMap<String, String>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
-        options.put(Constants.EXPORT_PACKAGE, "p;version=\"1.2.3\",q;version=\"1.2.4\",r;version=\"1.2.3\"");
+        options.put(Constants.EXPORT_PACKAGE, "p;version=\"1.2.3\",q,r;version=\"1.2.3\"");
 
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
         manifest.getExportPackage().addExportedPackage("r").getAttributes().put(Constants.VERSION_ATTRIBUTE, "1.2.0");
@@ -161,7 +161,7 @@ public class SpecificationWebBundleManifestTransformerTests {
         this.transformer.transform(manifest, this.sourceURL, new InstallationOptions(options), WebContainerUtils.isWebApplicationBundle(manifest));
 
         assertIncludesExport("p", new Version("1.2.3"), manifest);
-        assertIncludesExport("q", new Version("1.2.4"), manifest);
+        assertIncludesExport("q", Version.emptyVersion, manifest);
         assertIncludesExport("r", new Version("1.2.3"), manifest);
     }
 
