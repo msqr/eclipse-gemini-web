@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -66,6 +66,19 @@ public class WebBundleUrlTests {
         WebBundleUrl warUrl = new WebBundleUrl(url);
         assertEquals(FILE_LOCATION, warUrl.getLocation());
         assertEquals("/foo", warUrl.getOptions().get("Web-ContextPath"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createFromUrlWithWrongParams() throws Exception {
+        URL url = new URL(WebBundleUrl.SCHEME, null, -1, FILE_LOCATION + "?Web-ContextPath", new DummyHandler());
+        WebBundleUrl warUrl = new WebBundleUrl(url);
+        warUrl.getOptions();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void createFromUrlWithWrongProtocol() throws Exception {
+        URL url = new URL("file:foo.war");
+        new WebBundleUrl(url);
     }
 
     @Test

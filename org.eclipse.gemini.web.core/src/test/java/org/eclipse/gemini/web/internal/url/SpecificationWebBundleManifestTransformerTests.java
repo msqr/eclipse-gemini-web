@@ -118,6 +118,28 @@ public class SpecificationWebBundleManifestTransformerTests {
         this.transformer.transform(manifest, this.sourceURL, new InstallationOptions(options), WebContainerUtils.isWebApplicationBundle(manifest));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testSpecifyBundleManifestVersion() throws Exception {
+        Map<String, String> options = new HashMap<String, String>();
+        options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
+        options.put(Constants.BUNDLE_MANIFESTVERSION, "0");
+
+        BundleManifest manifest = BundleManifestFactory.createBundleManifest();
+
+        this.transformer.transform(manifest, this.sourceURL, new InstallationOptions(options), WebContainerUtils.isWebApplicationBundle(manifest));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSpecifyBundleManifestVersionStringValue() throws Exception {
+        Map<String, String> options = new HashMap<String, String>();
+        options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
+        options.put(Constants.BUNDLE_MANIFESTVERSION, "version");
+
+        BundleManifest manifest = BundleManifestFactory.createBundleManifest();
+
+        this.transformer.transform(manifest, this.sourceURL, new InstallationOptions(options), WebContainerUtils.isWebApplicationBundle(manifest));
+    }
+
     @Test
     public void testSpecifyImports() throws Exception {
 
@@ -234,5 +256,54 @@ public class SpecificationWebBundleManifestTransformerTests {
 
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
         this.transformer.transform(manifest, this.sourceURL, new InstallationOptions(options), WebContainerUtils.isWebApplicationBundle(manifest));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSpecifyBundleClassPathForWAB() throws Exception {
+        Map<String, String> options = new HashMap<String, String>();
+        options.put(Constants.BUNDLE_CLASSPATH, "foo");
+
+        BundleManifest manifest = BundleManifestFactory.createBundleManifest();
+        manifest.setBundleVersion(new Version("0")); // implies WAB
+        manifest.setHeader(Constants.BUNDLE_CLASSPATH, "bar");
+
+        this.transformer.transform(manifest, this.sourceURL, new InstallationOptions(options), WebContainerUtils.isWebApplicationBundle(manifest));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSpecifyBundleClassPathWithEmptyEntry() throws Exception {
+        Map<String, String> options = new HashMap<String, String>();
+        options.put(Constants.BUNDLE_CLASSPATH, "foo,,foo");
+        options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
+
+        BundleManifest manifest = BundleManifestFactory.createBundleManifest();
+        manifest.setHeader(Constants.BUNDLE_CLASSPATH, "bar");
+
+        this.transformer.transform(manifest, this.sourceURL, new InstallationOptions(options), WebContainerUtils.isWebApplicationBundle(manifest));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testSpecifyBundleClassPathWithSlash() throws Exception {
+        Map<String, String> options = new HashMap<String, String>();
+        options.put(Constants.BUNDLE_CLASSPATH, "foo,/,foo");
+        options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
+
+        BundleManifest manifest = BundleManifestFactory.createBundleManifest();
+        manifest.setHeader(Constants.BUNDLE_CLASSPATH, "bar");
+
+        this.transformer.transform(manifest, this.sourceURL, new InstallationOptions(options), WebContainerUtils.isWebApplicationBundle(manifest));
+    }
+
+    @Test
+    public void testSpecifyBundleClassPath() throws Exception {
+        Map<String, String> options = new HashMap<String, String>();
+        options.put(Constants.BUNDLE_CLASSPATH, "foo,bar,path/");
+        options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
+
+        BundleManifest manifest = BundleManifestFactory.createBundleManifest();
+        manifest.setHeader(Constants.BUNDLE_CLASSPATH, "bar,par");
+
+        this.transformer.transform(manifest, this.sourceURL, new InstallationOptions(options), WebContainerUtils.isWebApplicationBundle(manifest));
+        assertEquals("bar,par,foo,path", manifest.getHeader(Constants.BUNDLE_CLASSPATH));
     }
 }
