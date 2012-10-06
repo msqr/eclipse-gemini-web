@@ -99,6 +99,8 @@ public class TomcatServletContainerTests {
 
     private ServletContainer container;
 
+    private static final String IVY_CACHE = System.getProperty("ivy.cache");
+
     @BeforeClass
     public static void beforeClass() throws Exception {
         System.setProperty("org.eclipse.gemini.web.tomcat.config.path", "target/config/tomcat-server.xml");
@@ -200,7 +202,7 @@ public class TomcatServletContainerTests {
 
     @Test
     public void testWarWithJSTLFromDependency() throws MalformedURLException, IOException, BundleException {
-        String jstlLocation = "file:../ivy-cache/repository/javax.servlet/com.springsource.javax.servlet.jsp.jstl/1.2.0.v20110728/com.springsource.javax.servlet.jsp.jstl-1.2.0.v20110728.jar";
+        String jstlLocation = "file:" + IVY_CACHE + "/repository/javax.servlet/com.springsource.javax.servlet.jsp.jstl/1.2.0.v20110728/com.springsource.javax.servlet.jsp.jstl-1.2.0.v20110728.jar";
         Bundle jstlBundle = this.bundleContext.installBundle(jstlLocation);
 
         try {
@@ -229,7 +231,7 @@ public class TomcatServletContainerTests {
 
     @Test
     public void testWarWithJSTLFromExplodedDependency() throws MalformedURLException, IOException, BundleException {
-        String jstlPath = "../ivy-cache/repository/javax.servlet/com.springsource.javax.servlet.jsp.jstl/1.2.0.v20110728/com.springsource.javax.servlet.jsp.jstl-1.2.0.v20110728.jar";
+        String jstlPath = IVY_CACHE + "/repository/javax.servlet/com.springsource.javax.servlet.jsp.jstl/1.2.0.v20110728/com.springsource.javax.servlet.jsp.jstl-1.2.0.v20110728.jar";
         PathReference jstl = new PathReference(jstlPath);
         PathReference unzippedJstl = explode(jstl);
 
