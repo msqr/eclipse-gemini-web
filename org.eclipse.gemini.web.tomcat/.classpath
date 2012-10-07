@@ -38,7 +38,7 @@
 	<classpathentry kind="var" path="IVY_CACHE/javax.servlet/javax.servlet/3.0.0.v201103241009/javax.servlet-3.0.0.v201103241009.jar" sourcepath="/IVY_CACHE/javax.servlet/javax.servlet/3.0.0.v201103241009/javax.servlet-sources-3.0.0.v201103241009.jar"/>
 	<classpathentry kind="var" path="IVY_CACHE/org.easymock/com.springsource.org.easymock/2.3.0/com.springsource.org.easymock-2.3.0.jar" sourcepath="/IVY_CACHE/org.easymock/com.springsource.org.easymock/2.3.0/com.springsource.org.easymock-sources-2.3.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.gemini.web.core"/>
-	<classpathentry kind="var" path="IVY_CACHE/javax.el/javax.el/2.2.0.v201105051105/javax.el-2.2.0.v201105051105.jar" sourcepath="/IVY_CACHE/javax.el/javax.el/2.2.0.v201105051105/javax.el-sources-2.2.0.v201105051105.jar"/>
+	<classpathentry kind="var" path="IVY_CACHE/org.eclipse.virgo.mirrored/javax.el/2.2.0.v201108011116/javax.el-2.2.0.v201108011116.jar" sourcepath="/IVY_CACHE/org.eclipse.virgo.mirrored/javax.el/2.2.0.v201108011116/javax.el.source-2.2.0.v201108011116.jar"/>
 	<classpathentry kind="var" path="IVY_CACHE/org.eclipse.virgo.teststubs/org.eclipse.virgo.teststubs.osgi/3.5.0.RELEASE/org.eclipse.virgo.teststubs.osgi-3.5.0.RELEASE.jar" sourcepath="/IVY_CACHE/org.eclipse.virgo.teststubs/org.eclipse.virgo.teststubs.osgi/3.5.0.RELEASE/org.eclipse.virgo.teststubs.osgi-sources-3.5.0.RELEASE.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

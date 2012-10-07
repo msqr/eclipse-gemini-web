@@ -31,16 +31,16 @@
 		<dependency org="org.eclipse.virgo.mirrored" name="org.eclipse.jdt.core.compiler.batch" rev="${org.eclipse.jdt}" conf="dep->runtime"/>
 		
 		<dependency org="javax.activation" name="com.springsource.javax.activation" rev="${javax.activation}" conf="dep->runtime"/>
-		<dependency org="javax.annotation" name="javax.annotation" rev="${javax.annotation}" conf="dep->runtime"/>
-		<dependency org="javax.ejb" name="com.springsource.javax.ejb" rev="${javax.ejb}" conf="dep->runtime"/>
-		<dependency org="javax.el" name="javax.el" rev="${javax.el}" conf="dep->runtime"/>
-		<dependency org="javax.mail" name="com.springsource.javax.mail" rev="${javax.mail}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="javax.annotation" rev="${javax.annotation}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="javax.ejb" rev="${javax.ejb}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="javax.el" rev="${javax.el}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="javax.mail" rev="${javax.mail}" conf="dep->runtime"/>
 		<dependency org="javax.persistence" name="com.springsource.javax.persistence" rev="${javax.persistence}" conf="dep->runtime"/>
 		<dependency org="javax.servlet" name="javax.servlet" rev="${javax.servlet}" conf="dep->runtime"/>
-		<dependency org="javax.servlet" name="javax.servlet.jsp" rev="${javax.servlet.jsp}" conf="dep->runtime"/>
-		<dependency org="javax.transaction" name="com.springsource.javax.transaction" rev="${javax.transaction}" conf="dep->runtime"/>
-		<dependency org="javax.xml.rpc" name="com.springsource.javax.xml.rpc" rev="${javax.xml.rpc}" conf="dep->runtime"/>
-		<dependency org="javax.xml.soap" name="com.springsource.javax.xml.soap" rev="${javax.xml.soap}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="javax.servlet.jsp" rev="${javax.servlet.jsp}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="javax.transaction" rev="${javax.transaction}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="javax.xml.rpc" rev="${javax.xml.rpc}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="javax.xml.soap" rev="${javax.xml.soap}" conf="dep->runtime"/>
 		
 		<dependency org="org.eclipse.virgo.mirrored" name="org.slf4j.api" rev="${org.slf4j.api}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="org.slf4j.nop" rev="${org.slf4j.nop}" conf="dep->runtime"/>
