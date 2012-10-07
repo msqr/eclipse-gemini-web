@@ -202,7 +202,7 @@ public class TomcatServletContainerTests {
 
     @Test
     public void testWarWithJSTLFromDependency() throws MalformedURLException, IOException, BundleException {
-        String jstlLocation = "file:" + IVY_CACHE + "/repository/javax.servlet/com.springsource.javax.servlet.jsp.jstl/1.2.0.v20110728/com.springsource.javax.servlet.jsp.jstl-1.2.0.v20110728.jar";
+        String jstlLocation = "file:" + IVY_CACHE + "/repository/org.eclipse.virgo.mirrored/javax.servlet.jsp.jstl/1.2.0.v201105211821/javax.servlet.jsp.jstl-1.2.0.v201105211821.jar";
         Bundle jstlBundle = this.bundleContext.installBundle(jstlLocation);
 
         try {
@@ -231,7 +231,7 @@ public class TomcatServletContainerTests {
 
     @Test
     public void testWarWithJSTLFromExplodedDependency() throws MalformedURLException, IOException, BundleException {
-        String jstlPath = IVY_CACHE + "/repository/javax.servlet/com.springsource.javax.servlet.jsp.jstl/1.2.0.v20110728/com.springsource.javax.servlet.jsp.jstl-1.2.0.v20110728.jar";
+        String jstlPath = IVY_CACHE + "/repository/org.eclipse.virgo.mirrored/javax.servlet.jsp.jstl/1.2.0.v201105211821/javax.servlet.jsp.jstl-1.2.0.v201105211821.jar";
         PathReference jstl = new PathReference(jstlPath);
         PathReference unzippedJstl = explode(jstl);
 
