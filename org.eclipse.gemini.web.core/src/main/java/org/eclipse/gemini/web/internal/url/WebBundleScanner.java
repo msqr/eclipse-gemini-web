@@ -158,6 +158,8 @@ final class WebBundleScanner {
         try {
             jis = new JarInputStream(new FileInputStream(file));
             doScanNestedJar(file.getAbsolutePath(), jis);
+        } catch (IOException e) {
+            throw new IOException("Cannot scan " + file.getAbsolutePath(), e);
         } finally {
             if (jis != null) {
                 IOUtils.closeQuietly(jis);

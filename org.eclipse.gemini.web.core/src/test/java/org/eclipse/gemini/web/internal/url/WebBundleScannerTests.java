@@ -34,6 +34,8 @@ public class WebBundleScannerTests {
 
     private static final File WAR_CLASSPATHDEPS = new File("../org.eclipse.gemini.web.test/src/test/resources/classpathdeps.war");
 
+    private static final File WAR_WITH_CORRUPTED_JAR = new File("src/test/resources/contains-jar-with-bad-formated-manifest");
+
     @Test
     public void testScanClasspathDeps() throws IOException {
         final WebBundleScannerCallback callback = EasyMock.createMock(WebBundleScannerCallback.class);
@@ -142,6 +144,14 @@ public class WebBundleScannerTests {
         } finally {
             pr.delete(true);
         }
+    }
+
+    @Test(expected = IOException.class)
+    public void testScanDirWithCorruptedNestedJars() throws Exception {
+        PathReference pr = new PathReference(WAR_WITH_CORRUPTED_JAR);
+        WebBundleScannerCallback callback = EasyMock.createMock(WebBundleScannerCallback.class);
+        callback.jarFound("WEB-INF/lib/jarfile.jar");
+        scan(pr.toURI().toURL(), callback, true);
     }
 
     private void scan(final URL url, final WebBundleScannerCallback callback) throws IOException {
