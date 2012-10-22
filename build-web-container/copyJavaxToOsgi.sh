@@ -3,7 +3,7 @@ REPO=$1/licensed/repo
 SRC=target/bundles
 cp $SRC/com.springsource.javax.activation-1.1.0.jar $REPO/com.springsource.javax.activation/com.springsource.javax.activation-1.1.0.jar
 cp $SRC/javax.annotation-1.1.0.v201108011116.jar $REPO/javax.annotation/javax.annotation-1.1.0.v201108011116.jar
-cp $SRC/javax.ejb-3.0.0.v201203061215.jar $REPO/javax.ejb/javax.ejb-3.0.0.v201203061215.jar
+cp $SRC/javax.ejb-3.1.1.v201204261316.jar $REPO/javax.ejb/javax.ejb-3.1.1.v201204261316.jar
 cp $SRC/javax.el-2.2.0.v201108011116.jar $REPO/javax.el/javax.el-2.2.0.v201108011116.jar
 cp $SRC/javax.mail-1.4.0.v201005080615.jar $REPO/javax.mail/javax.mail-1.4.0.v201005080615.jar
 cp $SRC/javax.persistence-2.0.3.v201010191057.jar $REPO/javax.persistence/javax.persistence-2.0.3.v201010191057.jar
