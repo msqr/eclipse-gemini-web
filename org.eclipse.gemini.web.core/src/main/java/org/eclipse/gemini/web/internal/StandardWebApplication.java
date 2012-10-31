@@ -35,6 +35,20 @@ import org.slf4j.LoggerFactory;
 
 final class StandardWebApplication implements WebApplication {
 
+    private static final String BUNDLE_STATE_UNKNOWN = "UNKNOWN";
+
+    private static final String BUNDLE_STATE_UNINSTALLED = "UNINSTALLED";
+
+    private static final String BUNDLE_STATE_STOPPING = "STOPPING";
+
+    private static final String BUNDLE_STATE_STARTING = "STARTING";
+
+    private static final String BUNDLE_STATE_RESOLVED = "RESOLVED";
+
+    private static final String BUNDLE_STATE_INSTALLED = "INSTALLED";
+
+    private static final String BUNDLE_STATE_ACTIVE = "ACTIVE";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(StandardWebApplication.class);
 
     private final Bundle bundle;
@@ -159,7 +173,14 @@ final class StandardWebApplication implements WebApplication {
 
     private void publishServletContext() {
         Dictionary<String, String> properties = constructServletContextProperties();
-        this.tracker.track(getBundle().getBundleContext().registerService(ServletContext.class, getServletContext(), properties));
+        BundleContext bundleContext = getBundle().getBundleContext();
+        if (bundleContext != null) {
+            this.tracker.track(bundleContext.registerService(ServletContext.class, getServletContext(), properties));
+        } else {
+            throw new IllegalStateException(
+                "Cannot register ServletContext as OSGi service. BundleContext is not available. Possible reason is a bundle refresh. Current bundle state is "
+                    + getStateAsString(this.bundle.getState()) + ".");
+        }
     }
 
     String getContextPath() {
@@ -177,4 +198,31 @@ final class StandardWebApplication implements WebApplication {
         return properties;
     }
 
+    private String getStateAsString(int state) {
+        String stateAsString;
+        switch (state) {
+            case Bundle.ACTIVE:
+                stateAsString = BUNDLE_STATE_ACTIVE;
+                break;
+            case Bundle.INSTALLED:
+                stateAsString = BUNDLE_STATE_INSTALLED;
+                break;
+            case Bundle.RESOLVED:
+                stateAsString = BUNDLE_STATE_RESOLVED;
+                break;
+            case Bundle.STARTING:
+                stateAsString = BUNDLE_STATE_STARTING;
+                break;
+            case Bundle.STOPPING:
+                stateAsString = BUNDLE_STATE_STOPPING;
+                break;
+            case Bundle.UNINSTALLED:
+                stateAsString = BUNDLE_STATE_UNINSTALLED;
+                break;
+            default:
+                stateAsString = BUNDLE_STATE_UNKNOWN;
+                break;
+        }
+        return stateAsString;
+    }
 }
