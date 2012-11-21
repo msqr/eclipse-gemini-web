@@ -517,6 +517,21 @@ public class TomcatServletContainerTests {
     }
 
     @Test
+    public void testStaticResourceInNestedJar() throws Exception {
+        Bundle bundle = this.bundleContext.installBundle(LOCATION_WAR_WITH_SERVLET);
+        bundle.start();
+
+        WebApplicationHandle handle = this.container.createWebApplication("/war-with-servlet", bundle);
+        this.container.startWebApplication(handle);
+        try {
+            validateURLExpectedContent("http://localhost:8080/war-with-servlet/meta_inf_resource.jsp", "TEST");
+        } finally {
+            this.container.stopWebApplication(handle);
+            bundle.uninstall();
+        }
+    }
+
+    @Test
     public void testCustomizers() throws Exception {
         Bundle customizer = this.bundleContext.installBundle(LOCATION_BUNDLE_CUSTOMIZER);
         customizer.start();

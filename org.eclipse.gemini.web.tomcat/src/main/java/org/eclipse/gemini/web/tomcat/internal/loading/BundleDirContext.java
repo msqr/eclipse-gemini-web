@@ -20,13 +20,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NameClassPair;
 import javax.naming.NameNotFoundException;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
-import org.apache.naming.NamingContextEnumeration;
 import org.apache.naming.NamingEntry;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolver;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolverFactory;
