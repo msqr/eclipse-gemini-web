@@ -50,12 +50,6 @@ public final class BundleDirContext extends AbstractReadOnlyDirContext {
         this.bundleEntry = bundleEntry;
     }
 
-    @Override
-    public NamingEnumeration<NameClassPair> list(String name) throws NamingException {
-        List<NamingEntry> resources = doSafeList(name);
-        return new NamingContextEnumeration(resources.iterator());
-    }
-
     /**
      * {@inheritDoc}
      * 
