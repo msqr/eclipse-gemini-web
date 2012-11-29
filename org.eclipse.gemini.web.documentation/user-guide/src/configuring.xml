@@ -383,6 +383,17 @@
 								<literal>file:configuration/java6-server.profile</literal>.
 							</entry>
 						</row>
+						<row>
+							<entry>
+								<literal>osgi.bundlefile.limit</literal>
+							</entry>
+							<entry>
+								Specifies a limit on the number of jar files the framework will keep open.
+								The minimum value allowed is 10. Any value less than 10 will disable the bundle file limit, making the the number of jar files the framework keeps open unlimited.
+								By default the value is 100.
+								Increase the default value if you have many jar files in the bundle class path, expect a lot of file system operations etc.
+							</entry>
+						</row>
 					</tbody>
 				</tgroup>
 			</table>
