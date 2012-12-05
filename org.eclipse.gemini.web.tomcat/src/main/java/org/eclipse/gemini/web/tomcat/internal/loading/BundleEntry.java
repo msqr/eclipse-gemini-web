@@ -16,6 +16,7 @@
 
 package org.eclipse.gemini.web.tomcat.internal.loading;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,6 +31,20 @@ import org.osgi.framework.Bundle;
 
 public final class BundleEntry {
 
+    private static final String WEB_XML = "web.xml";
+
+    private static final String WEB_INF = "WEB-INF";
+
+    private static final String WEB_INF_DOT = "WEB-INF.";
+
+    private static final String META_INF_DOT = "META-INF.";
+
+    private static final String META_INF = "META-INF";
+
+    private static final String OSGI_INF_DOT = "OSGI-INF.";
+
+    private static final String OSGI_OPT_DOT = "OSGI-OPT.";
+
     private static final String PATH_SEPARATOR = "/";
 
     private static final String DOT = ".";
@@ -40,6 +55,8 @@ public final class BundleEntry {
 
     private final BundleFileResolver bundleFileResolver = BundleFileResolverFactory.createBundleFileResolver();
 
+    private boolean checkEntryPath;
+
     public BundleEntry(Bundle bundle) {
         this(bundle, "");
     }
@@ -47,6 +64,11 @@ public final class BundleEntry {
     private BundleEntry(Bundle bundle, String path) {
         this.path = path;
         this.bundle = bundle;
+        try {
+            this.checkEntryPath = new File(META_INF).getCanonicalPath().equals(new File(META_INF_DOT).getCanonicalPath());
+        } catch (IOException e) {
+            this.checkEntryPath = true;
+        }
     }
 
     public Bundle getBundle() {
@@ -80,8 +102,8 @@ public final class BundleEntry {
         }
 
         // Ensure web.xml appears even though it may be supplied by a fragment.
-        if ("WEB-INF".equals(this.path) && getEntry("web.xml") != null) {
-            paths.add("WEB-INF/web.xml");
+        if (WEB_INF.equals(this.path) && getEntry(WEB_XML) != null) {
+            paths.add(WEB_INF + PATH_SEPARATOR + WEB_XML);
         }
 
         if (paths.isEmpty()) {
@@ -124,6 +146,12 @@ public final class BundleEntry {
          * This method has been generalised from this.bundle.getEntry(path) to allow web.xml to be supplied by a
          * fragment.
          */
+        if (this.checkEntryPath
+            && (checkNotAttemptingToAccess(path, META_INF_DOT) || checkNotAttemptingToAccess(path, WEB_INF_DOT)
+                || checkNotAttemptingToAccess(path, OSGI_INF_DOT) || checkNotAttemptingToAccess(path, OSGI_OPT_DOT))) {
+            return null;
+        }
+
         if (path.endsWith(PATH_SEPARATOR) || path.length() == 0) {
             return this.bundle.getEntry(path);
         }
@@ -151,6 +179,11 @@ public final class BundleEntry {
         }
 
         return null;
+    }
+
+    private boolean checkNotAttemptingToAccess(String path, String prefix) {
+        return path.startsWith(prefix + PATH_SEPARATOR) || path.startsWith(PATH_SEPARATOR + prefix + PATH_SEPARATOR)
+            || path.startsWith(DOT + PATH_SEPARATOR + prefix + PATH_SEPARATOR);
     }
 
     public String getName() {

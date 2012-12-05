@@ -138,6 +138,7 @@ public class TomcatServletContainerTests {
         assertNotNull(handle);
 
         validateURL("http://localhost:8080/test/index.html");
+        validateNotFound("http://localhost:8080/test/META-INF./MANIFEST.MF");
 
         this.container.stopWebApplication(handle);
 
@@ -465,6 +466,12 @@ public class TomcatServletContainerTests {
         File metaInf = new File(webAppDir, "META-INF");
         File manifest = new File(metaInf, "MANIFEST.MF");
         createFileWithContent(manifest, "");
+        File otherMetaInf = new File(webAppDir, "blah/META-INF.");
+        File otherManifest = new File(otherMetaInf, "MANIFEST.MF");
+        createFileWithContent(otherManifest, "Manifest-Version: 1.0");
+        File otherDirectory = new File(webAppDir, "blah/META-INF.blah");
+        File otherStaticResource = new File(otherDirectory, "test.txt");
+        createFileWithContent(otherStaticResource, "TEST");
 
         Bundle bundle = this.bundleContext.installBundle(LOCATION_PREFIX + webAppDir.getAbsolutePath() + "?Web-ContextPath=/simple-web-app-dir");
         bundle.start();
@@ -474,6 +481,9 @@ public class TomcatServletContainerTests {
         this.container.startWebApplication(handle);
         try {
             validateURL("http://localhost:8080/simple-web-app-dir/index.jsp");
+            validateNotFound("http://localhost:8080/simple-web-app-dir/META-INF./MANIFEST.MF");
+            validateURLExpectedContent("http://localhost:8080/simple-web-app-dir/blah/META-INF./MANIFEST.MF", "Manifest-Version: 1.0");
+            validateURLExpectedContent("http://localhost:8080/simple-web-app-dir/blah/META-INF.blah/test.txt", "TEST");
         } finally {
             this.container.stopWebApplication(handle);
             bundle.uninstall();
