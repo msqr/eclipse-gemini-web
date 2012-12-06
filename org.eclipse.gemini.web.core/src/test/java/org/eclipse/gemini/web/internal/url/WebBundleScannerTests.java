@@ -62,7 +62,7 @@ public class WebBundleScannerTests {
     }
 
     private void setExpectations(WebBundleScannerCallback callback) {
-        callback.jarFound("WEB-INF/lib/org.slf4j.api-1.6.4.v20120130-2120.jar");
+        callback.jarFound("WEB-INF/lib/org.slf4j.api-1.7.2.v20121108-1250.jar");
         callback.classFound("foo/bar/Doo.class");
     }
 

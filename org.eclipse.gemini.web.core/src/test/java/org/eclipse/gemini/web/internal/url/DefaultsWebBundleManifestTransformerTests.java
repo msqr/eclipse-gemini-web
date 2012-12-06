@@ -104,13 +104,13 @@ public class DefaultsWebBundleManifestTransformerTests {
 
         manifest = BundleManifestFactory.createBundleManifest();
         manifest.getBundleClasspath().add("test");
-        manifest.getBundleClasspath().add("WEB-INF/lib/org.slf4j.api-1.6.4.v20120130-2120.jar");
+        manifest.getBundleClasspath().add("WEB-INF/lib/org.slf4j.api-1.7.2.v20121108-1250.jar");
         manifest.getBundleClasspath().add("WEB-INF/classes");
         this.defaults.transform(manifest, this.source, this.options, WebContainerUtils.isWebApplicationBundle(manifest));
         bcp = manifest.getBundleClasspath();
         assertNotNull(bcp);
         assertEquals("test", bcp.get(0));
-        assertEquals("WEB-INF/lib/org.slf4j.api-1.6.4.v20120130-2120.jar", bcp.get(1));
+        assertEquals("WEB-INF/lib/org.slf4j.api-1.7.2.v20121108-1250.jar", bcp.get(1));
         assertEquals("WEB-INF/classes", bcp.get(2));
     }
 
