@@ -87,6 +87,7 @@ public class TomcatServletContainerTests {
         expect(this.bundleContext.createFilter(FILTER_1)).andReturn(this.filter);
         expect(this.bundleContext.createFilter(FILTER_2)).andReturn(this.filter);
         expect(this.bundleContext.getProperty(OsgiAwareEmbeddedTomcat.USE_NAMING)).andReturn(OsgiAwareEmbeddedTomcat.NAMING_DISABLED);
+        expect(this.bundleContext.getProperty(BundleDependenciesJarScanner.SCANNER_SKIP_BUNDLES_PROPERTY_NAME)).andReturn(null);
 
         expect(this.server.findServices()).andReturn(new Service[] { this.service }).anyTimes();
         this.server.init();

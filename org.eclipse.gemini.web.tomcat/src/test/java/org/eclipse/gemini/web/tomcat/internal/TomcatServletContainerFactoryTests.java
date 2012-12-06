@@ -38,6 +38,7 @@ public class TomcatServletContainerFactoryTests {
         this.bundleContext = createMock(BundleContext.class);
         expect(this.bundleContext.getProperty(TomcatConfigLocator.CONFIG_PATH_FRAMEWORK_PROPERTY)).andReturn(null);
         expect(this.bundleContext.getProperty(OsgiAwareEmbeddedTomcat.USE_NAMING)).andReturn(null);
+        expect(this.bundleContext.getProperty(BundleDependenciesJarScanner.SCANNER_SKIP_BUNDLES_PROPERTY_NAME)).andReturn(null);
         expect(this.bundleContext.createFilter("(objectClass=org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer)")).andReturn(null);
         expect(this.bundleContext.createFilter("(objectClass=org.eclipse.gemini.web.tomcat.spi.JarScannerCustomizer)")).andReturn(null);
         expect(this.bundleContext.getBundle()).andReturn(null);

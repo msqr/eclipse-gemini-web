@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -22,6 +22,8 @@ import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -32,6 +34,7 @@ import org.eclipse.gemini.web.tomcat.internal.loading.BundleWebappClassLoader;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleDependencyDeterminer;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolver;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +51,12 @@ import org.slf4j.LoggerFactory;
  */
 final class BundleDependenciesJarScanner implements JarScanner {
 
+    private static final String COMMA_SEPARATOR = ",";
+
+    static final String SCANNER_SKIP_BUNDLES_PROPERTY_NAME = "org.eclipse.gemini.web.tomcat.scanner.skip.bundles";
+
+    private static final String SCANNER_SKIP_BUNDLES_PROPERTY_VALUE_DEFAULT = "org.eclipse.osgi,javax.servlet,javax.servlet.jsp,javax.el";
+
     private static final String JAR_URL_SUFFIX = "!/";
 
     private static final String JAR_URL_PREFIX = "jar:";
@@ -60,9 +69,13 @@ final class BundleDependenciesJarScanner implements JarScanner {
 
     private final BundleFileResolver bundleFileResolver;
 
-    public BundleDependenciesJarScanner(BundleDependencyDeterminer bundleDependencyDeterminer, BundleFileResolver bundleFileResolver) {
+    private final Set<String> skipBundles;
+
+    public BundleDependenciesJarScanner(BundleDependencyDeterminer bundleDependencyDeterminer, BundleFileResolver bundleFileResolver,
+        BundleContext bundleContext) {
         this.bundleDependencyDeterminer = bundleDependencyDeterminer;
         this.bundleFileResolver = bundleFileResolver;
+        this.skipBundles = Collections.unmodifiableSet(getBundlesToSkip(bundleContext));
     }
 
     @Override
@@ -77,7 +90,9 @@ final class BundleDependenciesJarScanner implements JarScanner {
         Set<Bundle> dependencies = this.bundleDependencyDeterminer.getDependencies(rootBundle);
 
         for (Bundle bundle : dependencies) {
-            scanBundle(bundle, callback);
+            if (!this.skipBundles.contains(bundle.getSymbolicName())) {
+                scanBundle(bundle, callback);
+            }
         }
     }
 
@@ -137,5 +152,21 @@ final class BundleDependenciesJarScanner implements JarScanner {
         } catch (IOException e) {
             LOGGER.warn("Failure when attempting to scan bundle via jar URL '" + url + "'.", e);
         }
+    }
+
+    private Set<String> getBundlesToSkip(BundleContext bundleContext) {
+        Set<String> result = new HashSet<String>();
+        String property = bundleContext.getProperty(SCANNER_SKIP_BUNDLES_PROPERTY_NAME);
+
+        if (property == null) {
+            property = SCANNER_SKIP_BUNDLES_PROPERTY_VALUE_DEFAULT;
+        }
+
+        String[] bundlesNames = property.split(COMMA_SEPARATOR);
+        for (int i = 0; bundlesNames != null && i < bundlesNames.length; i++) {
+            result.add(bundlesNames[i]);
+        }
+
+        return result;
     }
 }

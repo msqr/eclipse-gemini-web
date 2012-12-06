@@ -118,7 +118,7 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
     OsgiAwareEmbeddedTomcat(BundleContext context) {
         this.bundleContext = context;
         this.bundleDependenciesJarScanner = new BundleDependenciesJarScanner(new PackageAdminBundleDependencyDeterminer(),
-            BundleFileResolverFactory.createBundleFileResolver());
+            BundleFileResolverFactory.createBundleFileResolver(), context);
         this.defaultJarScanner = new StandardJarScanner();
         this.jarScannerCustomizer = new DelegatingJarScannerCustomizer(context);
     }

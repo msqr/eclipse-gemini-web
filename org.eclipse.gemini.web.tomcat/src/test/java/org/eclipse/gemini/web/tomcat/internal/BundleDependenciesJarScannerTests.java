@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -36,6 +36,7 @@ import org.eclipse.gemini.web.tomcat.internal.loading.BundleWebappClassLoader;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleDependencyDeterminer;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolver;
 import org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer;
+import org.eclipse.virgo.teststubs.osgi.framework.StubBundleContext;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 
@@ -47,7 +48,10 @@ public class BundleDependenciesJarScannerTests {
 
     private final BundleFileResolver bundleFileResolver = createMock(BundleFileResolver.class);
 
-    private final BundleDependenciesJarScanner scanner = new BundleDependenciesJarScanner(this.dependencyDeterminer, this.bundleFileResolver);
+    private final StubBundleContext bundleContext = new StubBundleContext();
+
+    private final BundleDependenciesJarScanner scanner = new BundleDependenciesJarScanner(this.dependencyDeterminer, this.bundleFileResolver,
+        this.bundleContext);
 
     private final Bundle bundle = createMock(Bundle.class);
 
@@ -113,6 +117,7 @@ public class BundleDependenciesJarScannerTests {
         expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<Bundle>(Arrays.asList(this.dependency))).times(2);
         expect(this.dependency.getLocation()).andReturn("file:src/test/resources/bundle.jar").andReturn(
             "reference:file:src/test/resources/bundle.jar");
+        expect(this.dependency.getSymbolicName()).andReturn("bundle").anyTimes();
 
         expect(this.bundleFileResolver.resolve(this.dependency)).andReturn(null).times(2);
         this.callback.scan(isA(JarURLConnection.class));
