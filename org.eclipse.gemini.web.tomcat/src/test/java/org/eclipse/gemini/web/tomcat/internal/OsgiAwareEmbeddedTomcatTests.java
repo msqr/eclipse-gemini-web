@@ -29,9 +29,9 @@ import javax.naming.spi.ObjectFactory;
 import javax.naming.spi.ObjectFactoryBuilder;
 
 import org.apache.catalina.LifecycleException;
-import org.eclipse.virgo.teststubs.osgi.framework.StubBundleContext;
-import org.eclipse.virgo.teststubs.osgi.framework.StubFilter;
-import org.eclipse.virgo.teststubs.osgi.framework.StubServiceRegistration;
+import org.eclipse.virgo.test.stubs.framework.StubBundleContext;
+import org.eclipse.virgo.test.stubs.framework.StubFilter;
+import org.eclipse.virgo.test.stubs.framework.StubServiceRegistration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

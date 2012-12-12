@@ -36,7 +36,7 @@ import org.eclipse.gemini.web.tomcat.internal.loading.BundleWebappClassLoader;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleDependencyDeterminer;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolver;
 import org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer;
-import org.eclipse.virgo.teststubs.osgi.framework.StubBundleContext;
+import org.eclipse.virgo.test.stubs.framework.StubBundleContext;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 

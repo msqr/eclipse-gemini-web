@@ -193,8 +193,6 @@ org.osgi.framework.system.packages = \
  org.xml.sax.ext,\
  org.xml.sax.helpers
 org.osgi.framework.bootdelegation = \
- org.eclipse.virgo.osgi.extensions.*,\
- org.eclipse.virgo.osgi.launcher.*,\
  com.sun.*,\
  javax.xml.*,\
  org.apache.xerces.jaxp.*,\

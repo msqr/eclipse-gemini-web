@@ -27,8 +27,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 
-import org.eclipse.virgo.teststubs.osgi.framework.FindEntriesDelegate;
-import org.eclipse.virgo.teststubs.osgi.framework.StubBundle;
+import org.eclipse.virgo.test.stubs.framework.FindEntriesDelegate;
+import org.eclipse.virgo.test.stubs.framework.StubBundle;
 import org.junit.Before;
 import org.junit.Test;
 

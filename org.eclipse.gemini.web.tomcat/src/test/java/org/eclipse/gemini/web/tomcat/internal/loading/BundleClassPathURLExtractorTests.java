@@ -25,7 +25,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Set;
 
-import org.eclipse.virgo.teststubs.osgi.framework.StubBundle;
+import org.eclipse.virgo.test.stubs.framework.StubBundle;
 import org.junit.Test;
 import org.osgi.framework.Constants;
 

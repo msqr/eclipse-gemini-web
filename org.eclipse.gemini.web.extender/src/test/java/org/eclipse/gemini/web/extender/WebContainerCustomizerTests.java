@@ -25,7 +25,7 @@ import javax.servlet.ServletContext;
 
 import org.eclipse.gemini.web.core.WebApplication;
 import org.eclipse.gemini.web.core.WebContainer;
-import org.eclipse.virgo.teststubs.osgi.framework.StubBundle;
+import org.eclipse.virgo.test.stubs.framework.StubBundle;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;

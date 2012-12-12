@@ -25,8 +25,8 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-import org.eclipse.virgo.teststubs.osgi.framework.FindEntriesDelegate;
-import org.eclipse.virgo.teststubs.osgi.framework.StubBundle;
+import org.eclipse.virgo.test.stubs.framework.FindEntriesDelegate;
+import org.eclipse.virgo.test.stubs.framework.StubBundle;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

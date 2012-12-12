@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Import-Package: junit.framework,org.easymock,org.eclipse.virgo.teststu
- bs.osgi.framework,org.eclipse.virgo.teststubs.osgi.service.event,org.
- eclipse.virgo.teststubs.osgi.support,org.junit
+Import-Package: junit.framework,org.easymock,org.eclipse.virgo.test.st
+ ubs.framework,org.eclipse.virgo.test.stubs.service.event,org.eclipse.
+ virgo.test.stubs.support,org.junit
 
