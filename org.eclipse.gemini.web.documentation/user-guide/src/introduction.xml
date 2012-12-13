@@ -5,8 +5,8 @@
 	<section id="intro">
 		<title>Introduction</title>
 		<para>
-			@product.name@ implements the Web Container defined by the Web Applications Specification chapter of the OSGi Service Platform Release 4 Version 4.2 Enterprise Specification. 
-			This specification may be downloaded <ulink url="http://www.osgi.org/Download/Release4V42">here</ulink>.
+			@product.name@ implements the Web Container defined by the Web Applications Specification chapter of the OSGi Service Platform Release 4 Version 4.2 Enterprise Specification and later versions of the specification. 
+			This specification may be downloaded <ulink url="http://www.osgi.org/Download/">here</ulink>.
 		</para>
 	</section>
 	<section id="about-this-guide">

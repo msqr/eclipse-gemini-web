@@ -16,9 +16,9 @@ cp $SRC/org.apache.jasper-7.0.32.*.jar $REPO/org.apache.jasper/org.apache.jasper
 cp $SRC/org.apache.juli.extras-7.0.32.*.jar $REPO/org.apache.juli.extras/org.apache.juli.extras-7.0.32.jar
 cp $SRC/org.apache.tomcat.api-7.0.32.*.jar $REPO/org.apache.tomcat.api/org.apache.tomcat.api-7.0.32.jar
 cp $SRC/org.apache.tomcat.util-7.0.32.*.jar $REPO/org.apache.tomcat.util/org.apache.tomcat.util-7.0.32.jar
-cp $SRC/org.eclipse.gemini.web.core-2.1.0.*.jar $REPO/org.eclipse.gemini.web.core/org.eclipse.gemini.web.core-2.1.0.jar
-cp $SRC/org.eclipse.gemini.web.extender-2.1.0.*.jar $REPO/org.eclipse.gemini.web.extender/org.eclipse.gemini.web.extender-2.1.0.jar
-cp $SRC/org.eclipse.gemini.web.tomcat-2.1.0.*.jar $REPO/org.eclipse.gemini.web.tomcat/org.eclipse.gemini.web.tomcat-2.1.0.jar
+cp $SRC/org.eclipse.gemini.web.core-2.2.0.*.jar $REPO/org.eclipse.gemini.web.core/org.eclipse.gemini.web.core-2.2.0.jar
+cp $SRC/org.eclipse.gemini.web.extender-2.2.0.*.jar $REPO/org.eclipse.gemini.web.extender/org.eclipse.gemini.web.extender-2.2.0.jar
+cp $SRC/org.eclipse.gemini.web.tomcat-2.2.0.*.jar $REPO/org.eclipse.gemini.web.tomcat/org.eclipse.gemini.web.tomcat-2.2.0.jar
 cp $SRC/org.eclipse.jdt.core.compiler.batch-3.8.0.*.jar $REPO/org.eclipse.jdt.core.compiler.batch/org.eclipse.jdt.core.compiler.batch-3.8.0.jar
 cp $SRC/org.slf4j.api-1.7.2.*.jar $REPO/org.slf4j.api/org.slf4j.api-1.7.2.jar
 cp $SRC/org.slf4j.nop-1.7.2.*.jar $REPO/org.slf4j.nop/org.slf4j.nop-1.7.2.jar

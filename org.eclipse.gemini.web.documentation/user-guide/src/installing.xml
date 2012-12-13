@@ -14,7 +14,7 @@
 		<itemizedlist>
 			<listitem>
 				<para>
-					<ulink url="http://download.eclipse.org/equinox/">Download</ulink> the Equinox JAR, for example <ulink url="http://download.eclipse.org/equinox/drops/R-3.7.2-201202080800/download.php?dropFile=org.eclipse.osgi_3.7.2.v20120110-1415.jar">org.eclipse.osgi_3.7.2.v20120110-1415.jar</ulink>, and move it to a suitable directory (e.g. ~/gemini-web-test). 
+					<ulink url="http://download.eclipse.org/equinox/">Download</ulink> the Equinox JAR, for example <ulink url="http://download.eclipse.org/equinox/drops/R-3.8.1-201209141800/download.php?dropFile=org.eclipse.osgi_3.8.1.v20120830-144521.jar">org.eclipse.osgi_3.8.1.v20120830-144521.jar</ulink>, and move it to a suitable directory (e.g. ~/gemini-web-test). 
 					On the <ulink url="http://download.eclipse.org/equinox/">Download</ulink> page, first choose the desired Release or Build, then download the JAR from the Framework section. 
 				</para>
 			</listitem>
@@ -27,14 +27,14 @@
 			<listitem>
 				<para>
 					Configure Equinox by creating a directory ~/gemini-web-test/configuration and create a file config.ini in the configuration directory. 
-					Example file which works with 2.1.0.RELEASE is available in <ulink url="http://wiki.eclipse.org/images/2/23/Config.ini.2.1.0.zip">config.ini.zip</ulink>. 
+					Example file which works with 2.2.0.RELEASE is available in <ulink url="http://wiki.eclipse.org/images/2/23/Config.ini.2.2.0.zip">config.ini.zip</ulink>. 
 					Essentially config.ini ensures that the dependencies of @product.name@, which come in the dep directory, are installed and then the @product.name@ bundles are installed and started. 
 				</para>
 			</listitem>
 			<listitem>
 				<para>
 					Start Equinox as follows:
-					<programlisting language="xml"><![CDATA[java -jar org.eclipse.osgi_3.7.2.v20120110-1415.jar -console]]></programlisting></para>
+					<programlisting language="xml"><![CDATA[java -jar org.eclipse.osgi_3.8.1.v20120830-144521.jar -console]]></programlisting></para>
 			</listitem>
 			<listitem>
 				<para>
