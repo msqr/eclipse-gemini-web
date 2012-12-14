@@ -356,6 +356,29 @@
 </servlet-mapping>
 ]]></programlisting>
 		</section>
+		<section id="configuring-jar-scanner">
+			<title>Jar Scanner Configuration</title>
+			<para>
+				The standard <ulink url="http://tomcat.apache.org/tomcat-7.0-doc/config/jar-scanner.html">Jar Scanner</ulink> provided by Apache Tomcat is used to scan the web application for jar files containing configuration files - TLDs or web-fragment.xml files.
+				In addition to this functionality, @product.name@ provides Bundle Dependencies Jar Scanner. It is used to scan the web application bundle dependencies for such configuration files.
+				The bundles that are treated as web application bundle dependencies are:
+				<itemizedlist>
+					<listitem>The required bundles by the web application bundle.</listitem>
+					<listitem>The bundles that provide the imported packages declared by the web application bundle.</listitem>
+				</itemizedlist>
+			</para>
+			<para>
+				By default the Bundle Dependencies Jar Scanner will exclude the bundles listed below from the scanning process as they do not provide TLDs and web-fragment.xml files.
+				<itemizedlist>
+					<listitem>org.eclipse.osgi</listitem>
+					<listitem>javax.servlet</listitem>
+					<listitem>javax.servlet.jsp</listitem>
+					<listitem>javax.el</listitem>
+				</itemizedlist>
+				The default behavior can be changed with @product.name@ property <literal>org.eclipse.gemini.web.tomcat.scanner.skip.bundles</literal>.
+				The syntax is <literal>org.eclipse.gemini.web.tomcat.scanner.skip.bundles=&lt;bundle-symbolic-name&gt;,&lt;bundle-symbolic-name&gt;,...</literal>
+			</para>
+		</section>
 	</section>
 	<section id="configuring-osgi-framework">
 		<title>Configuring the OSGi Framework</title>

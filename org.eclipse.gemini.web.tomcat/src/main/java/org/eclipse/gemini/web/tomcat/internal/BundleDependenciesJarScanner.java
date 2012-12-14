@@ -53,6 +53,13 @@ final class BundleDependenciesJarScanner implements JarScanner {
 
     private static final String COMMA_SEPARATOR = ",";
 
+    /**
+     * By default the Bundle Dependencies Jar Scanner will exclude the bundles listed below from the scanning process as
+     * they do not provide TLDs and web-fragment.xml files: org.eclipse.osgi, javax.servlet, javax.servlet.jsp,
+     * javax.el. The default behavior can be changed with property
+     * <code>org.eclipse.gemini.web.tomcat.scanner.skip.bundles</code>. The syntax is
+     * <code>org.eclipse.gemini.web.tomcat.scanner.skip.bundles=&lt;bundle-symbolic-name&gt;,&lt;bundle-symbolic-name&gt;,...</code>
+     */
     static final String SCANNER_SKIP_BUNDLES_PROPERTY_NAME = "org.eclipse.gemini.web.tomcat.scanner.skip.bundles";
 
     private static final String SCANNER_SKIP_BUNDLES_PROPERTY_VALUE_DEFAULT = "org.eclipse.osgi,javax.servlet,javax.servlet.jsp,javax.el";
