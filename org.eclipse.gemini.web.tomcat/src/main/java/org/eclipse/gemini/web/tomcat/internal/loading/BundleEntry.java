@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2012 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -22,18 +22,18 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolver;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolverFactory;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.wiring.BundleRevision;
+import org.osgi.framework.wiring.BundleWire;
+import org.osgi.framework.wiring.BundleWiring;
 
 public final class BundleEntry {
-
-    private static final String WEB_XML = "web.xml";
-
-    private static final String WEB_INF = "WEB-INF";
 
     private static final String WEB_INF_DOT = "WEB-INF.";
 
@@ -53,22 +53,21 @@ public final class BundleEntry {
 
     private final Bundle bundle;
 
+    private final List<Bundle> fragments;
+
     private final BundleFileResolver bundleFileResolver = BundleFileResolverFactory.createBundleFileResolver();
 
-    private boolean checkEntryPath;
+    private final boolean checkEntryPath;
 
     public BundleEntry(Bundle bundle) {
-        this(bundle, "");
+        this(bundle, getFragments(bundle), "", checkEntryPath());
     }
 
-    private BundleEntry(Bundle bundle, String path) {
+    private BundleEntry(Bundle bundle, List<Bundle> fragments, String path, boolean checkEntryPath) {
         this.path = path;
         this.bundle = bundle;
-        try {
-            this.checkEntryPath = new File(META_INF).getCanonicalPath().equals(new File(META_INF_DOT).getCanonicalPath());
-        } catch (IOException e) {
-            this.checkEntryPath = true;
-        }
+        this.fragments = fragments;
+        this.checkEntryPath = checkEntryPath;
     }
 
     public Bundle getBundle() {
@@ -77,10 +76,11 @@ public final class BundleEntry {
 
     public List<BundleEntry> list() {
         List<BundleEntry> entries = new ArrayList<BundleEntry>();
-        Enumeration<?> paths = getEntryPathsFromBundle();
+        Set<String> paths = getEntryPathsFromBundle();
         if (paths != null) {
-            while (paths.hasMoreElements()) {
-                String subPath = (String) paths.nextElement();
+            Iterator<String> iterator = paths.iterator();
+            while (iterator.hasNext()) {
+                String subPath = iterator.next();
                 entries.add(createBundleEntry(subPath));
             }
         }
@@ -88,48 +88,34 @@ public final class BundleEntry {
     }
 
     private BundleEntry createBundleEntry(String path) {
-        return new BundleEntry(this.bundle, path);
+        return new BundleEntry(this.bundle, this.fragments, path, this.checkEntryPath);
     }
 
-    private Enumeration<?> getEntryPathsFromBundle() {
-        final Enumeration<?> ep = this.bundle.getEntryPaths(this.path);
+    private Set<String> getEntryPathsFromBundle() {
+        Set<String> paths = getEntryPathsFromBundle(this.bundle);
 
-        Set<String> paths = new HashSet<String>();
-        if (ep != null) {
-            while (ep.hasMoreElements()) {
-                paths.add((String) ep.nextElement());
-            }
-        }
-
-        // Ensure web.xml appears even though it may be supplied by a fragment.
-        if (WEB_INF.equals(this.path) && getEntry(WEB_XML) != null) {
-            paths.add(WEB_INF + PATH_SEPARATOR + WEB_XML);
+        for (int i = 0; i < this.fragments.size(); i++) {
+            paths.addAll(getEntryPathsFromBundle(this.fragments.get(i)));
         }
 
         if (paths.isEmpty()) {
             return null;
         }
 
-        final String[] pathArray = paths.toArray(new String[0]);
+        return paths;
+    }
 
-        return new Enumeration<String>() {
+    private Set<String> getEntryPathsFromBundle(Bundle bundle) {
+        final Enumeration<String> ep = bundle.getEntryPaths(this.path);
 
-            private int pos = 0;
-
-            @Override
-            public boolean hasMoreElements() {
-                return this.pos < pathArray.length;
+        Set<String> paths = new HashSet<String>();
+        if (ep != null) {
+            while (ep.hasMoreElements()) {
+                paths.add(ep.nextElement());
             }
+        }
 
-            @Override
-            public String nextElement() {
-                if (hasMoreElements()) {
-                    return pathArray[this.pos++];
-                }
-                return null;
-            }
-
-        };
+        return paths;
     }
 
     public BundleEntry getEntry(String subPath) {
@@ -141,11 +127,10 @@ public final class BundleEntry {
         }
     }
 
+    /**
+     * This method has been generalized from this.bundle.getEntry(path) to allow entries to be supplied by a fragment.
+     */
     private URL getEntryFromBundle(String path) {
-        /*
-         * This method has been generalised from this.bundle.getEntry(path) to allow web.xml to be supplied by a
-         * fragment.
-         */
         if (this.checkEntryPath
             && (checkNotAttemptingToAccess(path, META_INF_DOT) || checkNotAttemptingToAccess(path, WEB_INF_DOT)
                 || checkNotAttemptingToAccess(path, OSGI_INF_DOT) || checkNotAttemptingToAccess(path, OSGI_OPT_DOT))) {
@@ -155,6 +140,7 @@ public final class BundleEntry {
         if (path.endsWith(PATH_SEPARATOR) || path.length() == 0) {
             return this.bundle.getEntry(path);
         }
+
         String searchPath;
         String searchFile;
         int lastSlashIndex = path.lastIndexOf(PATH_SEPARATOR);
@@ -170,11 +156,11 @@ public final class BundleEntry {
             return this.bundle.getEntry(path.substring(0, path.length() - 1));
         }
 
-        Enumeration<?> entries = this.bundle.findEntries(searchPath, searchFile, false);
+        Enumeration<URL> entries = this.bundle.findEntries(searchPath, searchFile, false);
 
         if (entries != null) {
             if (entries.hasMoreElements()) {
-                return (URL) entries.nextElement();
+                return entries.nextElement();
             }
         }
 
@@ -240,5 +226,26 @@ public final class BundleEntry {
             }
         }
         return size;
+    }
+
+    private static List<Bundle> getFragments(Bundle bundle) {
+        List<Bundle> fragments = new ArrayList<Bundle>();
+        BundleRevision bundleRevision = bundle.adapt(BundleRevision.class);
+        if (bundleRevision != null) {
+            BundleWiring bundleWiring = bundleRevision.getWiring();
+            List<BundleWire> bundleWires = bundleWiring.getProvidedWires(BundleRevision.HOST_NAMESPACE);
+            for (int i = 0; bundleWires != null && i < bundleWires.size(); i++) {
+                fragments.add(bundleWires.get(i).getRequirerWiring().getRevision().getBundle());
+            }
+        }
+        return fragments;
+    }
+
+    private static boolean checkEntryPath() {
+        try {
+            return new File(META_INF).getCanonicalPath().equals(new File(META_INF_DOT).getCanonicalPath());
+        } catch (IOException e) {
+            return true;
+        }
     }
 }
