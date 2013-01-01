@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2013 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -53,15 +53,9 @@ final class BundleEntryAttributes extends ResourceAttributes {
         this.attrIds = attrIds;
         setCollection(this.bundleEntry.isDirectory());
         getName();
-        try {
-            URLConnection urlConnection = getBundleEntryURLConnection();
-            if (urlConnection != null) {
-                getLastModified(urlConnection);
-                getCreation(urlConnection);
-                getContentLength(urlConnection);
-            }
-        } catch (IOException e) {
-        }
+        getLastModified();
+        getCreation();
+        getContentLength();
     }
 
     /**
@@ -69,28 +63,27 @@ final class BundleEntryAttributes extends ResourceAttributes {
      */
     @Override
     public long getCreation() {
-        try {
-            URLConnection urlConnection = getBundleEntryURLConnection();
-            if (urlConnection != null) {
-                return getCreation(urlConnection);
-            }
-        } catch (IOException e) {
-        }
-        return TIME_NOT_SET;
-    }
-
-    private long getCreation(URLConnection urlConnection) {
         long creation = TIME_NOT_SET;
 
         if (attrPresent(CREATION_DATE) || attrPresent(ALTERNATE_CREATION_DATE)) {
             creation = super.getCreation();
 
             if (creation == TIME_NOT_SET) {
-                creation = determineDate(urlConnection);
-                if (creation == CREATION_DATE_UNKNOWN) {
-                    creation = determineLastModified(urlConnection);
+                try {
+                    URLConnection urlConnection = getBundleEntryURLConnection();
+                    if (urlConnection != null) {
+                        creation = determineDate(urlConnection);
+
+                        if (creation == CREATION_DATE_UNKNOWN) {
+                            creation = determineLastModified(urlConnection);
+                        }
+                    }
+                } catch (IOException e) {
                 }
-                setCreation(creation);
+
+                if (creation != TIME_NOT_SET) {
+                    setCreation(creation);
+                }
             }
         }
 
@@ -120,24 +113,19 @@ final class BundleEntryAttributes extends ResourceAttributes {
      */
     @Override
     public long getLastModified() {
-        try {
-            URLConnection urlConnection = getBundleEntryURLConnection();
-            if (urlConnection != null) {
-                return getLastModified(urlConnection);
-            }
-        } catch (IOException e) {
-        }
-        return TIME_NOT_SET;
-    }
-
-    private long getLastModified(URLConnection urlConnection) {
         long lastModified = TIME_NOT_SET;
 
         if (attrPresent(LAST_MODIFIED) || attrPresent(ALTERNATE_LAST_MODIFIED)) {
             lastModified = super.getLastModified();
 
             if (lastModified == TIME_NOT_SET) {
-                lastModified = determineLastModified(urlConnection);
+                try {
+                    URLConnection urlConnection = getBundleEntryURLConnection();
+                    if (urlConnection != null) {
+                        lastModified = determineLastModified(urlConnection);
+                    }
+                } catch (IOException e) {
+                }
 
                 if (lastModified != TIME_NOT_SET) {
                     setLastModified(lastModified);
@@ -170,17 +158,6 @@ final class BundleEntryAttributes extends ResourceAttributes {
 
     @Override
     public long getContentLength() {
-        try {
-            URLConnection urlConnection = getBundleEntryURLConnection();
-            if (urlConnection != null) {
-                return getContentLength(urlConnection);
-            }
-        } catch (IOException e) {
-        }
-        return CONTENT_LENGTH_NOT_SET;
-    }
-
-    private long getContentLength(URLConnection urlConnection) {
         long contentLength = CONTENT_LENGTH_NOT_SET;
 
         if (attrPresent(CONTENT_LENGTH) || attrPresent(ALTERNATE_CONTENT_LENGTH)) {
