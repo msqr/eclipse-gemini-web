@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2013 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -59,15 +59,35 @@ public final class BundleEntry {
 
     private final boolean checkEntryPath;
 
+    private String bundleLocationCanonicalPath;
+
+    private boolean isBundleLocationDirectory;
+
     public BundleEntry(Bundle bundle) {
-        this(bundle, getFragments(bundle), "", checkEntryPath());
+        this.path = "";
+        this.bundle = bundle;
+        this.fragments = getFragments(bundle);
+        this.checkEntryPath = checkEntryPath();
+        File bundleLocation = this.bundleFileResolver.resolve(bundle);
+        if (bundleLocation != null) {
+            try {
+                this.bundleLocationCanonicalPath = bundleLocation.getCanonicalPath();
+            } catch (IOException e) {
+            }
+            if (bundleLocation.isDirectory()) {
+                this.isBundleLocationDirectory = true;
+            }
+        }
     }
 
-    private BundleEntry(Bundle bundle, List<Bundle> fragments, String path, boolean checkEntryPath) {
+    private BundleEntry(Bundle bundle, List<Bundle> fragments, String path, boolean checkEntryPath, String bundleLocationCanonicalPath,
+        boolean isBundleLocationDirectory) {
         this.path = path;
         this.bundle = bundle;
         this.fragments = fragments;
         this.checkEntryPath = checkEntryPath;
+        this.bundleLocationCanonicalPath = bundleLocationCanonicalPath;
+        this.isBundleLocationDirectory = isBundleLocationDirectory;
     }
 
     public Bundle getBundle() {
@@ -88,7 +108,8 @@ public final class BundleEntry {
     }
 
     private BundleEntry createBundleEntry(String path) {
-        return new BundleEntry(this.bundle, this.fragments, path, this.checkEntryPath);
+        return new BundleEntry(this.bundle, this.fragments, path, this.checkEntryPath, this.bundleLocationCanonicalPath,
+            this.isBundleLocationDirectory);
     }
 
     private Set<String> getEntryPathsFromBundle() {
@@ -228,7 +249,7 @@ public final class BundleEntry {
         return size;
     }
 
-    private static List<Bundle> getFragments(Bundle bundle) {
+    private List<Bundle> getFragments(Bundle bundle) {
         List<Bundle> fragments = new ArrayList<Bundle>();
         BundleRevision bundleRevision = bundle.adapt(BundleRevision.class);
         if (bundleRevision != null) {
@@ -241,11 +262,19 @@ public final class BundleEntry {
         return fragments;
     }
 
-    private static boolean checkEntryPath() {
+    private boolean checkEntryPath() {
         try {
             return new File(META_INF).getCanonicalPath().equals(new File(META_INF_DOT).getCanonicalPath());
         } catch (IOException e) {
             return true;
         }
+    }
+
+    public String getBundleLocationCanonicalPath() {
+        return this.bundleLocationCanonicalPath;
+    }
+
+    public boolean isBundleLocationDirectory() {
+        return this.isBundleLocationDirectory;
     }
 }
