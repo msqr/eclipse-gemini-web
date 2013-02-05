@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2013 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,6 +17,7 @@
 package org.eclipse.gemini.web.tomcat.internal.loading;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +26,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 
 import org.apache.naming.NamingEntry;
-import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolver;
-import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolverFactory;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +35,6 @@ public final class BundleDirContext extends AbstractReadOnlyDirContext {
     private final static Logger LOGGER = LoggerFactory.getLogger(BundleDirContext.class);
 
     private volatile BundleEntry bundleEntry;
-
-    private final BundleFileResolver bundleFileResolver = BundleFileResolverFactory.createBundleFileResolver();
 
     public BundleDirContext(Bundle bundle) {
         this(new BundleEntry(bundle));
@@ -175,11 +172,20 @@ public final class BundleDirContext extends AbstractReadOnlyDirContext {
      */
     @Override
     protected String doGetRealPath(String path) {
-        if (this.bundleEntry.getEntry(path) != null) {
-            File bundleLocation = this.bundleFileResolver.resolve(this.bundleEntry.getBundle());
-            if (bundleLocation != null && bundleLocation.isDirectory()) {
-                return new File(bundleLocation, path).getAbsolutePath();
+        if (this.bundleEntry.isBundleLocationDirectory()) {
+            boolean checkInBundleLocation = path != null && path.indexOf("..") >= 0;
+            String bundleLocationCanonicalPath = this.bundleEntry.getBundleLocationCanonicalPath();
+            File entry = new File(bundleLocationCanonicalPath, path);
+            if (checkInBundleLocation) {
+                try {
+                    if (!entry.getCanonicalPath().startsWith(bundleLocationCanonicalPath)) {
+                        return null;
+                    }
+                } catch (IOException e) {
+                    return null;
+                }
             }
+            return entry.getAbsolutePath();
         }
         return null;
     }
