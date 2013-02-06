@@ -19,6 +19,7 @@ package org.eclipse.gemini.web.tomcat.internal.loading;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -220,9 +221,8 @@ public final class BundleEntry {
         return this.path;
     }
 
-    public boolean isDirectory() {
-        URL entryFromBundle = getEntryFromBundle(this.path);
-        return entryFromBundle.getFile().endsWith(PATH_SEPARATOR);
+    public static boolean isDirectory(URL url) {
+        return url.getFile().endsWith(PATH_SEPARATOR);
     }
 
     @Override
@@ -238,13 +238,10 @@ public final class BundleEntry {
      * 
      * @return the bundle entry size
      */
-    public long getContentLength() {
+    public long getContentLength(URLConnection urlConnection) {
         long size = this.bundleFileResolver.resolveBundleEntrySize(this.bundle, this.path);
-        if (size == -1) {
-            try {
-                size = getURL().openConnection().getContentLength();
-            } catch (IOException e) {
-            }
+        if (size == -1 && urlConnection != null) {
+            size = urlConnection.getContentLength();
         }
         return size;
     }

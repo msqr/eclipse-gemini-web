@@ -18,6 +18,7 @@ package org.eclipse.gemini.web.tomcat.internal.loading;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,10 +108,11 @@ public final class BundleDirContext extends AbstractReadOnlyDirContext {
 
     private Object entryToResult(BundleEntry entry) {
         Object result;
-        if (entry.isDirectory()) {
+        URL url = entry.getURL();
+        if (BundleEntry.isDirectory(url)) {
             result = new BundleDirContext(entry);
         } else {
-            result = new URLResource(entry.getURL());
+            result = new URLResource(url);
         }
         return result;
     }
