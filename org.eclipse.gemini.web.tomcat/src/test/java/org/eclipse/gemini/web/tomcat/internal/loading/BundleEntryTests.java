@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2013 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -155,12 +155,12 @@ public class BundleEntryTests {
         assertNotNull(entry.getEntry(""));
         assertNotNull(entry.getEntry("/"));
 
-        assertTrue(entry.getEntry("sub/").isDirectory());
-        assertTrue(entry.getEntry("sub/another.sub/").isDirectory());
-        assertTrue(entry.getEntry(".").isDirectory());
-        assertTrue(entry.getEntry("sub/.").isDirectory());
-        assertTrue(entry.getEntry("").isDirectory());
-        assertTrue(entry.getEntry("/").isDirectory());
+        assertTrue(BundleEntry.isDirectory(entry.getEntry("sub/").getURL()));
+        assertTrue(BundleEntry.isDirectory(entry.getEntry("sub/another.sub/").getURL()));
+        assertTrue(BundleEntry.isDirectory(entry.getEntry(".").getURL()));
+        assertTrue(BundleEntry.isDirectory(entry.getEntry("sub/.").getURL()));
+        assertTrue(BundleEntry.isDirectory(entry.getEntry("").getURL()));
+        assertTrue(BundleEntry.isDirectory(entry.getEntry("/").getURL()));
     }
 
     @Test
