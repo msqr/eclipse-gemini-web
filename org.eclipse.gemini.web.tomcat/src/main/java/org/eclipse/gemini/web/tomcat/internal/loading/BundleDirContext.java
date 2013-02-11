@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
@@ -73,7 +74,8 @@ public final class BundleDirContext extends AbstractReadOnlyDirContext {
     @Override
     public Object doLookup(String name) {
         try {
-            return entryToResult(getNamedEntry(name));
+            Entry<BundleEntry, URL> entry = getNamedEntry(name);
+            return entryToResult(entry.getKey(), entry.getValue());
         } catch (NamingException e) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("", e);
@@ -83,16 +85,17 @@ public final class BundleDirContext extends AbstractReadOnlyDirContext {
     }
 
     private List<NamingEntry> doSafeList(String name) throws NamingException {
-        return doList(getNamedEntry(name));
+        Entry<BundleEntry, URL> entry = getNamedEntry(name);
+        return doList(entry.getKey());
     }
 
-    private BundleEntry getNamedEntry(String name) throws NamingException {
+    private Entry<BundleEntry, URL> getNamedEntry(String name) throws NamingException {
         checkCanLookup(name);
-        BundleEntry bundleEntry = this.bundleEntry.getEntry(name);
-        if (bundleEntry == null) {
+        Entry<BundleEntry, URL> namedEntry = this.bundleEntry.getEntry(name);
+        if (namedEntry == null) {
             throw new NameNotFoundException("Name '" + name + "' does not exist.");
         }
-        return bundleEntry;
+        return namedEntry;
     }
 
     private List<NamingEntry> doList(BundleEntry bundleEntry) {
@@ -107,8 +110,11 @@ public final class BundleDirContext extends AbstractReadOnlyDirContext {
     }
 
     private Object entryToResult(BundleEntry entry) {
+        return entryToResult(entry, entry.getURL());
+    }
+
+    private Object entryToResult(BundleEntry entry, URL url) {
         Object result;
-        URL url = entry.getURL();
         if (BundleEntry.isDirectory(url)) {
             result = new BundleDirContext(entry);
         } else {
@@ -156,7 +162,8 @@ public final class BundleDirContext extends AbstractReadOnlyDirContext {
     @Override
     protected Attributes doGetAttributes(String name, String[] attrIds) throws NamingException {
         try {
-            return new BundleEntryAttributes(getNamedEntry(name), attrIds);
+            Entry<BundleEntry, URL> entry = getNamedEntry(name);
+            return new BundleEntryAttributes(entry.getKey(), attrIds, entry.getValue());
         } catch (NameNotFoundException e) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Name '" + name + "' does not exist.", e);

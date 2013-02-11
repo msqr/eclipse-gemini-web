@@ -48,11 +48,10 @@ final class BundleEntryAttributes extends ResourceAttributes {
      * @param attrIds the identifiers of the attributes to retrieve, or <code>null</code> if all attributes should be
      *        retrieved
      */
-    BundleEntryAttributes(BundleEntry bundleEntry, String[] attrIds) {
+    BundleEntryAttributes(BundleEntry bundleEntry, String[] attrIds, URL url) {
         this.bundleEntry = bundleEntry;
         this.attrIds = attrIds;
         getName();
-        URL url = this.bundleEntry.getURL();
         if (url != null) {
             setCollection(BundleEntry.isDirectory(url));
         }

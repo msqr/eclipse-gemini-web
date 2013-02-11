@@ -30,6 +30,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import org.eclipse.virgo.test.stubs.framework.FindEntriesDelegate;
@@ -155,53 +156,53 @@ public class BundleEntryTests {
         assertNotNull(entry.getEntry(""));
         assertNotNull(entry.getEntry("/"));
 
-        assertTrue(BundleEntry.isDirectory(entry.getEntry("sub/").getURL()));
-        assertTrue(BundleEntry.isDirectory(entry.getEntry("sub/another.sub/").getURL()));
-        assertTrue(BundleEntry.isDirectory(entry.getEntry(".").getURL()));
-        assertTrue(BundleEntry.isDirectory(entry.getEntry("sub/.").getURL()));
-        assertTrue(BundleEntry.isDirectory(entry.getEntry("").getURL()));
-        assertTrue(BundleEntry.isDirectory(entry.getEntry("/").getURL()));
+        assertTrue(BundleEntry.isDirectory(entry.getEntry("sub/").getValue()));
+        assertTrue(BundleEntry.isDirectory(entry.getEntry("sub/another.sub/").getValue()));
+        assertTrue(BundleEntry.isDirectory(entry.getEntry(".").getValue()));
+        assertTrue(BundleEntry.isDirectory(entry.getEntry("sub/.").getValue()));
+        assertTrue(BundleEntry.isDirectory(entry.getEntry("").getValue()));
+        assertTrue(BundleEntry.isDirectory(entry.getEntry("/").getValue()));
     }
 
     @Test
     public void testNames() {
         BundleEntry entry = new BundleEntry(this.testBundle);
 
-        BundleEntry e = entry.getEntry("/");
-        assertEquals("/", e.getName());
+        Entry<BundleEntry, URL> e = entry.getEntry("/");
+        assertEquals("/", e.getKey().getName());
 
         e = entry.getEntry("/sub/");
-        assertEquals("sub", e.getName());
+        assertEquals("sub", e.getKey().getName());
 
         e = entry.getEntry("/sub/one.txt");
-        assertEquals("one.txt", e.getName());
+        assertEquals("one.txt", e.getKey().getName());
 
         e = entry.getEntry("");
-        assertEquals("/", e.getName());
+        assertEquals("/", e.getKey().getName());
 
         e = entry.getEntry("sub/");
-        assertEquals("sub", e.getName());
+        assertEquals("sub", e.getKey().getName());
 
         e = entry.getEntry("sub/one.txt");
-        assertEquals("one.txt", e.getName());
+        assertEquals("one.txt", e.getKey().getName());
 
         e = entry.getEntry("/a/");
-        assertEquals("a", e.getName());
+        assertEquals("a", e.getKey().getName());
 
         e = entry.getEntry("/a/b/");
-        assertEquals("b", e.getName());
+        assertEquals("b", e.getKey().getName());
 
         e = entry.getEntry("/a/b/c.txt");
-        assertEquals("c.txt", e.getName());
+        assertEquals("c.txt", e.getKey().getName());
 
         e = entry.getEntry("a/");
-        assertEquals("a", e.getName());
+        assertEquals("a", e.getKey().getName());
 
         e = entry.getEntry("a/b/");
-        assertEquals("b", e.getName());
+        assertEquals("b", e.getKey().getName());
 
         e = entry.getEntry("a/b/c.txt");
-        assertEquals("c.txt", e.getName());
+        assertEquals("c.txt", e.getKey().getName());
     }
 
     private BundleEntry findByPath(List<BundleEntry> entries, String entry) {
