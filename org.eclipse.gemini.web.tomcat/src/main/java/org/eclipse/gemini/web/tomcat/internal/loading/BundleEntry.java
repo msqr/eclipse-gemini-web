@@ -22,9 +22,12 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolver;
@@ -140,10 +143,13 @@ public final class BundleEntry {
         return paths;
     }
 
-    public BundleEntry getEntry(String subPath) {
+    public Entry<BundleEntry, URL> getEntry(String subPath) {
         String finalPath = this.path + subPath;
-        if (getEntryFromBundle(finalPath) != null) {
-            return createBundleEntry(finalPath);
+        URL entryURL = getEntryFromBundle(finalPath);
+        if (entryURL != null) {
+            Map<BundleEntry, URL> result = new HashMap<BundleEntry, URL>();
+            result.put(createBundleEntry(finalPath), entryURL);
+            return result.entrySet().iterator().next();
         } else {
             return null;
         }
