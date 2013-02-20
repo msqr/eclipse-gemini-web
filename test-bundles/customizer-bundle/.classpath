@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="IVY_CACHE/org.eclipse.virgo.mirrored/org.apache.tomcat.api/7.0.32.v201211081135/org.apache.tomcat.api-7.0.32.v201211081135.jar" sourcepath="/IVY_CACHE/org.eclipse.virgo.mirrored/org.apache.tomcat.api/7.0.32.v201211081135/org.apache.tomcat.api.source-7.0.32.v201211081135.jar"/>
+	<classpathentry kind="var" path="IVY_CACHE/org.eclipse.virgo.mirrored/org.apache.tomcat.api/7.0.35.v201302120746/org.apache.tomcat.api-7.0.35.v201302120746.jar" sourcepath="/IVY_CACHE/org.eclipse.virgo.mirrored/org.apache.tomcat.api/7.0.35.v201302120746/org.apache.tomcat.api.source-7.0.35.v201302120746.jar"/>
 	<classpathentry kind="var" path="IVY_CACHE/org.eclipse.virgo.mirrored/org.eclipse.osgi/3.8.1.v20120830-144521/org.eclipse.osgi-3.8.1.v20120830-144521.jar" sourcepath="/IVY_CACHE/org.eclipse.virgo.mirrored/org.eclipse.osgi/3.8.1.v20120830-144521/org.eclipse.osgi-sources-3.8.1.v20120830-144521.jar"/>
 	<classpathentry kind="var" path="IVY_CACHE/org.eclipse.gemini/org.eclipse.gemini.web.tomcat/2.2.0.M02/org.eclipse.gemini.web.tomcat-2.2.0.M02.jar" sourcepath="/IVY_CACHE/org.eclipse.gemini/org.eclipse.gemini.web.tomcat/2.2.0.M02/org.eclipse.gemini.web.tomcat-sources-2.2.0.M02.jar"/>
 	<classpathentry kind="var" path="IVY_CACHE/javax.servlet/javax.servlet/3.0.0.v201103241009/javax.servlet-3.0.0.v201103241009.jar" sourcepath="/IVY_CACHE/javax.servlet/javax.servlet/3.0.0.v201103241009/javax.servlet-sources-3.0.0.v201103241009.jar"/>
