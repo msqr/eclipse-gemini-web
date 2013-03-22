@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2013 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -159,6 +159,7 @@ public class TomcatServletContainerTests {
             validateURLExpectedContent("http://localhost:8080/war-with-servlet/", new String[] { "path info: /", "servlet path: ", "context path: " });
             validateURLExpectedContent("http://localhost:8080/war-with-servlet/alabala", new String[] { "path info: null", "servlet path: /alabala",
                 "context path: /war-with-servlet" });
+            validateURLExpectedContent("http://localhost:8080/war-with-servlet/test.jsp", new String[] { "Found resources 2" });
         } finally {
             this.container.stopWebApplication(handle);
         }
@@ -203,7 +204,8 @@ public class TomcatServletContainerTests {
 
     @Test
     public void testWarWithJSTLFromDependency() throws MalformedURLException, IOException, BundleException {
-        String jstlLocation = "file:" + IVY_CACHE + "/repository/org.eclipse.virgo.mirrored/javax.servlet.jsp.jstl/1.2.0.v201105211821/javax.servlet.jsp.jstl-1.2.0.v201105211821.jar";
+        String jstlLocation = "file:" + IVY_CACHE
+            + "/repository/org.eclipse.virgo.mirrored/javax.servlet.jsp.jstl/1.2.0.v201105211821/javax.servlet.jsp.jstl-1.2.0.v201105211821.jar";
         Bundle jstlBundle = this.bundleContext.installBundle(jstlLocation);
 
         try {
@@ -232,7 +234,8 @@ public class TomcatServletContainerTests {
 
     @Test
     public void testWarWithJSTLFromExplodedDependency() throws MalformedURLException, IOException, BundleException {
-        String jstlPath = IVY_CACHE + "/repository/org.eclipse.virgo.mirrored/javax.servlet.jsp.jstl/1.2.0.v201105211821/javax.servlet.jsp.jstl-1.2.0.v201105211821.jar";
+        String jstlPath = IVY_CACHE
+            + "/repository/org.eclipse.virgo.mirrored/javax.servlet.jsp.jstl/1.2.0.v201105211821/javax.servlet.jsp.jstl-1.2.0.v201105211821.jar";
         PathReference jstl = new PathReference(jstlPath);
         PathReference unzippedJstl = explode(jstl);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2013 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -118,13 +118,13 @@ public final class ChainedClassLoader extends ClassLoader implements BundleRefer
     }
 
     private Enumeration<URL> doGetResources(String name) throws IOException {
-        Map<String, URL> urls = new HashMap<String, URL>();
+        Map<Integer, URL> urls = new HashMap<Integer, URL>();
         for (ClassLoader loader : this.loaders) {
             Enumeration<URL> resources = loader.getResources(name);
             if (resources != null) {
                 while (resources.hasMoreElements()) {
                     URL url = resources.nextElement();
-                    urls.put(url.getFile(), url);
+                    urls.put(url.hashCode(), url);
                 }
             }
         }
