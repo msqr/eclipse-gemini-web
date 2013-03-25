@@ -1,6 +1,6 @@
 <Context>
 
-   <!--Loader className="org.apache.catalina.loader.WebappLoader"/-->
+   <Loader className="org.apache.catalina.loader.WebappLoader"/>
 
    <Valve
         className="org.apache.catalina.valves.AccessLogValve"
