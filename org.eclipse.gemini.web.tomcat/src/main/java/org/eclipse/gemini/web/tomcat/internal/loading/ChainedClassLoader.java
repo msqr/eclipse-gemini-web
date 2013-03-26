@@ -118,13 +118,15 @@ public final class ChainedClassLoader extends ClassLoader implements BundleRefer
     }
 
     private Enumeration<URL> doGetResources(String name) throws IOException {
-        Map<Integer, URL> urls = new HashMap<Integer, URL>();
+        Map<String, URL> urls = new HashMap<String, URL>();
         for (ClassLoader loader : this.loaders) {
             Enumeration<URL> resources = loader.getResources(name);
             if (resources != null) {
                 while (resources.hasMoreElements()) {
                     URL url = resources.nextElement();
-                    urls.put(url.hashCode(), url);
+					// We use Map structure and not Set structure, because
+					// URL#toExternalForm() perform better than URL#equals()
+                    urls.put(url.toExternalForm(), url);
                 }
             }
         }
