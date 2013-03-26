@@ -124,8 +124,8 @@ public final class ChainedClassLoader extends ClassLoader implements BundleRefer
             if (resources != null) {
                 while (resources.hasMoreElements()) {
                     URL url = resources.nextElement();
-					// We use Map structure and not Set structure, because
-					// URL#toExternalForm() perform better than URL#equals()
+                    // We use Map structure and not Set structure, because
+                    // URL#toExternalForm() perform better than URL#equals()
                     urls.put(url.toExternalForm(), url);
                 }
             }
