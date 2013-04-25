@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2013 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,6 +19,7 @@ package org.eclipse.gemini.web.tomcat.internal;
 import java.lang.instrument.ClassFileTransformer;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.gemini.web.tomcat.internal.loading.ChainedClassLoader;
@@ -79,7 +80,7 @@ final class DelegatingClassLoaderCustomizer implements ClassLoaderCustomizer {
     @Override
     public ClassLoader[] extendClassLoaderChain(Bundle bundle) {
         if (this.delegate != null && this.delegate.size() > 0) {
-            Set<ClassLoader> result = new HashSet<ClassLoader>();
+            Set<ClassLoader> result = new LinkedHashSet<ClassLoader>();
             for (ClassLoaderCustomizer classLoaderCustomizer : this.delegate) {
                 result.addAll(Arrays.asList(classLoaderCustomizer.extendClassLoaderChain(bundle)));
             }
