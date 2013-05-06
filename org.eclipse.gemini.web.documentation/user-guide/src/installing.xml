@@ -27,7 +27,7 @@
 			<listitem>
 				<para>
 					Configure Equinox by creating a directory ~/gemini-web-test/configuration and create a file config.ini in the configuration directory. 
-					Example file which works with 2.2.0.RELEASE is available in <ulink url="http://wiki.eclipse.org/images/2/23/Config.ini.2.2.0.zip">config.ini.zip</ulink>. 
+					Example file which works with 2.2.0.RELEASE is available in <ulink url="http://wiki.eclipse.org/images/0/03/Config.ini.2.2.0.zip">config.ini.zip</ulink>. 
 					Essentially config.ini ensures that the dependencies of @product.name@, which come in the dep directory, are installed and then the @product.name@ bundles are installed and started. 
 				</para>
 			</listitem>
