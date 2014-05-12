@@ -168,13 +168,15 @@ public class DirTransformerTests {
 
         File[] sourceFiles = source.listFiles();
         File[] destinationFiles = destination.listFiles();
-        assertEquals(sourceFiles.length, destinationFiles.length);
+        if (sourceFiles != null && destinationFiles != null) {
+            assertEquals(sourceFiles.length, destinationFiles.length);
 
-        for (int i = 0; i < sourceFiles.length; i++) {
-            File sourceFile = sourceFiles[i];
-            File destinationFile = destinationFiles[i];
-            assertEquals(sourceFile.getName(), destinationFile.getName());
-            assertEquals(sourceFile.length(), destinationFile.length());
+            for (int i = 0; i < sourceFiles.length; i++) {
+                File sourceFile = sourceFiles[i];
+                File destinationFile = destinationFiles[i];
+                assertEquals(sourceFile.getName(), destinationFile.getName());
+                assertEquals(sourceFile.length(), destinationFile.length());
+            }
         }
     }
 

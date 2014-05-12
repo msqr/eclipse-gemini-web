@@ -399,7 +399,11 @@ public class TomcatServletContainerTests {
         this.container.startWebApplication(handle);
         try {
             ServletContext context = handle.getServletContext();
-            long lm = context.getResource("/META-INF/").openConnection().getLastModified();
+            URL resource = context.getResource("/META-INF/");
+            long lm = 0;
+            if (resource != null) {
+                lm = resource.openConnection().getLastModified();
+            }
             assertTrue(lm != 0);
         } finally {
             this.container.stopWebApplication(handle);
