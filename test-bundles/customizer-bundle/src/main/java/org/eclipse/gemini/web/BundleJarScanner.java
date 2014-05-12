@@ -46,7 +46,9 @@ public class BundleJarScanner implements JarScanner {
     @Override
     public void scan(ServletContext servletContext, ClassLoader classLoader, JarScannerCallback jarScannerCallback, Set<String> jarsToSkip) {
         Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-        scanBundle(bundle, jarScannerCallback);
+        if (bundle != null) {
+            scanBundle(bundle, jarScannerCallback);
+        }
     }
 
     private void scanBundle(Bundle bundle, JarScannerCallback callback) {

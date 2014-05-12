@@ -28,7 +28,9 @@ public class BundleServletContainerInitializer implements ServletContainerInitia
     @Override
     public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
         ServletRegistration servletRegistration = ctx.addServlet("CustomServlet", new CustomServlet());
-        servletRegistration.addMapping("/CustomServlet");
+        if (servletRegistration != null) {
+            servletRegistration.addMapping("/CustomServlet");
+        }
     }
 
 }
