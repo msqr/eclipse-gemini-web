@@ -122,21 +122,24 @@ public class WebBundleUrlStreamHandlerServiceTests {
 
         File webAppDir = new File(connection.getURL().getPath());
         // Check Manifest
-        InputStream is = new FileInputStream(new File(webAppDir, JarFile.MANIFEST_NAME));
-        Manifest manifest = new Manifest(is);
+        InputStream is = null;
+        try {
+            is = new FileInputStream(new File(webAppDir, JarFile.MANIFEST_NAME));
+            Manifest manifest = new Manifest(is);
 
-        if (manifest != null) {
-            Attributes mainAttributes = manifest.getMainAttributes();
-            Set<Entry<Object, Object>> entrySet = mainAttributes.entrySet();
-            for (Entry<Object, Object> entry : entrySet) {
-                System.out.println(entry.getKey() + ": " + entry.getValue());
-                if ("Web-ContextPath".equals(entry.getKey().toString())) {
-                    assertTrue(contextPath.equals(entry.getValue().toString()));
+            if (manifest != null) {
+                Attributes mainAttributes = manifest.getMainAttributes();
+                Set<Entry<Object, Object>> entrySet = mainAttributes.entrySet();
+                for (Entry<Object, Object> entry : entrySet) {
+                    System.out.println(entry.getKey() + ": " + entry.getValue());
+                    if ("Web-ContextPath".equals(entry.getKey().toString())) {
+                        assertTrue(contextPath.equals(entry.getValue().toString()));
+                    }
                 }
             }
+        } finally {
+            IOUtils.closeQuietly(is);
         }
-
-        IOUtils.closeQuietly(is);
 
         // Check web.xml
         assertEquals(webXml.length(), new File(webAppDir, "WEB-INF" + File.separator + "web.xml").length());
