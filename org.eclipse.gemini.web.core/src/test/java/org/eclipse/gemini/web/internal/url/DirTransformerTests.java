@@ -181,13 +181,17 @@ public class DirTransformerTests {
     }
 
     private void checkManifest(File manifestFile) throws IOException {
-        InputStream is = new FileInputStream(manifestFile);
-        Manifest manifest = new Manifest(is);
-        Attributes attr = manifest.getMainAttributes();
-        String value = attr.getValue("Custom-Header");
-        assertEquals("test", value);
-        assertEquals(1, attr.size());
-        IOUtils.closeQuietly(is);
+        InputStream is = null;
+        try {
+            is = new FileInputStream(manifestFile);
+            Manifest manifest = new Manifest(is);
+            Attributes attr = manifest.getMainAttributes();
+            String value = attr.getValue("Custom-Header");
+            assertEquals("test", value);
+            assertEquals(1, attr.size());
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
     }
 
     private void createManifest(File manifest, String... headers) throws IOException {

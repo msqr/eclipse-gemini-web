@@ -116,12 +116,15 @@ public class TomcatServletContainerTests {
     @Test
     public void testServletContainerAvailable() {
         assertNotNull(this.container);
+        Socket socket = null;
         try {
-            new Socket("localhost", 8080);
+            socket = new Socket("localhost", 8080);
         } catch (UnknownHostException e) {
             fail("Unable to connect");
         } catch (IOException e) {
             fail("Unable to connect");
+        } finally {
+            IOUtils.closeQuietly(socket);
         }
     }
 

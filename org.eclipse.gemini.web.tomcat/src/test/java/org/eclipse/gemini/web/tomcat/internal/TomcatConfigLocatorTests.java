@@ -25,9 +25,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Vector;
 
+import org.eclipse.virgo.util.io.IOUtils;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -44,7 +46,12 @@ public class TomcatConfigLocatorTests {
 
         replay(mockBundle, mockContext);
 
-        TomcatConfigLocator.resolveConfigFile(mockContext);
+        InputStream is = null;
+        try {
+            is = TomcatConfigLocator.resolveConfigFile(mockContext);
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
 
         verify(mockBundle, mockContext);
     }
@@ -61,7 +68,12 @@ public class TomcatConfigLocatorTests {
         BundleContext mockContext = createMockBundleContext(mockBundle);
         replay(mockBundle, mockContext);
 
-        TomcatConfigLocator.resolveConfigFile(mockContext);
+        InputStream is = null;
+        try {
+            is = TomcatConfigLocator.resolveConfigFile(mockContext);
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
 
         verify(mockBundle, mockContext);
     }
@@ -77,7 +89,12 @@ public class TomcatConfigLocatorTests {
 
         replay(mockBundle, mockContext);
 
-        TomcatConfigLocator.resolveConfigFile(mockContext);
+        InputStream is = null;
+        try {
+            is = TomcatConfigLocator.resolveConfigFile(mockContext);
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
     }
 
     @Test
