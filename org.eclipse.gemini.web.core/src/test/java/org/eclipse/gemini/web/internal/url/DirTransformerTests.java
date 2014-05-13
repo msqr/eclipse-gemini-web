@@ -139,14 +139,13 @@ public class DirTransformerTests {
         PathReference webXml = webAppDir.newChild(WEB_INF + File.separator + WEB_XML);
         webXml.createFile();
 
-        DirTransformer transformer;
         try {
-            transformer = new DirTransformer(null);
+            new DirTransformer(null);
         } catch (Exception e) {
             assertTrue("Callback must not be null".equals(e.getMessage()));
         }
 
-        transformer = new DirTransformer(new DirTransformerCallback() {
+        DirTransformer transformer = new DirTransformer(new DirTransformerCallback() {
 
             @Override
             public boolean transformFile(InputStream inputStream, PathReference toFile) throws IOException {
