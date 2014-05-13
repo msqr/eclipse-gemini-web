@@ -124,7 +124,12 @@ public class TomcatServletContainerTests {
         } catch (IOException e) {
             fail("Unable to connect");
         } finally {
-            IOUtils.closeQuietly(socket);
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                }
+            }
         }
     }
 
