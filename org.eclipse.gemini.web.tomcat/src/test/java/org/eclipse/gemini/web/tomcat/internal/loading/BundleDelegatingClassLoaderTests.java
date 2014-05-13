@@ -167,7 +167,7 @@ public class BundleDelegatingClassLoaderTests extends TestCase {
         assertNull(this.classLoader.findResources(resource1));
     }
 
-    private class TestClassLoader extends ClassLoader {
+    private static class TestClassLoader extends ClassLoader {
 
         @Override
         public Class<?> loadClass(String name) throws ClassNotFoundException {
