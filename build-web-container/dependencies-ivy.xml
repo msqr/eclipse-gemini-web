@@ -27,6 +27,7 @@
 		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.juli.extras" rev="${org.apache.juli.extras}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.api" rev="${org.apache.tomcat.api}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.util" rev="${org.apache.tomcat.util}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.websocket" rev="${org.apache.tomcat.websocket}" conf="dep->runtime"/>
 		
 		<dependency org="org.eclipse.virgo.mirrored" name="org.eclipse.jdt.core.compiler.batch" rev="${org.eclipse.jdt}" conf="dep->runtime"/>
 		
@@ -41,6 +42,7 @@
 		<dependency org="org.eclipse.virgo.mirrored" name="javax.transaction" rev="${javax.transaction}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="javax.xml.rpc" rev="${javax.xml.rpc}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="javax.xml.soap" rev="${javax.xml.soap}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="javax.websocket" rev="${javax.websocket}" conf="dep->runtime"/>
 		
 		<dependency org="org.eclipse.virgo.mirrored" name="org.slf4j.api" rev="${org.slf4j.api}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="org.slf4j.nop" rev="${org.slf4j.nop}" conf="dep->runtime"/>
