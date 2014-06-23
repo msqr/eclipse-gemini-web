@@ -30,11 +30,13 @@ import javax.servlet.ServletContext;
 
 import org.apache.tomcat.JarScanner;
 import org.apache.tomcat.JarScannerCallback;
+import org.apache.tomcat.websocket.server.WsSci;
 import org.eclipse.gemini.web.tomcat.internal.loading.BundleWebappClassLoader;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleDependencyDeterminer;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolver;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,13 +58,13 @@ final class BundleDependenciesJarScanner implements JarScanner {
     /**
      * By default the Bundle Dependencies Jar Scanner will exclude the bundles listed below from the scanning process as
      * they do not provide TLDs and web-fragment.xml files: org.eclipse.osgi, javax.servlet, javax.servlet.jsp,
-     * javax.el. The default behavior can be changed with property
+     * javax.el,javax.websocket. The default behavior can be changed with property
      * <code>org.eclipse.gemini.web.tomcat.scanner.skip.bundles</code>. The syntax is
      * <code>org.eclipse.gemini.web.tomcat.scanner.skip.bundles=&lt;bundle-symbolic-name&gt;,&lt;bundle-symbolic-name&gt;,...</code>
      */
     static final String SCANNER_SKIP_BUNDLES_PROPERTY_NAME = "org.eclipse.gemini.web.tomcat.scanner.skip.bundles";
 
-    private static final String SCANNER_SKIP_BUNDLES_PROPERTY_VALUE_DEFAULT = "org.eclipse.osgi,javax.servlet,javax.servlet.jsp,javax.el";
+    private static final String SCANNER_SKIP_BUNDLES_PROPERTY_VALUE_DEFAULT = "org.eclipse.osgi,javax.servlet,javax.servlet.jsp,javax.el,javax.websocket";
 
     private static final String JAR_URL_SUFFIX = "!/";
 
@@ -95,6 +97,11 @@ final class BundleDependenciesJarScanner implements JarScanner {
 
     private void scanDependentBundles(Bundle rootBundle, JarScannerCallback callback) {
         Set<Bundle> dependencies = this.bundleDependencyDeterminer.getDependencies(rootBundle);
+
+        Bundle apacheWebsocketBundle = FrameworkUtil.getBundle(WsSci.class);
+        if (apacheWebsocketBundle != null) {
+            dependencies.add(apacheWebsocketBundle);
+        }
 
         for (Bundle bundle : dependencies) {
             if (!this.skipBundles.contains(bundle.getSymbolicName())) {
