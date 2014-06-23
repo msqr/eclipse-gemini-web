@@ -55,6 +55,8 @@ public final class DefaultsWebBundleManifestTransformer implements WebBundleMani
         addImportInNecessary("javax.servlet.jsp.el", new Version("2.1"), manifest);
         addImportInNecessary("javax.servlet.jsp.tagext", new Version("2.1"), manifest);
         addImportInNecessary("javax.el", new Version("1.0"), manifest);
+        addImportInNecessary("javax.websocket", new Version("1.0"), manifest);
+        addImportInNecessary("javax.websocket.server", new Version("1.0"), manifest);
     }
 
     private void addImportInNecessary(String packageName, Version version, BundleManifest manifest) {
