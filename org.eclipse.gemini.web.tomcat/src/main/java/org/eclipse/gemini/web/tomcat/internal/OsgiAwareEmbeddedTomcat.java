@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -248,7 +248,7 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
             LOGGER.debug("Creating context '" + path + "' with docBase '" + docBase + "'");
         }
 
-        StandardContext context = new ExtendedStandardContext();
+        StandardContext context = new ExtendedStandardContext(bundle);
 
         ExtendedContextConfig config = new ExtendedContextConfig();
 
@@ -382,25 +382,6 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
         @Override
         public Digester createStartDigester() {
             return super.createStartDigester();
-        }
-
-    }
-
-    /**
-     * Extends the Tomcat {@link StandardContext} to add custom functionality.
-     * 
-     * 
-     */
-    private static class ExtendedStandardContext extends StandardContext {
-
-        /**
-         * Returns <code>true</code> for exploded bundles.
-         */
-        @Override
-        public boolean isFilesystemBased() {
-            String docBase = getDocBase();
-            File f = new File(docBase);
-            return f.isDirectory();
         }
 
     }
