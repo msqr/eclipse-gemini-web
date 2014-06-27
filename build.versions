@@ -34,6 +34,6 @@ org.apache.juli.extras=7.0.53.v201406060720
 org.apache.tomcat.api=7.0.53.v201406060720
 org.apache.tomcat.util=7.0.53.v201406070630
 org.apache.tomcat.websocket=7.0.53.v201406070630
-org.eclipse.jdt=3.8.0.I20120518-2145
+org.eclipse.jdt=3.10.0.v20140604-1726
 org.slf4j.api=1.7.2.v20121108-1250
 org.slf4j.nop=1.7.2.v201212060727
