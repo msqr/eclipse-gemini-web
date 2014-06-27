@@ -20,6 +20,6 @@ cp $SRC/org.apache.tomcat.websocket-7.0.53.*.jar $REPO/org.apache.tomcat.util/or
 cp $SRC/org.eclipse.gemini.web.core-2.2.1.*.jar $REPO/org.eclipse.gemini.web.core/org.eclipse.gemini.web.core-2.2.1.jar
 cp $SRC/org.eclipse.gemini.web.extender-2.2.1.*.jar $REPO/org.eclipse.gemini.web.extender/org.eclipse.gemini.web.extender-2.2.1.jar
 cp $SRC/org.eclipse.gemini.web.tomcat-2.2.1.*.jar $REPO/org.eclipse.gemini.web.tomcat/org.eclipse.gemini.web.tomcat-2.2.1.jar
-cp $SRC/org.eclipse.jdt.core.compiler.batch-3.8.0.*.jar $REPO/org.eclipse.jdt.core.compiler.batch/org.eclipse.jdt.core.compiler.batch-3.8.0.jar
+cp $SRC/org.eclipse.jdt.core.compiler.batch-3.10.0.*.jar $REPO/org.eclipse.jdt.core.compiler.batch/org.eclipse.jdt.core.compiler.batch-3.10.0.jar
 cp $SRC/org.slf4j.api-1.7.2.*.jar $REPO/org.slf4j.api/org.slf4j.api-1.7.2.jar
 cp $SRC/org.slf4j.nop-1.7.2.*.jar $REPO/org.slf4j.nop/org.slf4j.nop-1.7.2.jar
