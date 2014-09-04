@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -80,9 +80,11 @@ public class WebBundleUrl {
      * @return the options in a String->String map
      */
     public final Map<String, String> getOptions() {
-        synchronized (this.monitor) {
-            if (this.options == null) {
-                this.options = parseQueryString(this.url.getQuery());
+        if (this.options == null) {
+            synchronized (this.monitor) {
+                if (this.options == null) {
+                    this.options = parseQueryString(this.url.getQuery());
+                }
             }
         }
         return this.options;
