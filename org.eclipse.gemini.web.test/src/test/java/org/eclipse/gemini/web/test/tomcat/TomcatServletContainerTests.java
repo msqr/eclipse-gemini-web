@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2013 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -462,9 +462,9 @@ public class TomcatServletContainerTests {
             this.container.stopWebApplication(handle2);
             bundle2.uninstall();
 
-            defaultContextXml.delete();
-            defaultHostContextXml.delete();
-            tomcatServerXml.delete();
+            assertTrue(defaultContextXml.delete());
+            assertTrue(defaultHostContextXml.delete());
+            assertTrue(tomcatServerXml.delete());
         }
     }
 
@@ -631,8 +631,8 @@ public class TomcatServletContainerTests {
             this.container.stopWebApplication(handle);
             bundle.uninstall();
 
-            tomcatServerXml.delete();
-            defaultWebXml.delete();
+            assertTrue(tomcatServerXml.delete());
+            assertTrue(defaultWebXml.delete());
         }
     }
 
@@ -679,14 +679,16 @@ public class TomcatServletContainerTests {
             bundle.uninstall();
 
             FileSystemUtils.deleteRecursively(webAppDir);
-            tomcatServerXml.delete();
-            defaultWebXml.delete();
+            assertTrue(tomcatServerXml.delete());
+            assertTrue(defaultWebXml.delete());
         }
     }
 
     private void createFileWithContent(File file, String content) throws Exception {
-        file.getParentFile().mkdirs();
-        FileWriter fWriter = null;
+        if (!file.getParentFile().exists()) {
+	        assertTrue(file.getParentFile().mkdirs());
+        }
+		FileWriter fWriter = null;
         try {
             fWriter = new FileWriter(file);
             fWriter.write(content);

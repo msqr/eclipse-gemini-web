@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG
+ * Copyright (c) 2010, 2014 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -84,8 +84,6 @@ public class WebappConfigLocatorTests {
         URL urlFile2 = new URL(CONFIG_FILE_LOCATION_2);
         URL jarFile1 = new URL(JAR_NAME_1);
         URL jarFile2 = new URL(JAR_NAME_2);
-        URL corruptedJarFile = new URL(CORRUPTED_JAR_NAME);
-        new File(corruptedJarFile.getPath()).createNewFile();
 
         byte[] buffer = new byte[1024];
         int bytesRead;
