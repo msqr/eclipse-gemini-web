@@ -156,12 +156,7 @@ public class TomcatServletContainerTests {
 
     @Test
     public void testWarWithServlet() throws Exception {
-        String location = LOCATION_WAR_WITH_SERVLET;
-        Bundle bundle = this.bundleContext.installBundle(location);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/war-with-servlet", bundle);
-        this.container.startWebApplication(handle);
+        Object[] result = startWebApplicationWith(LOCATION_WAR_WITH_SERVLET, "/war-with-servlet");
         try {
             validateURL("http://localhost:8080/war-with-servlet/test");
             validateURLExpectedContent("http://localhost:8080/war-with-servlet/", new String[] { "path info: /", "servlet path: ", "context path: " });
@@ -169,22 +164,19 @@ public class TomcatServletContainerTests {
                 "context path: /war-with-servlet" });
             validateURLExpectedContent("http://localhost:8080/war-with-servlet/test.jsp", new String[] { "Found resources 2" });
         } finally {
-            this.container.stopWebApplication(handle);
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
         }
     }
 
     @Test
     public void testWarWithBasicJSP() throws Exception {
-        String location = LOCATION_WAR_WITH_JSP;
-        Bundle bundle = this.bundleContext.installBundle(location);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/war-with-jsp", bundle);
-        this.container.startWebApplication(handle);
+        Object[] result = startWebApplicationWith(LOCATION_WAR_WITH_JSP, "/war-with-jsp");
         try {
             validateURL("http://localhost:8080/war-with-jsp/index.jsp");
         } finally {
-            this.container.stopWebApplication(handle);
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
         }
     }
 
@@ -194,60 +186,39 @@ public class TomcatServletContainerTests {
     }
 
     private void testWarWithJSTL(String addtionalUrlSuffix) throws MalformedURLException, IOException, BundleException {
-        String location = LOCATION_WAR_WITH_TLD + addtionalUrlSuffix;
-        Bundle bundle = this.bundleContext.installBundle(location);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/war-with-tld", bundle);
-        this.container.startWebApplication(handle);
+        Object[] result = startWebApplicationWith(LOCATION_WAR_WITH_TLD + addtionalUrlSuffix, "/war-with-tld");
         try {
-            String realPath = handle.getServletContext().getRealPath("/");
-            System.out.println(realPath);
             validateURL("http://localhost:8080/war-with-tld/test.jsp");
         } finally {
-            this.container.stopWebApplication(handle);
-            bundle.uninstall();
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
         }
     }
 
     @Test
     public void testWarWithJSTLFromDependency() throws MalformedURLException, IOException, BundleException {
-        String jstlLocation = "file:" + IVY_CACHE
-            + "/repository/org.eclipse.virgo.mirrored/javax.servlet.jsp.jstl/1.2.0.v201105211821/javax.servlet.jsp.jstl-1.2.0.v201105211821.jar";
-        Bundle jstlBundle = this.bundleContext.installBundle(jstlLocation);
-
-        try {
-            Bundle bundle = this.bundleContext.installBundle(LOCATION_WAR_WITH_TLD_FROM_DEPENDENCY);
-
-            try {
-                bundle.start();
-
-                WebApplicationHandle handle = this.container.createWebApplication("/war-with-tld-from-dependency", bundle);
-                this.container.startWebApplication(handle);
-
-                try {
-                    String realPath = handle.getServletContext().getRealPath("/");
-                    System.out.println(realPath);
-                    validateURL("http://localhost:8080/war-with-tld-from-dependency/test.jsp");
-                } finally {
-                    this.container.stopWebApplication(handle);
-                }
-            } finally {
-                bundle.uninstall();
-            }
-        } finally {
-            jstlBundle.uninstall();
-        }
+        testJSTL(false);
     }
 
     @Test
     public void testWarWithJSTLFromExplodedDependency() throws MalformedURLException, IOException, BundleException {
-        String jstlPath = IVY_CACHE
-            + "/repository/org.eclipse.virgo.mirrored/javax.servlet.jsp.jstl/1.2.0.v201105211821/javax.servlet.jsp.jstl-1.2.0.v201105211821.jar";
-        PathReference jstl = new PathReference(jstlPath);
-        PathReference unzippedJstl = explode(jstl);
+        testJSTL(true);
+    }
 
-        String jstlLocation = "file:" + unzippedJstl.getAbsolutePath();
+    private void testJSTL(boolean exploded) throws BundleException, MalformedURLException, IOException {
+        String jstlLocation;
+        PathReference unzippedJstl = null;
+        if (!exploded) {
+            jstlLocation = "file:" + IVY_CACHE
+                + "/repository/org.eclipse.virgo.mirrored/javax.servlet.jsp.jstl/1.2.0.v201105211821/javax.servlet.jsp.jstl-1.2.0.v201105211821.jar";
+        } else {
+            String jstlPath = IVY_CACHE
+                + "/repository/org.eclipse.virgo.mirrored/javax.servlet.jsp.jstl/1.2.0.v201105211821/javax.servlet.jsp.jstl-1.2.0.v201105211821.jar";
+            PathReference jstl = new PathReference(jstlPath);
+            unzippedJstl = explode(jstl);
+
+            jstlLocation = "file:" + unzippedJstl.getAbsolutePath();
+        }
         Bundle jstlBundle = this.bundleContext.installBundle(jstlLocation);
 
         try {
@@ -269,57 +240,43 @@ public class TomcatServletContainerTests {
             }
         } finally {
             jstlBundle.uninstall();
-            unzippedJstl.delete(true);
+            if (exploded && unzippedJstl != null) {
+                unzippedJstl.delete(true);
+            }
         }
     }
 
     @Test
     public void testWarWithJSTLThatImportsSystemPackages() throws MalformedURLException, IOException, BundleException {
-        String location = LOCATION_WAR_WITH_TLD_IMPORT_SYSTEM_PACKAGES;
-        Bundle bundle = this.bundleContext.installBundle(location);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/war-with-tld", bundle);
-        this.container.startWebApplication(handle);
+        Object[] result = startWebApplicationWith(LOCATION_WAR_WITH_TLD_IMPORT_SYSTEM_PACKAGES, "/war-with-tld");
         try {
-            String realPath = handle.getServletContext().getRealPath("/");
-            System.out.println(realPath);
             validateURL("http://localhost:8080/war-with-tld/test.jsp");
         } finally {
-            this.container.stopWebApplication(handle);
-            bundle.uninstall();
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
         }
     }
 
     @Test
     public void testGetRealPathWithJarBundle() throws Exception {
-        String location = LOCATION_WAR_WITH_SERVLET;
-        Bundle bundle = this.bundleContext.installBundle(location);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/war-with-servlet", bundle);
-        this.container.startWebApplication(handle);
+        Object[] result = startWebApplicationWith(LOCATION_WAR_WITH_SERVLET, "/war-with-servlet");
         try {
-            ServletContext context = handle.getServletContext();
+            ServletContext context = ((WebApplicationHandle) result[1]).getServletContext();
             assertNotNull(context);
 
             String path = context.getRealPath("/WEB-INF/web.xml");
             assertNull(path);
         } finally {
-            this.container.stopWebApplication(handle);
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
         }
     }
 
     @Test
     public void testServletContextResourceLookup() throws Exception {
-        String location = LOCATION_WAR_WITH_SERVLET;
-        Bundle bundle = this.bundleContext.installBundle(location);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/war-with-servlet", bundle);
-        this.container.startWebApplication(handle);
+        Object[] result = startWebApplicationWith(LOCATION_WAR_WITH_SERVLET, "/war-with-servlet");
         try {
-            ServletContext context = handle.getServletContext();
+            ServletContext context = ((WebApplicationHandle) result[1]).getServletContext();
             assertNotNull(context);
 
             URL resource = context.getResource("/WEB-INF/web.xml");
@@ -333,23 +290,20 @@ public class TomcatServletContainerTests {
             assertEquals(3, paths.size());
 
         } finally {
-            this.container.stopWebApplication(handle);
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
         }
     }
 
     @Test
     public void rootContextPath() throws Exception {
-        String location = LOCATION_WAR_WITH_SERVLET;
-        Bundle bundle = this.bundleContext.installBundle(location);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("", bundle);
-        this.container.startWebApplication(handle);
+        Object[] result = startWebApplicationWith(LOCATION_WAR_WITH_SERVLET, "");
         try {
-            ServletContext context = handle.getServletContext();
+            ServletContext context = ((WebApplicationHandle) result[1]).getServletContext();
             assertEquals("", context.getContextPath());
         } finally {
-            this.container.stopWebApplication(handle);
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
         }
     }
 
@@ -399,14 +353,9 @@ public class TomcatServletContainerTests {
 
     @Test
     public void testLastModified() throws Exception {
-        String location = LOCATION_WAR_WITH_SERVLET;
-        Bundle bundle = this.bundleContext.installBundle(location);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("", bundle);
-        this.container.startWebApplication(handle);
+        Object[] result = startWebApplicationWith(LOCATION_WAR_WITH_SERVLET, "");
         try {
-            ServletContext context = handle.getServletContext();
+            ServletContext context = ((WebApplicationHandle) result[1]).getServletContext();
             URL resource = context.getResource("/META-INF/");
             long lm = 0;
             if (resource != null) {
@@ -414,7 +363,8 @@ public class TomcatServletContainerTests {
             }
             assertTrue(lm != 0);
         } finally {
-            this.container.stopWebApplication(handle);
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
         }
     }
 
@@ -488,20 +438,17 @@ public class TomcatServletContainerTests {
         File otherStaticResource = new File(otherDirectory, "test.txt");
         createFileWithContent(otherStaticResource, "TEST");
 
-        Bundle bundle = this.bundleContext.installBundle(LOCATION_PREFIX + webAppDir.getAbsolutePath() + "?Web-ContextPath=/simple-web-app-dir");
-        bundle.start();
-        assertNotNull(bundle.getSymbolicName());
+        Object[] result = startWebApplicationWith(LOCATION_PREFIX + webAppDir.getAbsolutePath() + "?Web-ContextPath=/simple-web-app-dir",
+            "/simple-web-app-dir");
 
-        WebApplicationHandle handle = this.container.createWebApplication("/simple-web-app-dir", bundle);
-        this.container.startWebApplication(handle);
         try {
             validateURL("http://localhost:8080/simple-web-app-dir/index.jsp");
             validateNotFound("http://localhost:8080/simple-web-app-dir/META-INF./MANIFEST.MF");
             validateURLExpectedContent("http://localhost:8080/simple-web-app-dir/blah/META-INF./MANIFEST.MF", "Manifest-Version: 1.0");
             validateURLExpectedContent("http://localhost:8080/simple-web-app-dir/blah/META-INF.blah/test.txt", "TEST");
         } finally {
-            this.container.stopWebApplication(handle);
-            bundle.uninstall();
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
             FileSystemUtils.deleteRecursively(webAppDir);
             FileSystemUtils.deleteRecursively(new File("temp"));
         }
@@ -509,50 +456,37 @@ public class TomcatServletContainerTests {
 
     @Test
     public void testWarWithWebXmlFromFragment() throws Exception {
-        Bundle bundle = this.bundleContext.installBundle(LOCATION_WAR_WITH_WEB_XML_FROM_FRAGMENT);
         Bundle fragment = this.bundleContext.installBundle(LOCATION_FRAGMENT_PROVIDES_WEB_XML);
 
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/war-with-web-xml-from-fragment", bundle);
-        this.container.startWebApplication(handle);
+        Object[] result = startWebApplicationWith(LOCATION_WAR_WITH_WEB_XML_FROM_FRAGMENT, "/war-with-web-xml-from-fragment");
         try {
             validateURL("http://localhost:8080/war-with-web-xml-from-fragment");
         } finally {
-            this.container.stopWebApplication(handle);
-            bundle.uninstall();
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
             fragment.uninstall();
         }
     }
 
     @Test
     public void testWarWithAnnotations() throws Exception {
-        String location = LOCATION_PREFIX + LOCATION_WAR_WITH_ANNOTATIONS;
-        Bundle bundle = this.bundleContext.installBundle(location);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/war-with-annotations", bundle);
-        this.container.startWebApplication(handle);
+        Object[] result = startWebApplicationWith(LOCATION_PREFIX + LOCATION_WAR_WITH_ANNOTATIONS, "/war-with-annotations");
         try {
             validateURL("http://localhost:8080/war-with-annotations/TestServlet");
         } finally {
-            this.container.stopWebApplication(handle);
-            bundle.uninstall();
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
         }
     }
 
     @Test
     public void testStaticResourceInNestedJar() throws Exception {
-        Bundle bundle = this.bundleContext.installBundle(LOCATION_WAR_WITH_SERVLET);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/war-with-servlet", bundle);
-        this.container.startWebApplication(handle);
+        Object[] result = startWebApplicationWith(LOCATION_WAR_WITH_SERVLET, "/war-with-servlet");
         try {
             validateURLExpectedContent("http://localhost:8080/war-with-servlet/meta_inf_resource.jsp", "TEST");
         } finally {
-            this.container.stopWebApplication(handle);
-            bundle.uninstall();
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
         }
     }
 
@@ -561,28 +495,19 @@ public class TomcatServletContainerTests {
         Bundle customizer = this.bundleContext.installBundle(LOCATION_BUNDLE_CUSTOMIZER);
         customizer.start();
 
-        Bundle bundle = this.bundleContext.installBundle(LOCATION_WAR_WITH_SERVLET);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/war-with-servlet", bundle);
-        this.container.startWebApplication(handle);
+        Object[] result = startWebApplicationWith(LOCATION_WAR_WITH_SERVLET, "/war-with-servlet");
         try {
             validateURL("http://localhost:8080/war-with-servlet/CustomServlet");
         } finally {
-            this.container.stopWebApplication(handle);
-            bundle.uninstall();
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
             customizer.uninstall();
         }
     }
 
     @Test
     public void testWarWithResourceRefereces() throws Exception {
-        String location = LOCATION_PREFIX + LOCATION_WAR_WITH_RESOURCE_REFERENCES;
-        Bundle bundle = this.bundleContext.installBundle(location);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/war-with-resource-references", bundle);
-        this.container.startWebApplication(handle);
+        Object[] result = startWebApplicationWith(LOCATION_PREFIX + LOCATION_WAR_WITH_RESOURCE_REFERENCES, "/war-with-resource-references");
         try {
             validateURLExpectedContent("http://localhost:8080/war-with-resource-references/Bug52792Servlet",
                 "Name [unknown-resource] is not bound in this Context. Unable to find [unknown-resource].");
@@ -594,8 +519,8 @@ public class TomcatServletContainerTests {
             validateURLExpectedContent("http://localhost:8080/war-with-resource-references/Bug53090Servlet",
                 "Resource injection: super class: resource");
         } finally {
-            this.container.stopWebApplication(handle);
-            bundle.uninstall();
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
         }
     }
 
@@ -620,16 +545,12 @@ public class TomcatServletContainerTests {
                 + "<filter>\n<filter-name>requestdumper</filter-name>\n<filter-class>org.apache.catalina.filters.RequestDumperFilter</filter-class>\n</filter>\n"
                 + "<filter-mapping>\n<filter-name>requestdumper</filter-name>\n<url-pattern>/*</url-pattern>\n</filter-mapping>\n</web-app>");
 
-        Bundle bundle = this.bundleContext.installBundle(LOCATION_WAR_WITH_TLD);
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/war-with-tld", bundle);
-        this.container.startWebApplication(handle);
+        Object[] result = startWebApplicationWith(LOCATION_WAR_WITH_TLD, "/war-with-tld");
         try {
             validateURLExpectedContent("http://localhost:8080/war-with-tld", new String[] { "test.jsp", "0.2 kb" });
         } finally {
-            this.container.stopWebApplication(handle);
-            bundle.uninstall();
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
 
             assertTrue(tomcatServerXml.delete());
             assertTrue(defaultWebXml.delete());
@@ -663,11 +584,7 @@ public class TomcatServletContainerTests {
         createFileWithContent(manifest, "Manifest-Version: 1.0\n" + "Bundle-ManifestVersion: 2\n" + "Web-ContextPath: /simple-web-app-dir\n"
             + "Bundle-SymbolicName: simple-web-app-dir\n\n");
 
-        Bundle bundle = this.bundleContext.installBundle("reference:file:" + webAppDir.getAbsolutePath());
-        bundle.start();
-
-        WebApplicationHandle handle = this.container.createWebApplication("/simple-web-app-dir", bundle);
-        this.container.startWebApplication(handle);
+        Object[] result = startWebApplicationWith("reference:file:" + webAppDir.getAbsolutePath(), "/simple-web-app-dir");
         try {
             validateURL("http://localhost:8080/simple-web-app-dir/test/test.html");
             validateURL("http://localhost:8080/simple-web-app-dir/test");
@@ -675,8 +592,8 @@ public class TomcatServletContainerTests {
             FileSystemUtils.deleteRecursively(testFolder);
             validateNotFound("http://localhost:8080/simple-web-app-dir/test");
         } finally {
-            this.container.stopWebApplication(handle);
-            bundle.uninstall();
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
 
             FileSystemUtils.deleteRecursively(webAppDir);
             assertTrue(tomcatServerXml.delete());
@@ -686,9 +603,9 @@ public class TomcatServletContainerTests {
 
     private void createFileWithContent(File file, String content) throws Exception {
         if (!file.getParentFile().exists()) {
-	        assertTrue(file.getParentFile().mkdirs());
+            assertTrue(file.getParentFile().mkdirs());
         }
-		FileWriter fWriter = null;
+        FileWriter fWriter = null;
         try {
             fWriter = new FileWriter(file);
             fWriter.write(content);
@@ -696,5 +613,15 @@ public class TomcatServletContainerTests {
         } finally {
             IOUtils.closeQuietly(fWriter);
         }
+    }
+
+    private Object[] startWebApplicationWith(String location, String contextPath) throws BundleException {
+        Bundle bundle = this.bundleContext.installBundle(location);
+        bundle.start();
+        assertNotNull(bundle.getSymbolicName());
+
+        WebApplicationHandle handle = this.container.createWebApplication(contextPath, bundle);
+        this.container.startWebApplication(handle);
+        return new Object[] { bundle, handle };
     }
 }

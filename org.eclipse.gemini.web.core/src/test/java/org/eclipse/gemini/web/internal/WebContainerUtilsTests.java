@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -60,57 +60,33 @@ public class WebContainerUtilsTests {
     }
 
     @Test
-    public void testIsWebBundleWithWarExtension() {
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getLocation()).andReturn("file:foo.war").anyTimes();
-        expect(bundle.getHeaders()).andReturn(EMPTY_PROPERTIES);
-        replay(bundle);
-        assertTrue(WebContainerUtils.isWebBundle(bundle));
-        assertEquals("foo", WebContainerUtils.getContextPath(bundle));
+    public void testIsWebBundleWithWarExtension() throws Exception {
+        testIsBundleWith("file:foo.war", EMPTY_PROPERTIES, null, "foo", true);
     }
 
     @Test
-    public void testIsWebBundleWithUpperCaseWarExtension() {
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getLocation()).andReturn("file:foo.WAR").anyTimes();
-        expect(bundle.getHeaders()).andReturn(EMPTY_PROPERTIES);
-        replay(bundle);
-        assertTrue(WebContainerUtils.isWebBundle(bundle));
-        assertEquals("foo", WebContainerUtils.getContextPath(bundle));
+    public void testIsWebBundleWithUpperCaseWarExtension() throws Exception {
+        testIsBundleWith("file:foo.WAR", EMPTY_PROPERTIES, null, "foo", true);
     }
 
     @Test
-    public void testIsWebBundleWithWarExtensionAndTrailingSlash() {
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getLocation()).andReturn("file:foo.war/").anyTimes();
-        expect(bundle.getHeaders()).andReturn(EMPTY_PROPERTIES);
-        replay(bundle);
-        assertTrue(WebContainerUtils.isWebBundle(bundle));
-        assertEquals("foo", WebContainerUtils.getContextPath(bundle));
+    public void testIsWebBundleWithWarExtensionAndTrailingSlash() throws Exception {
+        testIsBundleWith("file:foo.war/", EMPTY_PROPERTIES, null, "foo", true);
     }
 
     @Test
-    public void testIsWebBundleWithWarExtensionAndTrailingSlashes() {
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getLocation()).andReturn("file:foo.war//").anyTimes();
-        replay(bundle);
-        assertTrue(WebContainerUtils.isWebBundle(bundle));
+    public void testIsWebBundleWithWarExtensionAndTrailingSlashes() throws Exception {
+        testIsBundleWith("file:foo.war//", null, null, "foo", true);
     }
 
     @Test
-    public void testIsWebBundleWithUpperCaseWarExtensionAndTrailingSlash() {
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getLocation()).andReturn("file:foo.WAR/").anyTimes();
-        replay(bundle);
-        assertTrue(WebContainerUtils.isWebBundle(bundle));
+    public void testIsWebBundleWithUpperCaseWarExtensionAndTrailingSlash() throws Exception {
+        testIsBundleWith("file:foo.WAR/", null, null, "foo", true);
     }
 
     @Test
-    public void testIsWebBundleWithWebBundleScheme() {
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getLocation()).andReturn("webbundle:foo.jar").anyTimes();
-        replay(bundle);
-        assertTrue(WebContainerUtils.isWebBundle(bundle));
+    public void testIsWebBundleWithWebBundleScheme() throws Exception {
+        testIsBundleWith("webbundle:foo.jar", null, null, "foo", true);
     }
 
     @Test
@@ -118,21 +94,12 @@ public class WebContainerUtilsTests {
         Dictionary<String, String> p = new Hashtable<String, String>();
         p.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/foo");
 
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getLocation()).andReturn("file:foo.jar").anyTimes();
-        expect(bundle.getHeaders()).andReturn(p).anyTimes();
-        replay(bundle);
-        assertTrue(WebContainerUtils.isWebBundle(bundle));
+        testIsBundleWith("file:foo.jar", p, null, "/foo", true);
     }
 
     @Test
     public void testIsWebBundleWithWebXml() throws MalformedURLException {
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getLocation()).andReturn("file:foo.jar").anyTimes();
-        expect(bundle.getHeaders()).andReturn(new Hashtable<String, String>()).anyTimes();
-        expect(bundle.getEntry(WebContainerUtils.ENTRY_WEB_XML)).andReturn(new URL("file:foo.txt")).anyTimes();
-        replay(bundle);
-        assertTrue(WebContainerUtils.isWebBundle(bundle));
+        testIsBundleWith("file:foo.jar", EMPTY_PROPERTIES, "file:foo.txt", "foo", true);
     }
 
     @Test
@@ -150,35 +117,17 @@ public class WebContainerUtilsTests {
         Dictionary<String, String> p = new Hashtable<String, String>();
         p.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/foo");
 
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getHeaders()).andReturn(p).anyTimes();
-        replay(bundle);
-
-        assertEquals("/foo", WebContainerUtils.getContextPath(bundle));
+        testIsBundleWith(null, p, null, "/foo", false);
     }
 
     @Test
     public void testContextPathDefaulted() throws Exception {
-        Dictionary<String, String> p = new Hashtable<String, String>();
-
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getLocation()).andReturn("file:bar.war").anyTimes();
-        expect(bundle.getHeaders()).andReturn(p).anyTimes();
-        replay(bundle);
-
-        assertEquals("bar", WebContainerUtils.getContextPath(bundle));
+        testIsBundleWith("file:bar.war", EMPTY_PROPERTIES, null, "bar", true);
     }
 
     @Test
     public void testContextPathDefaultedWindowsPath() throws Exception {
-        Dictionary<String, String> p = new Hashtable<String, String>();
-
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getLocation()).andReturn("file:/C:\\bar\\app.war").anyTimes();
-        expect(bundle.getHeaders()).andReturn(p).anyTimes();
-        replay(bundle);
-
-        assertEquals("app", WebContainerUtils.getContextPath(bundle));
+        testIsBundleWith("file:/C:\\bar\\app.war", EMPTY_PROPERTIES, null, "app", true);
     }
 
     @Test
@@ -198,63 +147,25 @@ public class WebContainerUtilsTests {
 
     @Test
     public void testServletContextOsgiWebSymbolicNamePropertyDefault() {
-        Dictionary<String, String> p = new Hashtable<String, String>();
-
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getSymbolicName()).andReturn(null).anyTimes();
-        expect(bundle.getHeaders()).andReturn(EMPTY_PROPERTIES).anyTimes();
-        replay(bundle);
-
-        WebContainerUtils.setServletContextBundleProperties(p, bundle);
-
-        assertNull(p.get(WebContainerUtils.OSGI_WEB_SYMBOLICNAME));
+        testSymbolicName(null, EMPTY_PROPERTIES);
     }
 
     @Test
     public void testServletContextOsgiWebSymbolicNamePropertySupplied() {
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getSymbolicName()).andReturn(TEST_SYMBOLIC_NAME).anyTimes();
-        expect(bundle.getHeaders()).andReturn(EMPTY_PROPERTIES).anyTimes();
-        replay(bundle);
-
-        Dictionary<String, String> p = new Hashtable<String, String>();
-
-        WebContainerUtils.setServletContextBundleProperties(p, bundle);
-
-        assertEquals(TEST_SYMBOLIC_NAME, p.get(WebContainerUtils.OSGI_WEB_SYMBOLICNAME));
+        testSymbolicName(TEST_SYMBOLIC_NAME, EMPTY_PROPERTIES);
     }
 
     @Test
     public void testServletContextOsgiWebVersionPropertyDefault() {
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getVersion()).andReturn(null).anyTimes();
-        expect(bundle.getHeaders()).andReturn(EMPTY_PROPERTIES).anyTimes();
-        replay(bundle);
-
-        Dictionary<String, String> p = new Hashtable<String, String>();
-
-        WebContainerUtils.setServletContextBundleProperties(p, bundle);
-
-        assertNull(p.get(WebContainerUtils.OSGI_WEB_VERSION));
+        testVersion(null, EMPTY_PROPERTIES);
     }
 
     @Test
     public void testServletContextOsgiWebVersionPropertySupplied() {
-        Bundle bundle = createNiceMock(Bundle.class);
-        expect(bundle.getVersion()).andReturn(TEST_BUNDLE_VERSION).anyTimes();
-
         Dictionary<String, String> headers = new Hashtable<String, String>();
         headers.put(WebContainerUtils.BUNDLE_VERSION_HEADER, TEST_BUNDLE_VERSION.toString());
-        expect(bundle.getHeaders()).andReturn(headers).anyTimes();
 
-        replay(bundle);
-
-        Dictionary<String, String> p = new Hashtable<String, String>();
-
-        WebContainerUtils.setServletContextBundleProperties(p, bundle);
-
-        String stringVersion = p.get(WebContainerUtils.OSGI_WEB_VERSION);
-        assertEquals(TEST_BUNDLE_VERSION, new Version(stringVersion));
+        testVersion(TEST_BUNDLE_VERSION, headers);
     }
 
     @Test
@@ -267,5 +178,57 @@ public class WebContainerUtilsTests {
 
         URL jarURL = new URL("jar:file:foo.war!/");
         assertEquals("foo", WebContainerUtils.createDefaultBundleSymbolicName(jarURL));
+    }
+
+    private void testIsBundleWith(String location, Dictionary<String, String> headers, String entry, String contextPath, boolean checkIsWebBundle)
+        throws MalformedURLException {
+        Bundle bundle = createNiceMock(Bundle.class);
+        if (location != null) {
+            expect(bundle.getLocation()).andReturn(location).anyTimes();
+        }
+        if (headers != null) {
+            expect(bundle.getHeaders()).andReturn(headers).anyTimes();
+        }
+        if (entry != null) {
+            expect(bundle.getEntry(WebContainerUtils.ENTRY_WEB_XML)).andReturn(new URL(entry)).anyTimes();
+        }
+        replay(bundle);
+        if (checkIsWebBundle) {
+            assertTrue(WebContainerUtils.isWebBundle(bundle));
+        }
+        if (headers != null) {
+            assertEquals(contextPath, WebContainerUtils.getContextPath(bundle));
+        }
+    }
+
+    private void testSymbolicName(String symbolicName, Dictionary<String, String> headers) {
+        Bundle bundle = createNiceMock(Bundle.class);
+        expect(bundle.getSymbolicName()).andReturn(symbolicName).anyTimes();
+        expect(bundle.getHeaders()).andReturn(headers).anyTimes();
+        replay(bundle);
+
+        Dictionary<String, String> p = new Hashtable<String, String>();
+        WebContainerUtils.setServletContextBundleProperties(p, bundle);
+        if (symbolicName == null) {
+            assertNull(p.get(WebContainerUtils.OSGI_WEB_SYMBOLICNAME));
+        } else {
+            assertEquals(symbolicName, p.get(WebContainerUtils.OSGI_WEB_SYMBOLICNAME));
+        }
+    }
+
+    private void testVersion(Version version, Dictionary<String, String> headers) {
+        Bundle bundle = createNiceMock(Bundle.class);
+        expect(bundle.getVersion()).andReturn(version).anyTimes();
+        expect(bundle.getHeaders()).andReturn(headers).anyTimes();
+        replay(bundle);
+
+        Dictionary<String, String> p = new Hashtable<String, String>();
+        WebContainerUtils.setServletContextBundleProperties(p, bundle);
+        if (version == null) {
+            assertNull(p.get(WebContainerUtils.OSGI_WEB_VERSION));
+        } else {
+            String stringVersion = p.get(WebContainerUtils.OSGI_WEB_VERSION);
+            assertEquals(version, new Version(stringVersion));
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -62,42 +62,12 @@ public class SystemBundleExportsResolverTests {
 
     @Test
     public void downwardExpansion() {
-        BundleCapability capability1 = createBundleCapabilityMock("", "", "a", new Version(2, 0, 0));
-
-        BundleCapability capability2 = createBundleCapabilityMock("", "", "a", new Version(1, 0, 0));
-
-        List<BundleCapability> input = new ArrayList<BundleCapability>();
-        input.add(capability1);
-        input.add(capability2);
-
-        replay(capability1, capability2);
-
-        Map<String, VersionRange> output = SystemBundleExportsResolver.combineDuplicateExports(input, false);
-
-        assertEquals(1, output.size());
-        assertEquals(new VersionRange("[1.0.0,2.0.0]"), output.get("a"));
-
-        verify(capability1, capability2);
+        checkExpansion(new Version(2, 0, 0), new Version(1, 0, 0));
     }
 
     @Test
     public void upwardExpansion() {
-        BundleCapability capability1 = createBundleCapabilityMock("", "", "a", new Version(1, 0, 0));
-
-        BundleCapability capability2 = createBundleCapabilityMock("", "", "a", new Version(2, 0, 0));
-
-        List<BundleCapability> input = new ArrayList<BundleCapability>();
-        input.add(capability1);
-        input.add(capability2);
-
-        replay(capability1, capability2);
-
-        Map<String, VersionRange> output = SystemBundleExportsResolver.combineDuplicateExports(input, false);
-
-        assertEquals(1, output.size());
-        assertEquals(new VersionRange("[1.0.0,2.0.0]"), output.get("a"));
-
-        verify(capability1, capability2);
+        checkExpansion(new Version(1, 0, 0), new Version(2, 0, 0));
     }
 
     @Test
@@ -179,5 +149,24 @@ public class SystemBundleExportsResolverTests {
         expect(bundleCapability.getAttributes()).andReturn(attributes).anyTimes();
 
         return bundleCapability;
+    }
+
+    private void checkExpansion(Version... versions) {
+        BundleCapability capability1 = createBundleCapabilityMock("", "", "a", versions[0]);
+
+        BundleCapability capability2 = createBundleCapabilityMock("", "", "a", versions[1]);
+
+        List<BundleCapability> input = new ArrayList<BundleCapability>();
+        input.add(capability1);
+        input.add(capability2);
+
+        replay(capability1, capability2);
+
+        Map<String, VersionRange> output = SystemBundleExportsResolver.combineDuplicateExports(input, false);
+
+        assertEquals(1, output.size());
+        assertEquals(new VersionRange("[1.0.0,2.0.0]"), output.get("a"));
+
+        verify(capability1, capability2);
     }
 }
