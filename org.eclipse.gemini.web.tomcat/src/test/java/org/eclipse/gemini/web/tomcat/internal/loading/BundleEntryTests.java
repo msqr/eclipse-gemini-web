@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2013 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Vector;
 
-import org.eclipse.virgo.test.stubs.framework.FindEntriesDelegate;
 import org.eclipse.virgo.test.stubs.framework.StubBundle;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,43 +68,12 @@ public class BundleEntryTests {
         this.testBundle.addEntry("/a/", new File("src/test/resources/a/").toURI().toURL());
         this.testBundle.addEntry("/a/b/", new File("src/test/resources/a/b/").toURI().toURL());
         this.testBundle.addEntry("/a/b/c.txt", new File("src/test/resources/a/b/c.txt").toURI().toURL());
-        this.testBundle.setFindEntriesDelegate(new FindEntriesDelegate() {
-
-            @Override
-            public Enumeration<?> findEntries(final String path, final String filePattern, boolean recurse) {
-                return new Enumeration<URL>() {
-
-                    private boolean hasMore = true;
-
-                    @Override
-                    public boolean hasMoreElements() {
-                        return this.hasMore;
-                    }
-
-                    @Override
-                    public URL nextElement() {
-                        if (this.hasMore) {
-                            this.hasMore = false;
-                            return BundleEntryTests.this.testBundle.getEntry(path + "/" + filePattern);
-                        }
-                        return null;
-                    }
-                };
-            }
-        });
+        this.testBundle.setFindEntriesDelegate(new FindEntriesDelegateImpl(this.testBundle));
     }
 
     @Test
     public void testList() {
-        BundleEntry entry = new BundleEntry(this.testBundle);
-        List<BundleEntry> list = entry.list();
-
-        BundleEntry subEntry = findByPath(list, "sub/");
-        assertNotNull(subEntry);
-
-        list = subEntry.list();
-        assertNotNull(findByPath(list, "sub/one.txt"));
-        assertNotNull(findByPath(list, "sub/another.sub/"));
+        testList(this.testBundle);
     }
 
     @Test
@@ -130,15 +98,7 @@ public class BundleEntryTests {
 
         replay(bundle, bundleRevision, bundleWiring, bundleWire, fbundle, fbundleRevision, fbundleWiring);
 
-        BundleEntry entry = new BundleEntry(bundle);
-        List<BundleEntry> list = entry.list();
-
-        BundleEntry subEntry = findByPath(list, "sub/");
-        assertNotNull(subEntry);
-
-        list = subEntry.list();
-        assertNotNull(findByPath(list, "sub/one.txt"));
-        assertNotNull(findByPath(list, "sub/another.sub/"));
+        testList(bundle);
 
         verify(bundle, bundleRevision, bundleWiring, bundleWire, fbundle, fbundleRevision, fbundleWiring);
     }
@@ -222,5 +182,17 @@ public class BundleEntryTests {
         }
 
         return vector.elements();
+    }
+
+    public void testList(Bundle bundle) {
+        BundleEntry entry = new BundleEntry(bundle);
+        List<BundleEntry> list = entry.list();
+
+        BundleEntry subEntry = findByPath(list, "sub/");
+        assertNotNull(subEntry);
+
+        list = subEntry.list();
+        assertNotNull(findByPath(list, "sub/one.txt"));
+        assertNotNull(findByPath(list, "sub/another.sub/"));
     }
 }

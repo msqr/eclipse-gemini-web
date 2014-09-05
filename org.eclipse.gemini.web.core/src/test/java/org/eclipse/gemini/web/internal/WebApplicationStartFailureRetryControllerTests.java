@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG
+ * Copyright (c) 2012, 2014 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -175,65 +175,26 @@ public class WebApplicationStartFailureRetryControllerTests {
 
     @Test
     public void testRetryFailuresTwoBundlesWithSameContextPaths() throws Exception {
-        expect(this.servletContext.getContextPath()).andReturn(CONTEXT_PATH_1).anyTimes();
-        expect(this.bundle1.getBundleId()).andReturn(3L).anyTimes();
-        expect(this.bundle2.getBundleId()).andReturn(2L).anyTimes();
-        expect(this.bundle1.getSymbolicName()).andReturn(SYMBOLIC_NAME);
-        expect(this.bundle1.getHeaders()).andReturn(new Hashtable<String, String>());
-        BundleContext bundleContext = createMock(BundleContext.class);
-        expect(this.bundle1.getBundleContext()).andReturn(bundleContext);
-        this.container.startWebApplication(this.handle);
-        expectLastCall();
+        createExpectations(true);
 
         WebApplicationStartFailureRetryController webApplicationStartFailureRetryController = createWebApplicationStartFailureRetryController();
         webApplicationStartFailureRetryController.recordFailure(createStandardWebApplication(this.bundle1, webApplicationStartFailureRetryController));
         StandardWebApplication failedWebApplication = createStandardWebApplication(this.bundle2, webApplicationStartFailureRetryController);
         webApplicationStartFailureRetryController.recordFailure(failedWebApplication);
 
-        Field field = webApplicationStartFailureRetryController.getClass().getDeclaredField(FIELD_NAME);
-        field.setAccessible(true);
-
-        ConcurrentMap<?, ?> failures = (ConcurrentMap<?, ?>) field.get(webApplicationStartFailureRetryController);
-        assertTrue(failures.size() == 1);
-        assertTrue(((Set<?>) failures.get(CONTEXT_PATH_1)).size() == 2);
-
-        webApplicationStartFailureRetryController.retryFailures(failedWebApplication);
-
-        failures = (ConcurrentMap<?, ?>) field.get(webApplicationStartFailureRetryController);
-        assertTrue(failures.size() == 0);
-
-        field.setAccessible(false);
+        checkExpectations(webApplicationStartFailureRetryController, failedWebApplication);
     }
 
     @Test
     public void testRetryFailuresOneBundleWithTwoFailures() throws Exception {
-        expect(this.servletContext.getContextPath()).andReturn(CONTEXT_PATH_1).anyTimes();
-        expect(this.bundle1.getBundleId()).andReturn(3L).anyTimes();
-        expect(this.bundle1.getSymbolicName()).andReturn(SYMBOLIC_NAME);
-        expect(this.bundle1.getHeaders()).andReturn(new Hashtable<String, String>());
-        BundleContext bundleContext = createMock(BundleContext.class);
-        expect(this.bundle1.getBundleContext()).andReturn(bundleContext);
-        this.container.startWebApplication(this.handle);
-        expectLastCall();
+        createExpectations(false);
 
         WebApplicationStartFailureRetryController webApplicationStartFailureRetryController = createWebApplicationStartFailureRetryController();
         webApplicationStartFailureRetryController.recordFailure(createStandardWebApplication(this.bundle1, webApplicationStartFailureRetryController));
         StandardWebApplication failedWebApplication = createStandardWebApplication(this.bundle1, webApplicationStartFailureRetryController);
         webApplicationStartFailureRetryController.recordFailure(failedWebApplication);
 
-        Field field = webApplicationStartFailureRetryController.getClass().getDeclaredField(FIELD_NAME);
-        field.setAccessible(true);
-
-        ConcurrentMap<?, ?> failures = (ConcurrentMap<?, ?>) field.get(webApplicationStartFailureRetryController);
-        assertTrue(failures.size() == 1);
-        assertTrue(((Set<?>) failures.get(CONTEXT_PATH_1)).size() == 2);
-
-        webApplicationStartFailureRetryController.retryFailures(failedWebApplication);
-
-        failures = (ConcurrentMap<?, ?>) field.get(webApplicationStartFailureRetryController);
-        assertTrue(failures.size() == 0);
-
-        field.setAccessible(false);
+        checkExpectations(webApplicationStartFailureRetryController, failedWebApplication);
     }
 
     @Test
@@ -271,6 +232,37 @@ public class WebApplicationStartFailureRetryControllerTests {
         WebApplicationStartFailureRetryController webApplicationStartFailureRetryController) {
         return new StandardWebApplication(bundle, this.extender, this.handle, this.container, this.eventManager,
             webApplicationStartFailureRetryController, this.thisBundleContext);
+    }
+
+    private void createExpectations(boolean twoBundles) {
+        expect(this.servletContext.getContextPath()).andReturn(CONTEXT_PATH_1).anyTimes();
+        expect(this.bundle1.getBundleId()).andReturn(3L).anyTimes();
+        if (twoBundles) {
+            expect(this.bundle2.getBundleId()).andReturn(2L).anyTimes();
+        }
+        expect(this.bundle1.getSymbolicName()).andReturn(SYMBOLIC_NAME);
+        expect(this.bundle1.getHeaders()).andReturn(new Hashtable<String, String>());
+        BundleContext bundleContext = createMock(BundleContext.class);
+        expect(this.bundle1.getBundleContext()).andReturn(bundleContext);
+        this.container.startWebApplication(this.handle);
+        expectLastCall();
+    }
+
+    private void checkExpectations(WebApplicationStartFailureRetryController webApplicationStartFailureRetryController,
+        StandardWebApplication failedWebApplication) throws NoSuchFieldException, IllegalAccessException {
+        Field field = webApplicationStartFailureRetryController.getClass().getDeclaredField(FIELD_NAME);
+        field.setAccessible(true);
+
+        ConcurrentMap<?, ?> failures = (ConcurrentMap<?, ?>) field.get(webApplicationStartFailureRetryController);
+        assertTrue(failures.size() == 1);
+        assertTrue(((Set<?>) failures.get(CONTEXT_PATH_1)).size() == 2);
+
+        webApplicationStartFailureRetryController.retryFailures(failedWebApplication);
+
+        failures = (ConcurrentMap<?, ?>) field.get(webApplicationStartFailureRetryController);
+        assertTrue(failures.size() == 0);
+
+        field.setAccessible(false);
     }
 
 }

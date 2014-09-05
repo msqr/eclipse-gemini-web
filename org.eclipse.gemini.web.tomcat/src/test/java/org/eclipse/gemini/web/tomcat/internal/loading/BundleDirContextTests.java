@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,15 +17,12 @@
 package org.eclipse.gemini.web.tomcat.internal.loading;
 
 import java.io.File;
-import java.net.URL;
-import java.util.Enumeration;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 
-import org.eclipse.virgo.test.stubs.framework.FindEntriesDelegate;
 import org.eclipse.virgo.test.stubs.framework.StubBundle;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,30 +43,7 @@ public class BundleDirContextTests {
         this.testBundle.addEntry("", new File("src/test/resources/").toURI().toURL());
         this.testBundle.addEntry(DIRECTORY_NAME, new File("src/test/resources/sub/").toURI().toURL());
         this.testBundle.addEntry(FILE_NAME, new File("src/test/resources/sub/one.txt").toURI().toURL());
-        this.testBundle.setFindEntriesDelegate(new FindEntriesDelegate() {
-
-            @Override
-            public Enumeration<?> findEntries(final String path, final String filePattern, boolean recurse) {
-                return new Enumeration<URL>() {
-
-                    private boolean hasMore = true;
-
-                    @Override
-                    public boolean hasMoreElements() {
-                        return this.hasMore;
-                    }
-
-                    @Override
-                    public URL nextElement() {
-                        if (this.hasMore) {
-                            this.hasMore = false;
-                            return BundleDirContextTests.this.testBundle.getEntry(path + "/" + filePattern);
-                        }
-                        return null;
-                    }
-                };
-            }
-        });
+        this.testBundle.setFindEntriesDelegate(new FindEntriesDelegateImpl(this.testBundle));
 
         this.bundleDirContext = new BundleDirContext(this.testBundle);
     }

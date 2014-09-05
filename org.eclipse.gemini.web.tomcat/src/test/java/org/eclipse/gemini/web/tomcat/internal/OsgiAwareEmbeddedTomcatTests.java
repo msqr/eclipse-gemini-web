@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SAP AG
+ * Copyright (c) 2011, 2014 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -56,69 +56,34 @@ public class OsgiAwareEmbeddedTomcatTests {
 
     @Test
     public void testInitNaming() {
-        OsgiAwareEmbeddedTomcat tomcat = createTomcat();
-        try {
-            tomcat.init();
-        } catch (LifecycleException e) {
-            fail(e.getMessage());
-        }
+        initTomcat();
         assertTrue(Boolean.parseBoolean(System.getProperty(OsgiAwareEmbeddedTomcat.CATALINA_USE_NAMING)));
 
         this.bundleContext.addProperty(OsgiAwareEmbeddedTomcat.USE_NAMING, OsgiAwareEmbeddedTomcat.TOMCAT_NAMING_ENABLED);
-        tomcat = createTomcat();
-        try {
-            tomcat.init();
-        } catch (LifecycleException e) {
-            fail(e.getMessage());
-        }
+        initTomcat();
         assertTrue(Boolean.parseBoolean(System.getProperty(OsgiAwareEmbeddedTomcat.CATALINA_USE_NAMING)));
 
         this.bundleContext.addProperty(OsgiAwareEmbeddedTomcat.USE_NAMING, OsgiAwareEmbeddedTomcat.NAMING_DISABLED);
-        tomcat = createTomcat();
-        try {
-            tomcat.init();
-        } catch (LifecycleException e) {
-            fail(e.getMessage());
-        }
+        initTomcat();
         assertTrue(!Boolean.parseBoolean(System.getProperty(OsgiAwareEmbeddedTomcat.CATALINA_USE_NAMING)));
 
         this.bundleContext.addProperty(OsgiAwareEmbeddedTomcat.USE_NAMING, OsgiAwareEmbeddedTomcat.OSGI_NAMING_ENABLED);
-        tomcat = createTomcat();
-        try {
-            tomcat.init();
-        } catch (LifecycleException e) {
-            fail(e.getMessage());
-        }
+        initTomcat();
         assertTrue(Boolean.parseBoolean(System.getProperty(OsgiAwareEmbeddedTomcat.CATALINA_USE_NAMING)));
     }
 
     @Test
     public void testInitNamingSystemProperty() {
-        OsgiAwareEmbeddedTomcat tomcat = createTomcat();
         System.setProperty(OsgiAwareEmbeddedTomcat.USE_NAMING, OsgiAwareEmbeddedTomcat.TOMCAT_NAMING_ENABLED);
-        try {
-            tomcat.init();
-        } catch (LifecycleException e) {
-            fail(e.getMessage());
-        }
+        initTomcat();
         assertTrue(Boolean.parseBoolean(System.getProperty(OsgiAwareEmbeddedTomcat.CATALINA_USE_NAMING)));
 
-        tomcat = createTomcat();
         System.setProperty(OsgiAwareEmbeddedTomcat.USE_NAMING, OsgiAwareEmbeddedTomcat.NAMING_DISABLED);
-        try {
-            tomcat.init();
-        } catch (LifecycleException e) {
-            fail(e.getMessage());
-        }
+        initTomcat();
         assertTrue(!Boolean.parseBoolean(System.getProperty(OsgiAwareEmbeddedTomcat.CATALINA_USE_NAMING)));
 
-        tomcat = createTomcat();
         System.setProperty(OsgiAwareEmbeddedTomcat.USE_NAMING, OsgiAwareEmbeddedTomcat.OSGI_NAMING_ENABLED);
-        try {
-            tomcat.init();
-        } catch (LifecycleException e) {
-            fail(e.getMessage());
-        }
+        initTomcat();
         assertTrue(Boolean.parseBoolean(System.getProperty(OsgiAwareEmbeddedTomcat.CATALINA_USE_NAMING)));
     }
 
@@ -152,6 +117,15 @@ public class OsgiAwareEmbeddedTomcatTests {
 
     private OsgiAwareEmbeddedTomcat createTomcat() {
         return new OsgiAwareEmbeddedTomcat(this.bundleContext);
+    }
+
+    private void initTomcat() {
+        OsgiAwareEmbeddedTomcat tomcat = createTomcat();
+        try {
+            tomcat.init();
+        } catch (LifecycleException e) {
+            fail(e.getMessage());
+        }
     }
 
 }

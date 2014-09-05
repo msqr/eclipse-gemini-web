@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -38,15 +38,15 @@ public class SystemBundleExportsImportingWebBundleManifestTransformerTests {
 
     @Test
     public void emptyTransform() throws IOException {
-        Map<String, VersionRange> exports = Collections.<String, VersionRange> emptyMap();
-        SystemBundleExportsImportingWebBundleManifestTransformer transformer = new SystemBundleExportsImportingWebBundleManifestTransformer(exports);
+        SystemBundleExportsImportingWebBundleManifestTransformer transformer = new SystemBundleExportsImportingWebBundleManifestTransformer(
+            Collections.<String, VersionRange> emptyMap());
         transformer.transform(null, null, null, false);
     }
 
     @Test
     public void nothingToImport() throws IOException {
-        Map<String, VersionRange> exports = Collections.<String, VersionRange> emptyMap();
-        SystemBundleExportsImportingWebBundleManifestTransformer transformer = new SystemBundleExportsImportingWebBundleManifestTransformer(exports);
+        SystemBundleExportsImportingWebBundleManifestTransformer transformer = new SystemBundleExportsImportingWebBundleManifestTransformer(
+            Collections.<String, VersionRange> emptyMap());
 
         InstallationOptions options = new InstallationOptions(Collections.<String, String> emptyMap());
         BundleManifest bundleManifest = BundleManifestFactory.createBundleManifest();
@@ -65,8 +65,7 @@ public class SystemBundleExportsImportingWebBundleManifestTransformerTests {
 
         SystemBundleExportsImportingWebBundleManifestTransformer transformer = new SystemBundleExportsImportingWebBundleManifestTransformer(exports);
 
-        Map<String, String> optionsMap = new HashMap<String, String>();
-        InstallationOptions options = new InstallationOptions(optionsMap);
+        InstallationOptions options = new InstallationOptions(Collections.<String, String> emptyMap());
         BundleManifest bundleManifest = BundleManifestFactory.createBundleManifest();
         transformer.transform(bundleManifest, null, options, WebContainerUtils.isWebApplicationBundle(bundleManifest));
 
@@ -94,8 +93,7 @@ public class SystemBundleExportsImportingWebBundleManifestTransformerTests {
 
         SystemBundleExportsImportingWebBundleManifestTransformer transformer = new SystemBundleExportsImportingWebBundleManifestTransformer(exports);
 
-        Map<String, String> optionsMap = new HashMap<String, String>();
-        InstallationOptions options = new InstallationOptions(optionsMap);
+        InstallationOptions options = new InstallationOptions(Collections.<String, String> emptyMap());
 
         BundleManifest bundleManifest = BundleManifestFactory.createBundleManifest();
         bundleManifest.getImportPackage().addImportedPackage("a").setVersion(new VersionRange("[1.0.0,1.0.0]"));
@@ -115,8 +113,7 @@ public class SystemBundleExportsImportingWebBundleManifestTransformerTests {
 
         SystemBundleExportsImportingWebBundleManifestTransformer transformer = new SystemBundleExportsImportingWebBundleManifestTransformer(exports);
 
-        Map<String, String> optionsMap = new HashMap<String, String>();
-        InstallationOptions options = new InstallationOptions(optionsMap);
+        InstallationOptions options = new InstallationOptions(Collections.<String, String> emptyMap());
 
         BundleManifest bundleManifest = BundleManifestFactory.createBundleManifest();
 

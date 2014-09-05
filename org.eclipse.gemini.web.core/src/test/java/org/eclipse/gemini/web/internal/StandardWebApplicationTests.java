@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG
+ * Copyright (c) 2012, 2014 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -42,6 +42,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.osgi.service.event.Event;
@@ -142,42 +143,13 @@ public class StandardWebApplicationTests {
 
     @Test
     public void testStartStop() throws Exception {
-        this.servletContainer.startWebApplication(this.webApplicationHandle);
-        expectLastCall().anyTimes();
-        this.servletContainer.stopWebApplication(this.webApplicationHandle);
-        expectLastCall().anyTimes();
+        StandardWebApplication standardWebApplication = startStopExpectations();
 
-        replay(this.webApplicationHandle, this.servletContainer, this.servletContext);
-
-        StandardWebApplication standardWebApplication = createStandardWebApplication(true);
-
-        standardWebApplication.start();
-        ServiceReference<?>[] serviceReferences = this.bundle.getBundleContext().getAllServiceReferences(ServletContext.class.getName(), null);
-        assertNotNull(serviceReferences);
-        assertTrue(serviceReferences.length == 1);
-        Event event = this.eventAdmin.awaitSendingOfEvent(EVENT_DEPLOYED, 10);
-        assertNotNull(event);
-
-        standardWebApplication.stop();
-        serviceReferences = this.bundle.getBundleContext().getAllServiceReferences(ServletContext.class.getName(), null);
-        assertNull(serviceReferences);
-        event = this.eventAdmin.awaitSendingOfEvent(EVENT_UNDEPLOYED, 10);
-        assertNotNull(event);
+        startStop(standardWebApplication);
 
         standardWebApplication = createStandardWebApplication(false);
 
-        standardWebApplication.start();
-        serviceReferences = this.bundle.getBundleContext().getAllServiceReferences(ServletContext.class.getName(), null);
-        assertNotNull(serviceReferences);
-        assertTrue(serviceReferences.length == 1);
-        event = this.eventAdmin.awaitSendingOfEvent(EVENT_DEPLOYED, 10);
-        assertNotNull(event);
-
-        standardWebApplication.stop();
-        serviceReferences = this.bundle.getBundleContext().getAllServiceReferences(ServletContext.class.getName(), null);
-        assertNull(serviceReferences);
-        event = this.eventAdmin.awaitSendingOfEvent(EVENT_UNDEPLOYED, 10);
-        assertNotNull(event);
+        startStop(standardWebApplication);
     }
 
     @Test
@@ -210,42 +182,15 @@ public class StandardWebApplicationTests {
 
     @Test
     public void testFailedStart2() throws Exception {
-        this.servletContainer.startWebApplication(this.webApplicationHandle);
-        expectLastCall().anyTimes();
-        this.servletContainer.stopWebApplication(this.webApplicationHandle);
-        expectLastCall().anyTimes();
+        StandardWebApplication standardWebApplication = startStopExpectations();
 
-        replay(this.webApplicationHandle, this.servletContainer, this.servletContext);
-
-        StandardWebApplication standardWebApplication = createStandardWebApplication(true);
-
-        this.bundle.setState(Bundle.RESOLVED);
-
-        try {
-            standardWebApplication.start();
-            fail("Exception should be thrown because bundle is in RESOLVED state.");
-        } catch (WebApplicationStartFailedException e) {
-            System.out.println(e.getMessage());
-        }
-
-        Event event = this.eventAdmin.awaitSendingOfEvent(EVENT_FAILED, 10);
-        assertNotNull(event);
+        startNegative(standardWebApplication);
 
         this.bundle.setState(Bundle.ACTIVE);
 
         standardWebApplication = createStandardWebApplication(false);
 
-        this.bundle.setState(Bundle.RESOLVED);
-
-        try {
-            standardWebApplication.start();
-            fail("Exception should be thrown because bundle is in RESOLVED state.");
-        } catch (WebApplicationStartFailedException e) {
-            System.out.println(e.getMessage());
-        }
-
-        event = this.eventAdmin.awaitSendingOfEvent(EVENT_FAILED, 10);
-        assertNotNull(event);
+        startNegative(standardWebApplication);
     }
 
     private StandardWebApplication createStandardWebApplication(boolean withExtender) {
@@ -258,6 +203,47 @@ public class StandardWebApplicationTests {
             return new StandardWebApplication(this.bundle, null, this.webApplicationHandle, this.servletContainer, this.eventManager,
                 this.webApplicationStartFailureRetryController, this.thisBundle.getBundleContext());
         }
+    }
+
+    private StandardWebApplication startStopExpectations() {
+        this.servletContainer.startWebApplication(this.webApplicationHandle);
+        expectLastCall().anyTimes();
+        this.servletContainer.stopWebApplication(this.webApplicationHandle);
+        expectLastCall().anyTimes();
+
+        replay(this.webApplicationHandle, this.servletContainer, this.servletContext);
+
+        StandardWebApplication standardWebApplication = createStandardWebApplication(true);
+        return standardWebApplication;
+    }
+
+    private void startNegative(StandardWebApplication standardWebApplication) {
+        this.bundle.setState(Bundle.RESOLVED);
+
+        try {
+            standardWebApplication.start();
+            fail("Exception should be thrown because bundle is in RESOLVED state.");
+        } catch (WebApplicationStartFailedException e) {
+            System.out.println(e.getMessage());
+        }
+
+        Event event = this.eventAdmin.awaitSendingOfEvent(EVENT_FAILED, 10);
+        assertNotNull(event);
+    }
+
+    private void startStop(StandardWebApplication standardWebApplication) throws InvalidSyntaxException {
+        standardWebApplication.start();
+        ServiceReference<?>[] serviceReferences = this.bundle.getBundleContext().getAllServiceReferences(ServletContext.class.getName(), null);
+        assertNotNull(serviceReferences);
+        assertTrue(serviceReferences.length == 1);
+        Event event = this.eventAdmin.awaitSendingOfEvent(EVENT_DEPLOYED, 10);
+        assertNotNull(event);
+
+        standardWebApplication.stop();
+        serviceReferences = this.bundle.getBundleContext().getAllServiceReferences(ServletContext.class.getName(), null);
+        assertNull(serviceReferences);
+        event = this.eventAdmin.awaitSendingOfEvent(EVENT_UNDEPLOYED, 10);
+        assertNotNull(event);
     }
 
 }

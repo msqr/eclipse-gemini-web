@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG
+ * Copyright (c) 2012, 2014 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -108,12 +108,7 @@ public class TomcatServletContainerTests {
     public void testStartWebApplication() throws Exception {
         final ExtendedStandardContext standardContext = new ExtendedStandardContext();
 
-        expect(this.servletContext.getContextPath()).andReturn(CONTEXT_PATH);
-        expect(this.engine.findChildren()).andReturn(new Container[] { this.host });
-        expect(this.host.findChild(CONTEXT_PATH)).andReturn(null);
-        expect(this.bundle.getLastModified()).andReturn(0L);
-        this.host.addChild(standardContext);
-        expectLastCall();
+        startExpectations(standardContext);
 
         final TomcatServletContainer tomcatServletContainer = createTomcatServletContainer();
         final WebApplicationHandle webApplicationHandle = new TomcatServletContainer.TomcatWebApplicationHandle(this.servletContext, standardContext,
@@ -126,19 +121,13 @@ public class TomcatServletContainerTests {
         }
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void testStartWebApplicationHostNotFound() throws Exception {
         expect(this.servletContext.getContextPath()).andReturn(CONTEXT_PATH);
         expect(this.engine.findChildren()).andReturn(new Container[] {});
         expect(this.webApplicationHandle.getServletContext()).andReturn(this.servletContext);
 
-        final TomcatServletContainer tomcatServletContainer = createTomcatServletContainer();
-
-        try {
-            tomcatServletContainer.startWebApplication(this.webApplicationHandle);
-        } catch (RuntimeException e) {
-            assertTrue(e instanceof IllegalStateException);
-        }
+        startWebApplication(this.webApplicationHandle);
     }
 
     @Test
@@ -157,23 +146,17 @@ public class TomcatServletContainerTests {
         }
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void testStartWebApplicationUnknownWebApplicationHandle() throws Exception {
         expect(this.servletContext.getContextPath()).andReturn(CONTEXT_PATH);
         expect(this.engine.findChildren()).andReturn(new Container[] { this.host });
         expect(this.webApplicationHandle.getServletContext()).andReturn(this.servletContext);
         expect(this.host.findChild(CONTEXT_PATH)).andReturn(null);
 
-        final TomcatServletContainer tomcatServletContainer = createTomcatServletContainer();
-
-        try {
-            tomcatServletContainer.startWebApplication(this.webApplicationHandle);
-        } catch (RuntimeException e) {
-            assertTrue(e instanceof IllegalStateException);
-        }
+        startWebApplication(this.webApplicationHandle);
     }
 
-    @Test
+    @Test(expected = ServletContainerException.class)
     public void testStartWebApplicationCannotAddToHost() throws Exception {
         final ExtendedStandardContext standardContext = new ExtendedStandardContext();
 
@@ -190,24 +173,15 @@ public class TomcatServletContainerTests {
         final WebApplicationHandle webApplicationHandle = new TomcatServletContainer.TomcatWebApplicationHandle(this.servletContext, standardContext,
             new BundleWebappLoader(this.bundle, null));
 
-        try {
-            tomcatServletContainer.startWebApplication(webApplicationHandle);
-        } catch (RuntimeException e) {
-            assertTrue(e instanceof ServletContainerException);
-        }
+        tomcatServletContainer.startWebApplication(webApplicationHandle);
     }
 
-    @Test
+    @Test(expected = ServletContainerException.class)
     public void testStartWebApplicationContextIsNotAvailable() throws Exception {
         final ExtendedStandardContext standardContext = new ExtendedStandardContext();
         standardContext.setState(LifecycleState.NEW);
 
-        expect(this.servletContext.getContextPath()).andReturn(CONTEXT_PATH);
-        expect(this.engine.findChildren()).andReturn(new Container[] { this.host });
-        expect(this.host.findChild(CONTEXT_PATH)).andReturn(null);
-        expect(this.bundle.getLastModified()).andReturn(0L);
-        this.host.addChild(standardContext);
-        expectLastCall();
+        startExpectations(standardContext);
         this.host.removeChild(standardContext);
         expectLastCall();
 
@@ -215,11 +189,7 @@ public class TomcatServletContainerTests {
         final WebApplicationHandle webApplicationHandle = new TomcatServletContainer.TomcatWebApplicationHandle(this.servletContext, standardContext,
             new BundleWebappLoader(this.bundle, null));
 
-        try {
-            tomcatServletContainer.startWebApplication(webApplicationHandle);
-        } catch (RuntimeException e) {
-            assertTrue(e instanceof ServletContainerException);
-        }
+        tomcatServletContainer.startWebApplication(webApplicationHandle);
     }
 
     private TomcatServletContainer createTomcatServletContainer() {
@@ -228,6 +198,12 @@ public class TomcatServletContainerTests {
         OsgiAwareEmbeddedTomcat osgiAwareEmbeddedTomcat = new OsgiAwareEmbeddedTomcat(this.bundleContext);
         osgiAwareEmbeddedTomcat.setServer(this.server);
         return new TomcatServletContainer(osgiAwareEmbeddedTomcat, this.bundleContext);
+    }
+
+    private void startWebApplication(WebApplicationHandle webApplicationHandle) {
+        final TomcatServletContainer tomcatServletContainer = createTomcatServletContainer();
+
+        tomcatServletContainer.startWebApplication(webApplicationHandle);
     }
 
     private static class ExtendedStandardContext extends StandardContext {
@@ -243,5 +219,14 @@ public class TomcatServletContainerTests {
         public void setState(LifecycleState lifecycleState) {
             this.lifecycleState = lifecycleState;
         }
+    }
+
+    private void startExpectations(final ExtendedStandardContext standardContext) {
+        expect(this.servletContext.getContextPath()).andReturn(CONTEXT_PATH);
+        expect(this.engine.findChildren()).andReturn(new Container[] { this.host });
+        expect(this.host.findChild(CONTEXT_PATH)).andReturn(null);
+        expect(this.bundle.getLastModified()).andReturn(0L);
+        this.host.addChild(standardContext);
+        expectLastCall();
     }
 }

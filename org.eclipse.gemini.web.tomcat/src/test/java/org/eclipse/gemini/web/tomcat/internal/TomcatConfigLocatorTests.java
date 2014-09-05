@@ -26,34 +26,22 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.Vector;
 
 import org.eclipse.virgo.util.io.IOUtils;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 
 public class TomcatConfigLocatorTests {
 
     @Test
     public void testStartAndStop() throws Exception {
-        Bundle mockBundle = createMock(Bundle.class);
-        expect(mockBundle.findEntries(TomcatConfigLocator.CONFIG_PATH, TomcatConfigLocator.USER_CONFIG_PATH, false)).andReturn(null);
-        expect(mockBundle.getEntry(TomcatConfigLocator.DEFAULT_CONFIG_PATH)).andReturn(new URL("file:src/test/resources/server.xml"));
-
-        BundleContext mockContext = createMockBundleContext(mockBundle);
-
-        replay(mockBundle, mockContext);
-
-        InputStream is = null;
-        try {
-            is = TomcatConfigLocator.resolveConfigFile(mockContext);
-        } finally {
-            IOUtils.closeQuietly(is);
-        }
-
-        verify(mockBundle, mockContext);
+        startAndStop(null);
     }
 
     @Test
@@ -62,20 +50,7 @@ public class TomcatConfigLocatorTests {
         Vector<URL> v = new Vector<URL>();
         v.add(url);
 
-        Bundle mockBundle = createMock(Bundle.class);
-        expect(mockBundle.findEntries(TomcatConfigLocator.CONFIG_PATH, TomcatConfigLocator.USER_CONFIG_PATH, false)).andReturn(v.elements());
-
-        BundleContext mockContext = createMockBundleContext(mockBundle);
-        replay(mockBundle, mockContext);
-
-        InputStream is = null;
-        try {
-            is = TomcatConfigLocator.resolveConfigFile(mockContext);
-        } finally {
-            IOUtils.closeQuietly(is);
-        }
-
-        verify(mockBundle, mockContext);
+        startAndStop(v.elements());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -89,12 +64,7 @@ public class TomcatConfigLocatorTests {
 
         replay(mockBundle, mockContext);
 
-        InputStream is = null;
-        try {
-            is = TomcatConfigLocator.resolveConfigFile(mockContext);
-        } finally {
-            IOUtils.closeQuietly(is);
-        }
+        resolveConfigFile(mockContext);
     }
 
     @Test
@@ -122,4 +92,30 @@ public class TomcatConfigLocatorTests {
         expect(mockContext.getBundle()).andReturn(mockBundle);
         return mockContext;
     }
+
+    private void resolveConfigFile(BundleContext mockContext) throws BundleException {
+        InputStream is = null;
+        try {
+            is = TomcatConfigLocator.resolveConfigFile(mockContext);
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
+    }
+
+    private void startAndStop(Enumeration<URL> userConfigPath) throws MalformedURLException, BundleException {
+        Bundle mockBundle = createMock(Bundle.class);
+        expect(mockBundle.findEntries(TomcatConfigLocator.CONFIG_PATH, TomcatConfigLocator.USER_CONFIG_PATH, false)).andReturn(userConfigPath);
+        if (userConfigPath == null) {
+            expect(mockBundle.getEntry(TomcatConfigLocator.DEFAULT_CONFIG_PATH)).andReturn(new URL("file:src/test/resources/server.xml"));
+        }
+
+        BundleContext mockContext = createMockBundleContext(mockBundle);
+
+        replay(mockBundle, mockContext);
+
+        resolveConfigFile(mockContext);
+
+        verify(mockBundle, mockContext);
+    }
+
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,31 +16,19 @@
 
 package org.eclipse.gemini.web.test.extender;
 
-import static org.junit.Assert.assertNotNull;
-
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
-import java.net.URL;
-
-import junit.framework.Assert;
 
 import org.eclipse.virgo.test.framework.OsgiTestRunner;
-import org.eclipse.virgo.test.framework.TestFrameworkUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 
 @RunWith(OsgiTestRunner.class)
-public class OverlappingWebContextPathsTests {
-
-    private BundleContext context;
+public class OverlappingWebContextPathsTests extends ExtenderBase {
 
     private Bundle extender;
 
@@ -50,7 +38,6 @@ public class OverlappingWebContextPathsTests {
 
     @Before
     public void before() throws BundleException {
-        this.context = TestFrameworkUtils.getBundleContextForTestClass(getClass());
         this.extender = installExtender();
         this.extender.start();
         this.war1 = null;
@@ -59,16 +46,9 @@ public class OverlappingWebContextPathsTests {
 
     @After
     public void after() throws BundleException {
-        if (this.war1 != null) {
-            uninstallWar1();
-        }
-        if (this.war2 != null) {
-            uninstallWar2();
-        }
-        if (this.extender != null) {
-            this.extender.uninstall();
-            this.extender = null;
-        }
+        uninstallBundle(this.war1);
+        uninstallBundle(this.war2);
+        uninstallBundle(this.extender);
     }
 
     @Test
@@ -89,23 +69,13 @@ public class OverlappingWebContextPathsTests {
     }
 
     private void deployWar1() throws BundleException {
-        this.war1 = this.context.installBundle("webbundle:file:target/resources/war-with-servlet.war?Web-ContextPath=/overlap");
+        this.war1 = installBundle(null, "webbundle:file:target/resources/war-with-servlet.war?Web-ContextPath=/overlap", "");
         this.war1.start();
     }
 
     private void deployWar2() throws BundleException {
-        this.war2 = this.context.installBundle("webbundle:file:target/resources/war-with-another-servlet.war?Web-ContextPath=/overlap");
+        this.war2 = installBundle(null, "webbundle:file:target/resources/war-with-another-servlet.war?Web-ContextPath=/overlap", "");
         this.war2.start();
-    }
-
-    private void uninstallWar1() throws BundleException {
-        this.war1.uninstall();
-        this.war1 = null;
-    }
-
-    private void uninstallWar2() throws BundleException {
-        this.war2.uninstall();
-        this.war2 = null;
     }
 
     private void checkWar1Responding() throws MalformedURLException, IOException, InterruptedException {
@@ -116,31 +86,15 @@ public class OverlappingWebContextPathsTests {
         validateURL("http://localhost:8080/overlap/test", "Another");
     }
 
-    private Bundle installExtender() throws BundleException {
-        return this.context.installBundle("file:../org.eclipse.gemini.web.extender/target/classes");
+    @Override
+    protected Bundle installWarBundle(String suffix) throws BundleException {
+        // no-op
+        return null;
     }
 
-    private void validateURL(String path, String expectedResponse) throws MalformedURLException, IOException, InterruptedException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(openInputStream(path)));
-        try {
-            Assert.assertEquals(expectedResponse, reader.readLine());
-        } finally {
-            reader.close();
-        }
-    }
-
-    private InputStream openInputStream(String path) throws MalformedURLException, InterruptedException {
-        URL url = new URL(path);
-        InputStream stream = null;
-        for (int i = 0; i < 5; i++) {
-            try {
-                stream = url.openConnection().getInputStream();
-            } catch (IOException e) {
-                Thread.sleep(1000);
-            }
-        }
-        assertNotNull(stream);
-        return stream;
+    @Override
+    protected Bundle installBundle(String location, String bundleUrl, String suffix) throws BundleException {
+        return getBundleContext().installBundle(bundleUrl + suffix);
     }
 
 }
