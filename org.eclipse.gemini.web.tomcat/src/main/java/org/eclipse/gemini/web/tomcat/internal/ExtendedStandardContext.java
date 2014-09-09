@@ -28,8 +28,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Extends the Tomcat {@link StandardContext} to add custom functionality.
- *
- *
+ * 
+ * 
  */
 public class ExtendedStandardContext extends StandardContext {
 
@@ -42,7 +42,7 @@ public class ExtendedStandardContext extends StandardContext {
         this.bundle = bundle;
     }
 
-	/**
+    /**
      * Returns <code>true</code> for exploded bundles.
      */
     @Override
@@ -52,23 +52,22 @@ public class ExtendedStandardContext extends StandardContext {
         return f.isDirectory();
     }
 
-	@Override
+    @Override
     public synchronized void reload() {
         if (!getState().isAvailable())
-            throw new IllegalStateException
-                ("Context with name [" + getName() + "] has not yet been started.");
+            throw new IllegalStateException("Context with name [" + getName() + "] has not yet been started.");
 
-        if(LOGGER.isInfoEnabled())
+        if (LOGGER.isInfoEnabled())
             LOGGER.info("Reloading Context with name [" + getName() + "] has started.");
 
-		final Bundle systemBundle = this.bundle.getBundleContext().getBundle(0);
-		final FrameworkWiring frameworkWiring = systemBundle.adapt(FrameworkWiring.class);
-		Set<Bundle> bundles = new HashSet<Bundle>();
-		bundles.add(this.bundle);
-		frameworkWiring.refreshBundles(bundles);
+        final Bundle systemBundle = this.bundle.getBundleContext().getBundle(0);
+        final FrameworkWiring frameworkWiring = systemBundle.adapt(FrameworkWiring.class);
+        Set<Bundle> bundles = new HashSet<Bundle>();
+        bundles.add(this.bundle);
+        frameworkWiring.refreshBundles(bundles);
 
-        if(LOGGER.isInfoEnabled())
-            LOGGER.info(sm.getString("Reloading Context with name [" + getName() + "] is completed"));
+        if (LOGGER.isInfoEnabled())
+            LOGGER.info("Reloading Context with name [" + getName() + "] is completed");
 
     }
 
