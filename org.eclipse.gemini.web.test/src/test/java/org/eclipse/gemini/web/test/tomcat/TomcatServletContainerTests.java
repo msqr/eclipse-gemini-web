@@ -17,6 +17,7 @@
 package org.eclipse.gemini.web.test.tomcat;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -28,6 +29,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
@@ -311,19 +313,38 @@ public class TomcatServletContainerTests {
     }
 
     private void validateURL(String path) throws MalformedURLException, IOException {
+        boolean error = false;
+        InputStream stream = null;
         URL url = new URL(path);
-        InputStream stream = url.openConnection().getInputStream();
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        int responseCode = conn.getResponseCode();
+        if (responseCode == 200) {
+            stream = conn.getInputStream();
+        } else {
+            stream = conn.getErrorStream();
+            error = true;
+        }
         assertNotNull(stream);
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         String line = null;
         while ((line = reader.readLine()) != null) {
             System.out.println(line);
         }
+        assertFalse(error);
     }
 
     private void validateURLExpectedContent(String path, String... extectedContent) throws MalformedURLException, IOException {
+        boolean error = false;
+        InputStream stream = null;
         URL url = new URL(path);
-        InputStream stream = url.openConnection().getInputStream();
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        int responseCode = conn.getResponseCode();
+        if (responseCode == 200) {
+            stream = conn.getInputStream();
+        } else {
+            stream = conn.getErrorStream();
+            error = true;
+        }
         assertNotNull(stream);
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         StringBuilder stringBuilder = new StringBuilder();
@@ -333,6 +354,7 @@ public class TomcatServletContainerTests {
         }
         String content = stringBuilder.toString();
         System.out.println(content);
+        assertFalse(error);
         for (int j = 0; j < extectedContent.length; j++) {
             assertTrue(content.contains(extectedContent[j]));
         }
