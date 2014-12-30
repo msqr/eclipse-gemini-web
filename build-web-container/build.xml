@@ -10,6 +10,7 @@
 	<path id="bundles">
 		<path refid="unit.test.bundles"/>
 		<pathelement location="../org.eclipse.gemini.web"/>
+		<pathelement location="../test-bundles/customizer-bundle"/>
 		<pathelement location="../org.eclipse.gemini.web.test"/>
 	</path>
 
@@ -34,7 +35,6 @@
 		<pathelement location="../test-bundles/war-with-context-xml-custom-classloader"/>
 		<pathelement location="../test-bundles/war-with-context-xml-cross-context"/>
 		<pathelement location="../test-bundles/war-with-annotations"/>
-		<pathelement location="../test-bundles/customizer-bundle"/>
 		<pathelement location="../test-bundles/war-with-resource-references"/>
 	</path>
 
