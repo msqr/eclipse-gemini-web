@@ -51,15 +51,16 @@ public class WebBundleUrlStreamHandlerServiceTests {
         URLConnection connection = url.toURL().openConnection();
         assertNotNull(connection);
 
-        InputStream inputStream = connection.getInputStream();
-        JarInputStream jarInputStream = new JarInputStream(inputStream);
-        Manifest manifest = jarInputStream.getManifest();
+        try (InputStream inputStream = connection.getInputStream();
+            JarInputStream jarInputStream = new JarInputStream(inputStream);) {
+            Manifest manifest = jarInputStream.getManifest();
 
-        if (manifest != null) {
-            Attributes mainAttributes = manifest.getMainAttributes();
-            Set<Entry<Object, Object>> entrySet = mainAttributes.entrySet();
-            for (Entry<Object, Object> entry : entrySet) {
-                System.out.println(entry.getKey() + ": " + entry.getValue());
+            if (manifest != null) {
+                Attributes mainAttributes = manifest.getMainAttributes();
+                Set<Entry<Object, Object>> entrySet = mainAttributes.entrySet();
+                for (Entry<Object, Object> entry : entrySet) {
+                    System.out.println(entry.getKey() + ": " + entry.getValue());
+                }
             }
         }
     }
