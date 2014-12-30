@@ -41,6 +41,7 @@ import org.eclipse.gemini.web.core.spi.ServletContainer;
 import org.eclipse.gemini.web.core.spi.WebApplicationHandle;
 import org.eclipse.virgo.test.framework.OsgiTestRunner;
 import org.eclipse.virgo.test.framework.TestFrameworkUtils;
+import org.eclipse.virgo.util.io.FileCopyUtils;
 import org.eclipse.virgo.util.io.FileSystemUtils;
 import org.eclipse.virgo.util.io.IOUtils;
 import org.eclipse.virgo.util.io.PathReference;
@@ -142,13 +143,15 @@ public class TomcatServletContainerTests {
         validateNotFound("http://localhost:8080/test/index.html");
 
         WebApplicationHandle handle = this.container.createWebApplication("/test", bundle);
-        this.container.startWebApplication(handle);
-        assertNotNull(handle);
+        try {
+            this.container.startWebApplication(handle);
+            assertNotNull(handle);
 
-        validateURL("http://localhost:8080/test/index.html");
-        validateNotFound("http://localhost:8080/test/META-INF./MANIFEST.MF");
-
-        this.container.stopWebApplication(handle);
+            validateURL("http://localhost:8080/test/index.html");
+            validateNotFound("http://localhost:8080/test/META-INF./MANIFEST.MF");
+        } finally {
+            this.container.stopWebApplication(handle);
+        }
 
         validateNotFound("http://localhost:8080/test/index.html");
 
@@ -553,7 +556,7 @@ public class TomcatServletContainerTests {
             ((Bundle) result[0]).uninstall();
 
             assertTrue(tomcatServerXml.delete());
-            assertTrue(defaultWebXml.delete());
+            FileCopyUtils.copy(new File("src/test/resources/web.xml"), defaultWebXml);
         }
     }
 
@@ -590,6 +593,8 @@ public class TomcatServletContainerTests {
             validateURL("http://localhost:8080/simple-web-app-dir/test");
 
             FileSystemUtils.deleteRecursively(testFolder);
+            // there is cacheTTL property which default value is 5s
+            Thread.sleep(5000);
             validateNotFound("http://localhost:8080/simple-web-app-dir/test");
         } finally {
             this.container.stopWebApplication((WebApplicationHandle) result[1]);
@@ -597,7 +602,7 @@ public class TomcatServletContainerTests {
 
             FileSystemUtils.deleteRecursively(webAppDir);
             assertTrue(tomcatServerXml.delete());
-            assertTrue(defaultWebXml.delete());
+            FileCopyUtils.copy(new File("src/test/resources/web.xml"), defaultWebXml);
         }
     }
 
