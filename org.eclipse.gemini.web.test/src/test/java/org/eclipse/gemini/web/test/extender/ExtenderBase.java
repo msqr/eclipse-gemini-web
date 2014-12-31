@@ -42,7 +42,7 @@ public abstract class ExtenderBase {
 
     protected static final String REQUEST_URL = "http://localhost:8080/simple-war/index.html";
 
-    private BundleContext context = TestFrameworkUtils.getBundleContextForTestClass(getClass());
+    private final BundleContext context = TestFrameworkUtils.getBundleContextForTestClass(getClass());
 
     protected BundleContext getBundleContext() {
         return this.context;
@@ -187,8 +187,7 @@ public abstract class ExtenderBase {
     protected void validateURL(String path, String expectedResponse) throws MalformedURLException, IOException, InterruptedException {
         InputStream stream = openInputStream(path);
         assertNotNull(stream);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        try {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream));) {
             if (expectedResponse == null) {
                 String line = null;
                 while ((line = reader.readLine()) != null) {
@@ -197,16 +196,12 @@ public abstract class ExtenderBase {
             } else {
                 Assert.assertEquals(expectedResponse, reader.readLine());
             }
-        } finally {
-            reader.close();
         }
     }
 
     private void validateNotFound(String path) throws Exception {
         URL url = new URL(path);
-        try {
-            InputStream stream = url.openConnection().getInputStream();
-            stream.close();
+        try (InputStream stream = url.openConnection().getInputStream();) {
             fail("URL '" + path + "' is still deployed");
         } catch (IOException e) {
         }

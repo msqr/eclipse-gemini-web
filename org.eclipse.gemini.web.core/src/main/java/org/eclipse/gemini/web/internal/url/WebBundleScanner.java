@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -36,7 +36,6 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import org.eclipse.gemini.web.internal.WebContainerUtils;
-import org.eclipse.virgo.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,17 +152,10 @@ final class WebBundleScanner {
     }
 
     private void doScanNestedJar(File file) throws IOException {
-        JarInputStream jis = null;
-
-        try {
-            jis = new JarInputStream(new FileInputStream(file));
+        try (JarInputStream jis = new JarInputStream(new FileInputStream(file));) {
             doScanNestedJar(file.getAbsolutePath(), jis);
         } catch (IOException e) {
             throw new IOException("Cannot scan " + file.getAbsolutePath(), e);
-        } finally {
-            if (jis != null) {
-                IOUtils.closeQuietly(jis);
-            }
         }
     }
 
@@ -182,8 +174,7 @@ final class WebBundleScanner {
     }
 
     private void scanWarFile() throws IOException {
-        JarInputStream jis = new JarInputStream(this.source.openStream());
-        try {
+        try (JarInputStream jis = new JarInputStream(this.source.openStream());) {
             JarEntry entry;
             while ((entry = jis.getNextJarEntry()) != null) {
                 String entryName = entry.getName();
@@ -196,8 +187,6 @@ final class WebBundleScanner {
                     this.callBack.classFound(entry.getName().substring(CLASSES_ENTRY_PREFIX.length()));
                 }
             }
-        } finally {
-            IOUtils.closeQuietly(jis);
         }
     }
 
@@ -291,8 +280,7 @@ final class WebBundleScanner {
     }
 
     private void scanNestedJarInWarFileWithStream(String jarPath) throws IOException {
-        JarInputStream jis = new JarInputStream(this.source.openStream());
-        try {
+        try (JarInputStream jis = new JarInputStream(this.source.openStream());) {
             JarEntry entry;
             while ((entry = jis.getNextJarEntry()) != null) {
                 String entryName = entry.getName();
@@ -303,8 +291,6 @@ final class WebBundleScanner {
                     }
                 }
             }
-        } finally {
-            IOUtils.closeQuietly(jis);
         }
     }
 

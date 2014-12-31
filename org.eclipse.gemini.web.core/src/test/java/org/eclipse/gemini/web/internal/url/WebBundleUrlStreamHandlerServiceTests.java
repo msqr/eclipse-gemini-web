@@ -39,7 +39,6 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
 import org.eclipse.virgo.util.io.FileSystemUtils;
-import org.eclipse.virgo.util.io.IOUtils;
 import org.eclipse.virgo.util.io.PathReference;
 import org.junit.Test;
 
@@ -51,8 +50,7 @@ public class WebBundleUrlStreamHandlerServiceTests {
         URLConnection connection = url.toURL().openConnection();
         assertNotNull(connection);
 
-        try (InputStream inputStream = connection.getInputStream();
-            JarInputStream jarInputStream = new JarInputStream(inputStream);) {
+        try (InputStream inputStream = connection.getInputStream(); JarInputStream jarInputStream = new JarInputStream(inputStream);) {
             Manifest manifest = jarInputStream.getManifest();
 
             if (manifest != null) {
@@ -118,14 +116,13 @@ public class WebBundleUrlStreamHandlerServiceTests {
     }
 
     private void checkContent(URLConnection connection, String contextPath, File webXml) throws Exception {
-        InputStream inputStream = connection.getInputStream();
-        assertNotNull(inputStream);
+        try (InputStream inputStream = connection.getInputStream();) {
+            assertNotNull(inputStream);
+        }
 
         File webAppDir = new File(connection.getURL().getPath());
         // Check Manifest
-        InputStream is = null;
-        try {
-            is = new FileInputStream(new File(webAppDir, JarFile.MANIFEST_NAME));
+        try (InputStream is = new FileInputStream(new File(webAppDir, JarFile.MANIFEST_NAME));) {
             Manifest manifest = new Manifest(is);
 
             if (manifest != null) {
@@ -138,8 +135,6 @@ public class WebBundleUrlStreamHandlerServiceTests {
                     }
                 }
             }
-        } finally {
-            IOUtils.closeQuietly(is);
         }
 
         // Check web.xml
@@ -151,14 +146,12 @@ public class WebBundleUrlStreamHandlerServiceTests {
     }
 
     private void createManifest(File manifest, String... headers) throws Exception {
-        OutputStream os = new FileOutputStream(manifest);
-        PrintWriter writer = new PrintWriter(os);
-        for (String header : headers) {
-            writer.println(header);
+        try (OutputStream os = new FileOutputStream(manifest); PrintWriter writer = new PrintWriter(os);) {
+            for (String header : headers) {
+                writer.println(header);
+            }
+            writer.println();
         }
-        writer.println();
-        writer.close();
-        IOUtils.closeQuietly(os);
     }
 
     private static class TestWarUrl extends WebBundleUrl {

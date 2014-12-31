@@ -117,30 +117,25 @@ public class StreamBasedExtenderTests extends ExtenderBase {
         super.installWar2("?Bundle-ManifestVersion=2&Web-ContextPath=/simple-war", REQUEST_URL);
     }
 
+    @Override
     protected Bundle installWarBundle(String suffix) throws BundleException {
         return installBundle("simple-war.war", "webbundle:file:../org.eclipse.gemini.web.core/target/resources/simple-war.war", suffix);
     }
 
+    @Override
     protected Bundle installBundle(String location, String bundleUrl, String suffix) throws BundleException {
-        InputStream in = null;
+        URL url = null;
         try {
-            URL url = new URL(bundleUrl + suffix);
-            in = url.openStream();
+            url = new URL(bundleUrl + suffix);
         } catch (MalformedURLException e) {
-            fail("Unexpected exception " + e.getMessage());
-        } catch (IOException e) {
             fail("Unexpected exception " + e.getMessage());
         }
 
-        try {
+        try (InputStream in = url.openStream();) {
             return getBundleContext().installBundle(location, in);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                }
-            }
+        } catch (IOException e) {
+            fail("Unexpected exception " + e.getMessage());
+            return null;
         }
     }
 }

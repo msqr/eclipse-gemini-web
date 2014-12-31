@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG
+ * Copyright (c) 2010, 2014 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -62,8 +62,9 @@ public class DirTransformingURLConnectionTests {
 
         DirTransformingURLConnection connection = new DirTransformingURLConnection(directory, transformer);
         connection.setTransformedURL(tempDirectory);
-        InputStream is = connection.getInputStream();
-        assertNotNull(is);
+        try (InputStream is = connection.getInputStream();) {
+            assertNotNull(is);
+        }
         URL url = connection.getURL();
         assertTrue(tempDirectory.equals(url));
 

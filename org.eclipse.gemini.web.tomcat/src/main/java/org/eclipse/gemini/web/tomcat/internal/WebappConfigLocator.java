@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG
+ * Copyright (c) 2010, 2014 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -147,22 +147,13 @@ public class WebappConfigLocator {
                 return contextXml.toURI().toURL();
             }
         } else {
-            JarFile jar = null;
-            try {
-                jar = new JarFile(docBaseFile);
+            try (JarFile jar = new JarFile(docBaseFile);) {
                 ZipEntry contextXmlEntry = jar.getEntry(CONTEXT_XML);
                 if (contextXmlEntry != null) {
                     return new URL(JAR_SCHEMA + docBaseFile.toURI().toString() + JAR_TO_ENTRY_SEPARATOR + CONTEXT_XML);
                 }
             } catch (IOException e) {
                 throw new ServletContainerException("Cannot open for reading " + docBaseFile.getAbsolutePath(), e);
-            } finally {
-                if (jar != null) {
-                    try {
-                        jar.close();
-                    } catch (IOException _) {
-                    }
-                }
             }
         }
         return null;
@@ -207,28 +198,21 @@ public class WebappConfigLocator {
             return null;
         }
 
-        JarFile jarFile = null;
         try {
             URLConnection connection = bundleUrl.openConnection();
 
             if (connection instanceof JarURLConnection) {
                 JarURLConnection jarURLConnection = (JarURLConnection) connection;
                 jarURLConnection.setUseCaches(false);
-                jarFile = jarURLConnection.getJarFile();
-                String entryName = jarURLConnection.getEntryName();
-                if (entryName != null && jarFile != null && jarFile.getEntry(entryName) != null) {
-                    return bundleUrl;
+                try (JarFile jarFile = jarURLConnection.getJarFile();) {
+                    String entryName = jarURLConnection.getEntryName();
+                    if (entryName != null && jarFile != null && jarFile.getEntry(entryName) != null) {
+                        return bundleUrl;
+                    }
                 }
             }
         } catch (IOException e) {
             return null;
-        } finally {
-            if (jarFile != null) {
-                try {
-                    jarFile.close();
-                } catch (IOException _) {
-                }
-            }
         }
 
         return null;

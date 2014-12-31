@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG
+ * Copyright (c) 2010, 2014 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -26,7 +26,6 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.util.jar.JarFile;
 
-import org.eclipse.virgo.util.io.IOUtils;
 import org.eclipse.virgo.util.io.PathReference;
 
 /**
@@ -108,13 +107,10 @@ final class DirTransformer {
 
         PathReference manifest = fromDirectory.newChild(JarFile.MANIFEST_NAME);
         if (ensureManifestIsPresent && !manifest.exists()) {
-            InputStream defaultManifestStream = getDefaultManifestStream();
             PathReference toFile = toDirectory.newChild(JarFile.MANIFEST_NAME);
             toFile.getParent().createDirectory();
-            try {
+            try (InputStream defaultManifestStream = getDefaultManifestStream();) {
                 this.callback.transformFile(defaultManifestStream, toFile);
-            } finally {
-                IOUtils.closeQuietly(defaultManifestStream);
             }
         }
     }
@@ -134,12 +130,9 @@ final class DirTransformer {
     }
 
     private void transformFile(PathReference fromFile, PathReference toFile) throws IOException {
-        FileInputStream fis = new FileInputStream(fromFile.toFile());
         boolean transformed = false;
-        try {
+        try (FileInputStream fis = new FileInputStream(fromFile.toFile());) {
             transformed = this.callback.transformFile(fis, toFile);
-        } finally {
-            IOUtils.closeQuietly(fis);
         }
         if (!transformed) {
             toFile.getParent().createDirectory();
@@ -149,10 +142,10 @@ final class DirTransformer {
 
     private InputStream getDefaultManifestStream() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintWriter writer = new PrintWriter(baos);
-        writer.println(MANIFEST_VERSION_HEADER);
-        writer.println();
-        writer.close();
-        return new ByteArrayInputStream(baos.toByteArray());
+        try (PrintWriter writer = new PrintWriter(baos);) {
+            writer.println(MANIFEST_VERSION_HEADER);
+            writer.println();
+            return new ByteArrayInputStream(baos.toByteArray());
+        }
     }
 }

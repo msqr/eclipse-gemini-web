@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -36,7 +36,6 @@ import org.eclipse.gemini.web.core.InstallationOptions;
 import org.eclipse.gemini.web.core.WebBundleManifestTransformer;
 import org.eclipse.gemini.web.internal.WebContainerUtils;
 import org.eclipse.gemini.web.internal.url.DirTransformer.DirTransformerCallback;
-import org.eclipse.virgo.util.io.IOUtils;
 import org.eclipse.virgo.util.io.JarTransformer;
 import org.eclipse.virgo.util.io.JarTransformer.JarTransformerCallback;
 import org.eclipse.virgo.util.io.JarTransformingURLConnection;
@@ -153,12 +152,8 @@ public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHan
         public boolean transformFile(InputStream inputStream, PathReference toFile) throws IOException {
             if (MANIFEST_MF.equals(toFile.getName()) && META_INF.equals(toFile.getParent().getName())) {
                 toFile.getParent().createDirectory();
-                OutputStream outputStream = null;
-                try {
-                    outputStream = new FileOutputStream(toFile.toFile());
+                try (OutputStream outputStream = new FileOutputStream(toFile.toFile());) {
                     transformManifest(inputStream, outputStream);
-                } finally {
-                    IOUtils.closeQuietly(outputStream);
                 }
                 return true;
             }

@@ -34,7 +34,6 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import org.eclipse.gemini.web.internal.url.DirTransformer.DirTransformerCallback;
-import org.eclipse.virgo.util.io.IOUtils;
 import org.eclipse.virgo.util.io.PathReference;
 import org.junit.Test;
 
@@ -180,32 +179,21 @@ public class DirTransformerTests {
     }
 
     private void checkManifest(File manifestFile) throws IOException {
-        InputStream is = null;
-        try {
-            is = new FileInputStream(manifestFile);
+        try (InputStream is = new FileInputStream(manifestFile);) {
             Manifest manifest = new Manifest(is);
             Attributes attr = manifest.getMainAttributes();
             String value = attr.getValue("Custom-Header");
             assertEquals("test", value);
             assertEquals(1, attr.size());
-        } finally {
-            IOUtils.closeQuietly(is);
         }
     }
 
     private void createManifest(File manifest, String... headers) throws IOException {
-        OutputStream outputStream = null;
-        PrintWriter writer = null;
-        try {
-            outputStream = new FileOutputStream(manifest);
-            writer = new PrintWriter(manifest);
+        try (OutputStream outputStream = new FileOutputStream(manifest); PrintWriter writer = new PrintWriter(manifest);) {
             for (String header : headers) {
                 writer.println(header);
             }
             writer.println();
-        } finally {
-            IOUtils.closeQuietly(writer);
-            IOUtils.closeQuietly(outputStream);
         }
     }
 }

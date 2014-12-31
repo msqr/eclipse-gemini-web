@@ -36,7 +36,6 @@ import org.apache.catalina.Container;
 import org.apache.catalina.Engine;
 import org.apache.catalina.Host;
 import org.eclipse.gemini.web.core.spi.ServletContainerException;
-import org.eclipse.virgo.util.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
@@ -88,31 +87,18 @@ public class WebappConfigLocatorTests {
         byte[] buffer = new byte[1024];
         int bytesRead;
 
-        FileOutputStream stream = null;
-        JarOutputStream out = null;
-        FileInputStream file = null;
-        try {
-            stream = new FileOutputStream(jarFile1.getPath());
-            out = new JarOutputStream(stream, new Manifest());
-            file = new FileInputStream(new File(urlFile2.getPath()));
+        try (FileOutputStream stream = new FileOutputStream(jarFile1.getPath());
+            JarOutputStream out = new JarOutputStream(stream, new Manifest());
+            FileInputStream file = new FileInputStream(new File(urlFile2.getPath()));) {
             JarEntry jarAdd = new JarEntry(JAR_ENTRY_NAME);
             out.putNextEntry(jarAdd);
             while ((bytesRead = file.read(buffer)) != -1) {
                 out.write(buffer, 0, bytesRead);
             }
             out.closeEntry();
-        } finally {
-            IOUtils.closeQuietly(file);
-            IOUtils.closeQuietly(out);
-            IOUtils.closeQuietly(stream);
         }
 
-        try {
-            stream = new FileOutputStream(jarFile2.getPath());
-            out = new JarOutputStream(stream, new Manifest());
-        } finally {
-            IOUtils.closeQuietly(out);
-            IOUtils.closeQuietly(stream);
+        try (FileOutputStream stream = new FileOutputStream(jarFile2.getPath()); JarOutputStream out = new JarOutputStream(stream, new Manifest());) {
         }
     }
 

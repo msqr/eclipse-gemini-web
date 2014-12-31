@@ -45,7 +45,6 @@ import org.eclipse.virgo.test.framework.OsgiTestRunner;
 import org.eclipse.virgo.test.framework.TestFrameworkUtils;
 import org.eclipse.virgo.util.io.FileCopyUtils;
 import org.eclipse.virgo.util.io.FileSystemUtils;
-import org.eclipse.virgo.util.io.IOUtils;
 import org.eclipse.virgo.util.io.PathReference;
 import org.eclipse.virgo.util.io.ZipUtils;
 import org.junit.Before;
@@ -119,20 +118,11 @@ public class TomcatServletContainerTests {
     @Test
     public void testServletContainerAvailable() {
         assertNotNull(this.container);
-        Socket socket = null;
-        try {
-            socket = new Socket("localhost", 8080);
+        try (Socket socket = new Socket("localhost", 8080);) {
         } catch (UnknownHostException e) {
             fail("Unable to connect");
         } catch (IOException e) {
             fail("Unable to connect");
-        } finally {
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                }
-            }
         }
     }
 
@@ -362,13 +352,12 @@ public class TomcatServletContainerTests {
 
     private void validateNotFound(String path) throws Exception {
         URL url = new URL(path);
-        try {
-            url.openConnection().getInputStream();
+        try (InputStream is = url.openConnection().getInputStream();) {
+            fail("URL '" + path + "' is still deployed");
         } catch (IOException e) {
             assertTrue("success case", true);
             return;
         }
-        fail("URL '" + path + "' is still deployed");
     }
 
     private PathReference explode(PathReference packed) throws IOException {
@@ -632,13 +621,9 @@ public class TomcatServletContainerTests {
         if (!file.getParentFile().exists()) {
             assertTrue(file.getParentFile().mkdirs());
         }
-        FileWriter fWriter = null;
-        try {
-            fWriter = new FileWriter(file);
+        try (FileWriter fWriter = new FileWriter(file);) {
             fWriter.write(content);
             fWriter.flush();
-        } finally {
-            IOUtils.closeQuietly(fWriter);
         }
     }
 
