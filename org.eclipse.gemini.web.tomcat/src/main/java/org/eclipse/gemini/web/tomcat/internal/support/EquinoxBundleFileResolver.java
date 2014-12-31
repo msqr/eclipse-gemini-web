@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -60,9 +60,7 @@ final class EquinoxBundleFileResolver implements BundleFileResolver {
         try {
             EquinoxBundleFileResolver.class.getClassLoader().loadClass(BundleHost.class.getName());
             return true;
-        } catch (Exception _) {
-            return false;
-        } catch (LinkageError _) {
+        } catch (Exception | LinkageError _) {
             return false;
         }
     }

@@ -147,9 +147,7 @@ final class EventManager {
         try {
             getClass().getClassLoader().loadClass(EventAdmin.class.getName());
             return true;
-        } catch (NoClassDefFoundError ex) {
-            return false;
-        } catch (ClassNotFoundException ex) {
+        } catch (NoClassDefFoundError | ClassNotFoundException ex) {
             return false;
         }
     }

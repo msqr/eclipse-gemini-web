@@ -436,15 +436,7 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
                             try {
                                 Class<?> clazz = getClass().getClassLoader().loadClass(factory);
                                 return (ObjectFactory) clazz.newInstance();
-                            } catch (ClassNotFoundException e) {
-                                if (LOGGER.isInfoEnabled()) {
-                                    LOGGER.info("Error while trying to create object factory [" + factory + "]", e);
-                                }
-                            } catch (InstantiationException e) {
-                                if (LOGGER.isInfoEnabled()) {
-                                    LOGGER.info("Error while trying to create object factory [" + factory + "]", e);
-                                }
-                            } catch (IllegalAccessException e) {
+                            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                                 if (LOGGER.isInfoEnabled()) {
                                     LOGGER.info("Error while trying to create object factory [" + factory + "]", e);
                                 }

@@ -34,7 +34,6 @@ import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.UnknownHostException;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -119,8 +118,6 @@ public class TomcatServletContainerTests {
     public void testServletContainerAvailable() {
         assertNotNull(this.container);
         try (Socket socket = new Socket("localhost", 8080);) {
-        } catch (UnknownHostException e) {
-            fail("Unable to connect");
         } catch (IOException e) {
             fail("Unable to connect");
         }
