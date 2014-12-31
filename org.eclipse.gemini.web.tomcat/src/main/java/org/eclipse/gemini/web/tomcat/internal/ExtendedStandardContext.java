@@ -35,7 +35,7 @@ public class ExtendedStandardContext extends StandardContext {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ExtendedStandardContext.class);
 
-    private Bundle bundle;
+    private final Bundle bundle;
 
     public ExtendedStandardContext(Bundle bundle) {
         super();
@@ -54,20 +54,23 @@ public class ExtendedStandardContext extends StandardContext {
 
     @Override
     public synchronized void reload() {
-        if (!getState().isAvailable())
+        if (!getState().isAvailable()) {
             throw new IllegalStateException("Context with name [" + getName() + "] has not yet been started.");
+        }
 
-        if (LOGGER.isInfoEnabled())
+        if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Reloading Context with name [" + getName() + "] has started.");
+        }
 
         final Bundle systemBundle = this.bundle.getBundleContext().getBundle(0);
         final FrameworkWiring frameworkWiring = systemBundle.adapt(FrameworkWiring.class);
-        Set<Bundle> bundles = new HashSet<Bundle>();
+        Set<Bundle> bundles = new HashSet<>();
         bundles.add(this.bundle);
         frameworkWiring.refreshBundles(bundles);
 
-        if (LOGGER.isInfoEnabled())
+        if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Reloading Context with name [" + getName() + "] is completed");
+        }
 
     }
 

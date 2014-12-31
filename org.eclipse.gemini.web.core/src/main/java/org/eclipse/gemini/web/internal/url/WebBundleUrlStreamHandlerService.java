@@ -70,10 +70,9 @@ public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHan
         if (FILE_PROTOCOL.equals(actualUrl.getProtocol()) && new File(actualUrl.getPath()).isDirectory()) {
             DirTransformer dirTransformer = new DirTransformer(new Callback(actualUrl, url, this.transformer));
             return new DirTransformingURLConnection(actualUrl, dirTransformer, true);
-        } else {
-            JarTransformer jarTransformer = new JarTransformer(new Callback(actualUrl, url, this.transformer));
-            return new JarTransformingURLConnection(actualUrl, jarTransformer, true);
         }
+        JarTransformer jarTransformer = new JarTransformer(new Callback(actualUrl, url, this.transformer));
+        return new JarTransformingURLConnection(actualUrl, jarTransformer, true);
     }
 
     private static final class Callback implements JarTransformerCallback, DirTransformerCallback {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG
+ * Copyright (c) 2012, 2014 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -30,7 +30,7 @@ import org.junit.Test;
 
 public class ChainingJarScannerTests {
 
-    private final List<String> scannedResources = new ArrayList<String>();
+    private final List<String> scannedResources = new ArrayList<>();
 
     @Test
     public void testScan() {

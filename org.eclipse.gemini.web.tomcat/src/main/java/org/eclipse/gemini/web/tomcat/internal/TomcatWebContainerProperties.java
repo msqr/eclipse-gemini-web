@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -57,7 +57,7 @@ final class TomcatWebContainerProperties implements WebContainerProperties {
      */
     @Override
     public Set<ConnectorDescriptor> getConnectorDescriptors() {
-        Set<ConnectorDescriptor> connectorDescriptors = new HashSet<ConnectorDescriptor>();
+        Set<ConnectorDescriptor> connectorDescriptors = new HashSet<>();
         MBeanServer mBeanServer = this.getMBeanServer();
         try {
             ObjectName portNamesQuery = new ObjectName(CATALINA_TYPE_PROTOCOL_HANDLER);

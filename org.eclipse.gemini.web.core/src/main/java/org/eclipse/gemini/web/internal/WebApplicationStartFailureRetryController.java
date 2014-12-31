@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -34,7 +34,7 @@ final class WebApplicationStartFailureRetryController {
 
     private final Object monitor = new Object();
 
-    private final ConcurrentMap<String, Set<StandardWebApplication>> failures = new ConcurrentHashMap<String, Set<StandardWebApplication>>();
+    private final ConcurrentMap<String, Set<StandardWebApplication>> failures = new ConcurrentHashMap<>();
 
     void recordFailure(StandardWebApplication failedWebApplication) {
         String contextPath = failedWebApplication.getContextPath();
@@ -46,7 +46,7 @@ final class WebApplicationStartFailureRetryController {
     private void addFailureForWebContextPath(String contextPath, StandardWebApplication failedWebApplication) {
         Set<StandardWebApplication> contextFailures = this.failures.get(contextPath);
         if (contextFailures == null) {
-            contextFailures = new HashSet<StandardWebApplication>();
+            contextFailures = new HashSet<>();
             Set<StandardWebApplication> previousContextFailures = this.failures.putIfAbsent(contextPath, contextFailures);
             if (previousContextFailures != null) {
                 contextFailures = previousContextFailures;
@@ -86,7 +86,7 @@ final class WebApplicationStartFailureRetryController {
     }
 
     private Set<StandardWebApplication> createSetSortedByBundleId() {
-        return new TreeSet<StandardWebApplication>(new Comparator<StandardWebApplication>() {
+        return new TreeSet<>(new Comparator<StandardWebApplication>() {
 
             @Override
             public int compare(StandardWebApplication wa1, StandardWebApplication wa2) {

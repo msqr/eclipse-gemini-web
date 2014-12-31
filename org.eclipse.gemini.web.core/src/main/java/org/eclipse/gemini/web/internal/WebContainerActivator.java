@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -57,8 +57,7 @@ public class WebContainerActivator implements BundleActivator {
         this.eventManager = new EventManager(context);
         this.eventManager.start();
 
-        this.serviceTracker = new ServiceTracker<ServletContainer, WebContainer>(context, ServletContainer.class, new ServletContainerTracker(
-            context, this.eventManager));
+        this.serviceTracker = new ServiceTracker<>(context, ServletContainer.class, new ServletContainerTracker(context, this.eventManager));
         this.serviceTracker.open();
     }
 
@@ -87,7 +86,7 @@ public class WebContainerActivator implements BundleActivator {
     }
 
     private void registerUrlStreamHandler(BundleContext context, WebBundleManifestTransformer transformer) {
-        Dictionary<String, Object> props = new Hashtable<String, Object>();
+        Dictionary<String, Object> props = new Hashtable<>();
         props.put(URLConstants.URL_HANDLER_PROTOCOL, new String[] { WebBundleUrl.SCHEME });
 
         ServiceRegistration<URLStreamHandlerService> reg = context.registerService(URLStreamHandlerService.class,

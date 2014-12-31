@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -24,7 +24,7 @@ import java.util.Set;
 class PackagesInWarScanner {
 
     Set<String> getPackagesContainedInWar(URL warURL) throws IOException {
-        final Set<String> packagesInWar = new HashSet<String>();
+        final Set<String> packagesInWar = new HashSet<>();
         if (warURL != null) {
             WebBundleScanner scanner = new WebBundleScanner(warURL, new WebBundleScannerCallback() {
 

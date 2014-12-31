@@ -68,7 +68,7 @@ public class DirTransformerTests {
         webXml.createFile();
         PathReference manifest = webAppDir.newChild(JarFile.MANIFEST_NAME);
 
-        final List<PathReference> transformedFiles = new ArrayList<PathReference>();
+        final List<PathReference> transformedFiles = new ArrayList<>();
         DirTransformer transformer = new DirTransformer(new DirTransformerCallback() {
 
             @Override
@@ -114,9 +114,8 @@ public class DirTransformerTests {
                     toFile.getParent().createDirectory();
                     createManifest(toFile.toFile(), HEADER_3);
                     return true;
-                } else {
-                    return false;
                 }
+                return false;
             }
         });
 

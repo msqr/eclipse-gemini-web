@@ -50,7 +50,7 @@ public class DirTransformingURLConnectionTests {
         PathReference webXml = webAppDir.newChild(WEB_INF + File.separator + WEB_XML);
         webXml.createFile();
 
-        final List<PathReference> files = new ArrayList<PathReference>();
+        final List<PathReference> files = new ArrayList<>();
         DirTransformer transformer = new DirTransformer(new DirTransformerCallback() {
 
             @Override

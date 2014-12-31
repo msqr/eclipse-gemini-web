@@ -65,13 +65,13 @@ final class WebBundleScanner {
 
     private final String localSourcePath;
 
-    private final Collection<ZipEntry> sourceZipEntries = new HashSet<ZipEntry>();
+    private final Collection<ZipEntry> sourceZipEntries = new HashSet<>();
 
     private final WebBundleScannerCallback callBack;
 
     private final boolean findClassesInNestedJars;
 
-    private final Set<String> scannedJars = new HashSet<String>();
+    private final Set<String> scannedJars = new HashSet<>();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WebBundleScanner.class);
 

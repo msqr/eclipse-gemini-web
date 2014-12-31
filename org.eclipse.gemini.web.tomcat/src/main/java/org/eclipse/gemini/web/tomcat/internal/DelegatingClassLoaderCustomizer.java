@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2013 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -40,7 +40,7 @@ final class DelegatingClassLoaderCustomizer implements ClassLoaderCustomizer {
 
     public DelegatingClassLoaderCustomizer(BundleContext context) {
         this.context = context;
-        this.tracker = new ServiceTracker<ClassLoaderCustomizer, Object>(context, ClassLoaderCustomizer.class.getName(), new Customizer());
+        this.tracker = new ServiceTracker<>(context, ClassLoaderCustomizer.class.getName(), new Customizer());
     }
 
     public void open() {
@@ -63,31 +63,28 @@ final class DelegatingClassLoaderCustomizer implements ClassLoaderCustomizer {
     @Override
     public ClassLoader createThrowawayClassLoader(Bundle bundle) {
         if (this.delegate != null && this.delegate.size() > 0) {
-            Set<ClassLoader> result = new HashSet<ClassLoader>();
+            Set<ClassLoader> result = new HashSet<>();
             for (ClassLoaderCustomizer classLoaderCustomizer : this.delegate) {
                 result.add(classLoaderCustomizer.createThrowawayClassLoader(bundle));
             }
             if (result.size() > 0) {
                 return ChainedClassLoader.create(result.toArray(new ClassLoader[result.size()]));
-            } else {
-                return null;
             }
-        } else {
             return null;
         }
+        return null;
     }
 
     @Override
     public ClassLoader[] extendClassLoaderChain(Bundle bundle) {
         if (this.delegate != null && this.delegate.size() > 0) {
-            Set<ClassLoader> result = new LinkedHashSet<ClassLoader>();
+            Set<ClassLoader> result = new LinkedHashSet<>();
             for (ClassLoaderCustomizer classLoaderCustomizer : this.delegate) {
                 result.addAll(Arrays.asList(classLoaderCustomizer.extendClassLoaderChain(bundle)));
             }
             return result.toArray(new ClassLoader[result.size()]);
-        } else {
-            return new ClassLoader[0];
         }
+        return new ClassLoader[0];
     }
 
     private class Customizer implements ServiceTrackerCustomizer<ClassLoaderCustomizer, Object> {
@@ -97,7 +94,7 @@ final class DelegatingClassLoaderCustomizer implements ClassLoaderCustomizer {
             ClassLoaderCustomizer newDelegate = DelegatingClassLoaderCustomizer.this.context.getService(reference);
 
             if (DelegatingClassLoaderCustomizer.this.delegate == null) {
-                DelegatingClassLoaderCustomizer.this.delegate = new HashSet<ClassLoaderCustomizer>();
+                DelegatingClassLoaderCustomizer.this.delegate = new HashSet<>();
             }
 
             DelegatingClassLoaderCustomizer.this.delegate.add(newDelegate);

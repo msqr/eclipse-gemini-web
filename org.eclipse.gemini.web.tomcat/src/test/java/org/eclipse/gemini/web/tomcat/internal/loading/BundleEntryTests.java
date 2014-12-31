@@ -175,7 +175,7 @@ public class BundleEntryTests {
     }
 
     private Enumeration<String> createPathsEnumeration(String... paths) {
-        Vector<String> vector = new Vector<String>();
+        Vector<String> vector = new Vector<>();
 
         for (String path : paths) {
             vector.add(path);

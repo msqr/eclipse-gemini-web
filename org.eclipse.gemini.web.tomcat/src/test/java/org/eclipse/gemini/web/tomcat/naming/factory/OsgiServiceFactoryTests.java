@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SAP AG
+ * Copyright (c) 2011, 2014 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -59,8 +59,8 @@ public class OsgiServiceFactoryTests {
 
     @Test
     public void testGetObjectInstance() throws Exception {
-        expect(this.initialContextFactoryBuilder.createInitialContextFactory(new Hashtable<Object, Object>())).andReturn(this.initialContextFactory);
-        expect(this.initialContextFactory.getInitialContext(new Hashtable<Object, Object>())).andReturn(this.context);
+        expect(this.initialContextFactoryBuilder.createInitialContextFactory(new Hashtable<>())).andReturn(this.initialContextFactory);
+        expect(this.initialContextFactory.getInitialContext(new Hashtable<>())).andReturn(this.context);
         expect(this.context.lookup(OsgiServiceFactory.OSGI_JNDI_URLSCHEME + LOOKUP)).andReturn(new Object());
         replay(this.initialContextFactoryBuilder, this.initialContextFactory, this.context);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -29,9 +29,8 @@ public final class BundleFileResolverFactory {
     public static BundleFileResolver createBundleFileResolver() {
         if (EquinoxBundleFileResolver.canUse()) {
             return new EquinoxBundleFileResolver();
-        } else {
-            return new NoOpBundleFileResolver();
         }
+        return new NoOpBundleFileResolver();
     }
 
     private static class NoOpBundleFileResolver implements BundleFileResolver {

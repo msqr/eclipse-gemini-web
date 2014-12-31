@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2013 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -100,7 +100,7 @@ public final class BundleDirContext extends AbstractReadOnlyDirContext {
 
     private List<NamingEntry> doList(BundleEntry bundleEntry) {
         List<BundleEntry> list = bundleEntry.list();
-        List<NamingEntry> resources = new ArrayList<NamingEntry>();
+        List<NamingEntry> resources = new ArrayList<>();
         for (BundleEntry entry : list) {
             Object object;
             object = entryToResult(entry);

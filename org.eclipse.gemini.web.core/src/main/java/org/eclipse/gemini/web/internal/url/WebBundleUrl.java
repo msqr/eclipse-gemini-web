@@ -55,7 +55,7 @@ public class WebBundleUrl {
     public WebBundleUrl(String location, Map<String, String> options) throws MalformedURLException {
         this.url = createURL(location, options);
         this.location = location;
-        this.options = options == null ? Collections.<String, String> emptyMap() : unmodifiableMap(new HashMap<String, String>(options));
+        this.options = options == null ? Collections.<String, String> emptyMap() : unmodifiableMap(new HashMap<>(options));
     }
 
     public WebBundleUrl(URL url) {
@@ -119,7 +119,7 @@ public class WebBundleUrl {
     }
 
     private static Map<String, String> parseQueryString(String query) {
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         if (query != null) {
             String[] parms = query.split(AMPERSAND);
             for (String parm : parms) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -31,7 +31,7 @@ public final class ExtenderActivator implements BundleActivator {
 
     @Override
     public void start(BundleContext context) {
-        this.serviceTracker = new ServiceTracker<WebContainer, String>(context, WebContainer.class, new ExtendedWebContainerTracker(context));
+        this.serviceTracker = new ServiceTracker<>(context, WebContainer.class, new ExtendedWebContainerTracker(context));
         this.serviceTracker.open();
     }
 
@@ -53,7 +53,7 @@ public final class ExtenderActivator implements BundleActivator {
         @Override
         public String addingService(ServiceReference<WebContainer> reference) {
             if (this.bundleTracker == null) {
-                this.bundleTracker = new BundleTracker<Object>(this.context, Bundle.ACTIVE, new WebContainerBundleCustomizer(
+                this.bundleTracker = new BundleTracker<>(this.context, Bundle.ACTIVE, new WebContainerBundleCustomizer(
                     this.context.getService(reference), this.context.getBundle()));
             }
             this.bundleTracker.open();

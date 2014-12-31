@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2013 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -99,7 +99,7 @@ public final class BundleEntry {
     }
 
     public List<BundleEntry> list() {
-        List<BundleEntry> entries = new ArrayList<BundleEntry>();
+        List<BundleEntry> entries = new ArrayList<>();
         Set<String> paths = getEntryPathsFromBundle();
         if (paths != null) {
             Iterator<String> iterator = paths.iterator();
@@ -133,7 +133,7 @@ public final class BundleEntry {
     private Set<String> getEntryPathsFromBundle(Bundle bundle) {
         final Enumeration<String> ep = bundle.getEntryPaths(this.path);
 
-        Set<String> paths = new HashSet<String>();
+        Set<String> paths = new HashSet<>();
         if (ep != null) {
             while (ep.hasMoreElements()) {
                 paths.add(ep.nextElement());
@@ -147,12 +147,11 @@ public final class BundleEntry {
         String finalPath = this.path + subPath;
         URL entryURL = getEntryFromBundle(finalPath);
         if (entryURL != null) {
-            Map<BundleEntry, URL> result = new HashMap<BundleEntry, URL>();
+            Map<BundleEntry, URL> result = new HashMap<>();
             result.put(createBundleEntry(finalPath), entryURL);
             return result.entrySet().iterator().next();
-        } else {
-            return null;
         }
+        return null;
     }
 
     /**
@@ -214,9 +213,8 @@ public final class BundleEntry {
 
         if (name.length() == 0) {
             return PATH_SEPARATOR;
-        } else {
-            return name;
         }
+        return name;
     }
 
     public URL getURL() {
@@ -253,7 +251,7 @@ public final class BundleEntry {
     }
 
     private List<Bundle> getFragments(Bundle bundle) {
-        List<Bundle> fragments = new ArrayList<Bundle>();
+        List<Bundle> fragments = new ArrayList<>();
         BundleRevision bundleRevision = bundle.adapt(BundleRevision.class);
         if (bundleRevision != null) {
             BundleWiring bundleWiring = bundleRevision.getWiring();

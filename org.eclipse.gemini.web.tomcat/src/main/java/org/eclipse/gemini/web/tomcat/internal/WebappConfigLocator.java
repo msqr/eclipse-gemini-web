@@ -74,9 +74,8 @@ public class WebappConfigLocator {
         File defaultContextXml = new File(configLocation, DEFAULT_CONTEXT_XML);
         if (defaultContextXml.exists()) {
             return defaultContextXml.getAbsolutePath();
-        } else {
-            return null;
         }
+        return null;
     }
 
     /**
@@ -135,9 +134,8 @@ public class WebappConfigLocator {
         if (EMPTY_STRING.equals(docBase)) {
             if (bundle != null) {
                 return resolveWebappContextXmlFromJarURLConnection(bundle);
-            } else {
-                return null;
             }
+            return null;
         }
 
         File docBaseFile = new File(docBase);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -140,7 +140,7 @@ final class StandardWebApplication implements WebApplication {
     }
 
     private Set<Long> getWebContextPathBundleIds(String webContextPath) {
-        Set<Long> bundleIds = new HashSet<Long>();
+        Set<Long> bundleIds = new HashSet<>();
         // Use this bundle context to retrieve all bundles
         // Extender bundle cannot be used because it might be null
         // Web app bundle cannot be use because its bundle context might not be a valid one and RuntimeException will be
@@ -192,7 +192,7 @@ final class StandardWebApplication implements WebApplication {
     }
 
     private Dictionary<String, String> constructServletContextProperties() {
-        Dictionary<String, String> properties = new Hashtable<String, String>();
+        Dictionary<String, String> properties = new Hashtable<>();
         WebContainerUtils.setServletContextBundleProperties(properties, getBundle());
         properties.put("osgi.web.contextpath", getContextPath());
         return properties;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -47,7 +47,7 @@ public class WebBundleUrlTests {
 
     @Test
     public void encodeWithOptions() throws Exception {
-        Map<String, String> options = new TreeMap<String, String>();
+        Map<String, String> options = new TreeMap<>();
         options.put("Web-ContextPath", "/foo");
         options.put("name", "Rob Harrop");
         WebBundleUrl url = new TestWarUrl(FILE_LOCATION, options);

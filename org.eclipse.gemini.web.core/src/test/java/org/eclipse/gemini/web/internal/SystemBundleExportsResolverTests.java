@@ -45,7 +45,7 @@ public class SystemBundleExportsResolverTests {
 
         BundleCapability capability2 = createBundleCapabilityMock("", "", "b", new Version(2, 3, 4));
 
-        List<BundleCapability> input = new ArrayList<BundleCapability>();
+        List<BundleCapability> input = new ArrayList<>();
         input.add(capability1);
         input.add(capability2);
 
@@ -80,7 +80,7 @@ public class SystemBundleExportsResolverTests {
 
         BundleCapability capability4 = createBundleCapabilityMock("", "", "a", new Version(1, 2, 0));
 
-        List<BundleCapability> input = new ArrayList<BundleCapability>();
+        List<BundleCapability> input = new ArrayList<>();
         input.add(capability1);
         input.add(capability2);
         input.add(capability3);
@@ -106,7 +106,7 @@ public class SystemBundleExportsResolverTests {
         BundleCapability capability1 = createBundleCapabilityMock("", "", "a", new Version("1.0.0"));
         BundleCapability capability2 = createBundleCapabilityMock(SystemBundleExportsResolver.INTERNAL_DIRECTIVE, "true", "b", new Version("1.0.0"));
         BundleCapability capability3 = createBundleCapabilityMock(SystemBundleExportsResolver.FRIENDS_DIRECTIVE, "", "c", new Version("1.0.0"));
-        List<BundleCapability> input = new ArrayList<BundleCapability>();
+        List<BundleCapability> input = new ArrayList<>();
         input.add(capability1);
         input.add(capability2);
         input.add(capability3);
@@ -139,11 +139,11 @@ public class SystemBundleExportsResolverTests {
     private BundleCapability createBundleCapabilityMock(String directive, String directiveValue, String exportPackage, Version version) {
         BundleCapability bundleCapability = createMock(BundleCapability.class);
 
-        Map<String, String> directives = new HashMap<String, String>();
+        Map<String, String> directives = new HashMap<>();
         directives.put(directive, directiveValue);
         expect(bundleCapability.getDirectives()).andReturn(directives).anyTimes();
 
-        Map<String, Object> attributes = new HashMap<String, Object>();
+        Map<String, Object> attributes = new HashMap<>();
         attributes.put(BundleRevision.PACKAGE_NAMESPACE, exportPackage);
         attributes.put(SystemBundleExportsResolver.VERSION, version);
         expect(bundleCapability.getAttributes()).andReturn(attributes).anyTimes();
@@ -156,7 +156,7 @@ public class SystemBundleExportsResolverTests {
 
         BundleCapability capability2 = createBundleCapabilityMock("", "", "a", versions[1]);
 
-        List<BundleCapability> input = new ArrayList<BundleCapability>();
+        List<BundleCapability> input = new ArrayList<>();
         input.add(capability1);
         input.add(capability2);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -50,7 +50,7 @@ public class SpecificationWebBundleManifestTransformerTests {
 
     @Test
     public void transformFromNothing() throws Exception {
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
 
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
@@ -65,7 +65,7 @@ public class SpecificationWebBundleManifestTransformerTests {
         String symbolicName = "my.bundle";
         String version = "1.2.3";
 
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
         options.put(Constants.BUNDLE_SYMBOLICNAME, symbolicName);
         options.put(Constants.BUNDLE_VERSION, version);
@@ -84,7 +84,7 @@ public class SpecificationWebBundleManifestTransformerTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSpecifyBundleSymbolicNameForWAB() throws Exception {
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
         options.put(Constants.BUNDLE_SYMBOLICNAME, "my.bundle");
 
@@ -96,7 +96,7 @@ public class SpecificationWebBundleManifestTransformerTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSpecifyBundleVersionForWAB() throws Exception {
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
         options.put(Constants.BUNDLE_VERSION, "0");
 
@@ -108,7 +108,7 @@ public class SpecificationWebBundleManifestTransformerTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSpecifyBundleManifestVersionForWAB() throws Exception {
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
         options.put(Constants.BUNDLE_MANIFESTVERSION, "2");
 
@@ -120,7 +120,7 @@ public class SpecificationWebBundleManifestTransformerTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSpecifyBundleManifestVersion() throws Exception {
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
         options.put(Constants.BUNDLE_MANIFESTVERSION, "0");
 
@@ -131,7 +131,7 @@ public class SpecificationWebBundleManifestTransformerTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSpecifyBundleManifestVersionStringValue() throws Exception {
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
         options.put(Constants.BUNDLE_MANIFESTVERSION, "version");
 
@@ -143,7 +143,7 @@ public class SpecificationWebBundleManifestTransformerTests {
     @Test
     public void testSpecifyImports() throws Exception {
 
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
         options.put(Constants.IMPORT_PACKAGE, "p;version=\"1.2.3\",q;version=\"1.2.4\",r;version=\"1.2.3\"");
 
@@ -159,7 +159,7 @@ public class SpecificationWebBundleManifestTransformerTests {
     @Test(expected = IllegalArgumentException.class)
     public void testSpecifyImportsForWAB() throws Exception {
 
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
         options.put(Constants.IMPORT_PACKAGE, "p;version=\"1.2.3\",q;version=\"1.2.4\",r;version=\"1.2.3\""); // implies
                                                                                                               // WAB
@@ -173,7 +173,7 @@ public class SpecificationWebBundleManifestTransformerTests {
     @Test
     public void testSpecifyExports() throws Exception {
 
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
         options.put(Constants.EXPORT_PACKAGE, "p;version=\"1.2.3\",q,r;version=\"1.2.3\"");
 
@@ -190,7 +190,7 @@ public class SpecificationWebBundleManifestTransformerTests {
     @Test(expected = IllegalArgumentException.class)
     public void testSpecifyExportsForWAB() throws Exception {
 
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
         options.put(Constants.EXPORT_PACKAGE, "p;version=\"1.2.3\",q;version=\"1.2.4\",r;version=\"1.2.3\"");
 
@@ -204,7 +204,7 @@ public class SpecificationWebBundleManifestTransformerTests {
     @Test
     public void testSpecifyWebContextPath() throws Exception {
 
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/foo");
 
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
@@ -216,7 +216,7 @@ public class SpecificationWebBundleManifestTransformerTests {
     @Test
     public void testSpecifyWebContextPathForWAB() throws Exception {
 
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/foo");
 
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
@@ -230,7 +230,7 @@ public class SpecificationWebBundleManifestTransformerTests {
     @Test
     public void testSpecifyWebContextPathWithMissingSlash() throws Exception {
 
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "foo");
 
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
@@ -242,7 +242,7 @@ public class SpecificationWebBundleManifestTransformerTests {
     @Test(expected = IllegalArgumentException.class)
     public void testSpecifyEmptyWebContextPath() throws Exception {
 
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, " ");
 
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
@@ -252,7 +252,7 @@ public class SpecificationWebBundleManifestTransformerTests {
     @Test(expected = IllegalArgumentException.class)
     public void testDoNotSpecifyWebContextPath() throws Exception {
 
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
 
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
         this.transformer.transform(manifest, this.sourceURL, new InstallationOptions(options), WebContainerUtils.isWebApplicationBundle(manifest));
@@ -260,7 +260,7 @@ public class SpecificationWebBundleManifestTransformerTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSpecifyBundleClassPathForWAB() throws Exception {
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(Constants.BUNDLE_CLASSPATH, "foo");
 
         BundleManifest manifest = BundleManifestFactory.createBundleManifest();
@@ -272,7 +272,7 @@ public class SpecificationWebBundleManifestTransformerTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSpecifyBundleClassPathWithEmptyEntry() throws Exception {
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(Constants.BUNDLE_CLASSPATH, "foo,,foo");
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
 
@@ -284,7 +284,7 @@ public class SpecificationWebBundleManifestTransformerTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void testSpecifyBundleClassPathWithSlash() throws Exception {
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(Constants.BUNDLE_CLASSPATH, "foo,/,foo");
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
 
@@ -296,7 +296,7 @@ public class SpecificationWebBundleManifestTransformerTests {
 
     @Test
     public void testSpecifyBundleClassPath() throws Exception {
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
         options.put(Constants.BUNDLE_CLASSPATH, "foo,bar,path/");
         options.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/");
 

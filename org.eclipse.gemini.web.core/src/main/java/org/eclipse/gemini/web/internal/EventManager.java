@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -54,7 +54,7 @@ final class EventManager {
 
     public EventManager(BundleContext context) {
         if (isEventAdminAvailable()) {
-            this.template = new ServiceTemplate<EventAdmin>(context, EventAdmin.class);
+            this.template = new ServiceTemplate<>(context, EventAdmin.class);
         } else {
             this.template = null;
         }
@@ -100,7 +100,7 @@ final class EventManager {
 
                 @Override
                 public Void doWithService(EventAdmin eventAdmin) {
-                    Dictionary<String, Object> props = new Hashtable<String, Object>();
+                    Dictionary<String, Object> props = new Hashtable<>();
                     if (applicationBundle.getSymbolicName() != null) {
                         props.put(EventConstants.BUNDLE_SYMBOLICNAME, applicationBundle.getSymbolicName());
                     }

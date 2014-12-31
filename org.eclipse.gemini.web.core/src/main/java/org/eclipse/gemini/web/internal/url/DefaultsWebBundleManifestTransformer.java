@@ -77,7 +77,7 @@ public final class DefaultsWebBundleManifestTransformer implements WebBundleMani
             bundleClassPath.add(0, WEB_INF_CLASSES);
         }
 
-        final List<String> entries = new ArrayList<String>();
+        final List<String> entries = new ArrayList<>();
         WebBundleScanner scanner = new WebBundleScanner(source, new WebBundleScannerCallback() {
 
             @Override

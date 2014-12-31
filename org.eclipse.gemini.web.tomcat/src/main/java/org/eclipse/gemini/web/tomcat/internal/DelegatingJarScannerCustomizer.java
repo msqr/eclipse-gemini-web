@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 SAP AG
+ * Copyright (c) 2012, 2014 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -38,7 +38,7 @@ final class DelegatingJarScannerCustomizer implements JarScannerCustomizer {
 
     DelegatingJarScannerCustomizer(BundleContext context) {
         this.context = context;
-        this.tracker = new ServiceTracker<JarScannerCustomizer, Object>(context, JarScannerCustomizer.class.getName(), new Customizer());
+        this.tracker = new ServiceTracker<>(context, JarScannerCustomizer.class.getName(), new Customizer());
     }
 
     void open() {
@@ -52,14 +52,13 @@ final class DelegatingJarScannerCustomizer implements JarScannerCustomizer {
     @Override
     public JarScanner[] extendJarScannerChain(Bundle bundle) {
         if (this.delegate != null && this.delegate.size() > 0) {
-            Set<JarScanner> jarScanners = new HashSet<JarScanner>();
+            Set<JarScanner> jarScanners = new HashSet<>();
             for (JarScannerCustomizer jarScannerCustomizer : this.delegate) {
                 jarScanners.addAll(Arrays.asList(jarScannerCustomizer.extendJarScannerChain(bundle)));
             }
             return jarScanners.toArray(new JarScanner[jarScanners.size()]);
-        } else {
-            return new JarScanner[0];
         }
+        return new JarScanner[0];
     }
 
     private class Customizer implements ServiceTrackerCustomizer<JarScannerCustomizer, Object> {
@@ -69,7 +68,7 @@ final class DelegatingJarScannerCustomizer implements JarScannerCustomizer {
             JarScannerCustomizer newDelegate = DelegatingJarScannerCustomizer.this.context.getService(reference);
 
             if (DelegatingJarScannerCustomizer.this.delegate == null) {
-                DelegatingJarScannerCustomizer.this.delegate = new HashSet<JarScannerCustomizer>();
+                DelegatingJarScannerCustomizer.this.delegate = new HashSet<>();
             }
 
             DelegatingJarScannerCustomizer.this.delegate.add(newDelegate);

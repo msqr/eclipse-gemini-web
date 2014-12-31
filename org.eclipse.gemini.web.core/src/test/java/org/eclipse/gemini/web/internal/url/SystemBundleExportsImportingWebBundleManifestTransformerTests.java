@@ -57,7 +57,7 @@ public class SystemBundleExportsImportingWebBundleManifestTransformerTests {
 
     @Test
     public void importOfExports() throws IOException {
-        Map<String, VersionRange> exports = new HashMap<String, VersionRange>();
+        Map<String, VersionRange> exports = new HashMap<>();
         VersionRange vr1 = new VersionRange("[1.2.3,2.0.0)");
         VersionRange vr2 = new VersionRange("[2.0.0,3.0.0]");
         exports.put("a", vr1);
@@ -85,7 +85,7 @@ public class SystemBundleExportsImportingWebBundleManifestTransformerTests {
 
     @Test
     public void existingImportsShouldNotBeOverridden() throws IOException {
-        Map<String, VersionRange> exports = new HashMap<String, VersionRange>();
+        Map<String, VersionRange> exports = new HashMap<>();
         VersionRange vr1 = new VersionRange("[1.2.3,2.0.0)");
         VersionRange vr2 = new VersionRange("[2.0.0,3.0.0]");
         exports.put("a", vr1);
@@ -106,7 +106,7 @@ public class SystemBundleExportsImportingWebBundleManifestTransformerTests {
 
     @Test
     public void packagesInWarShouldNotBeImported() throws IOException {
-        Map<String, VersionRange> exports = new HashMap<String, VersionRange>();
+        Map<String, VersionRange> exports = new HashMap<>();
         exports.put("from.classes", new VersionRange("[1.0.0,1.0.0]"));
         exports.put("from.lib", new VersionRange("[1.0.0,1.0.0]"));
         exports.put("javax.sql", new VersionRange("[0,0]"));

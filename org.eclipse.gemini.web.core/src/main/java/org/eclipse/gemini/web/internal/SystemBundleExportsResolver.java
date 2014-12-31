@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -55,7 +55,7 @@ final class SystemBundleExportsResolver {
     }
 
     static Map<String, VersionRange> combineDuplicateExports(List<BundleCapability> capabilities, boolean isStrictMode) {
-        Map<String, VersionRange> exportedPackages = new HashMap<String, VersionRange>();
+        Map<String, VersionRange> exportedPackages = new HashMap<>();
         for (BundleCapability exportedPackage : capabilities) {
             if (isStrictMode) {
                 Map<String, String> directives = exportedPackage.getDirectives();
@@ -82,8 +82,7 @@ final class SystemBundleExportsResolver {
         Version ceiling = versionRange.getCeiling();
         if (version.compareTo(ceiling) > 0) {
             return new VersionRange("[" + versionRange.getFloor() + "," + version + "]");
-        } else {
-            return new VersionRange("[" + version + "," + versionRange.getCeiling() + "]");
         }
+        return new VersionRange("[" + version + "," + versionRange.getCeiling() + "]");
     }
 }

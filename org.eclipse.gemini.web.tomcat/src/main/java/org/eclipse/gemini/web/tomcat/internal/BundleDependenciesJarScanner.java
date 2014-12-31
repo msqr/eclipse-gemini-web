@@ -169,7 +169,7 @@ final class BundleDependenciesJarScanner implements JarScanner {
     }
 
     private Set<String> getBundlesToSkip(BundleContext bundleContext) {
-        Set<String> result = new HashSet<String>();
+        Set<String> result = new HashSet<>();
         String property = bundleContext.getProperty(SCANNER_SKIP_BUNDLES_PROPERTY_NAME);
 
         if (property == null) {

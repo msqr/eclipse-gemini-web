@@ -124,15 +124,12 @@ public class WebBundleUrlStreamHandlerServiceTests {
         // Check Manifest
         try (InputStream is = new FileInputStream(new File(webAppDir, JarFile.MANIFEST_NAME));) {
             Manifest manifest = new Manifest(is);
-
-            if (manifest != null) {
-                Attributes mainAttributes = manifest.getMainAttributes();
-                Set<Entry<Object, Object>> entrySet = mainAttributes.entrySet();
-                for (Entry<Object, Object> entry : entrySet) {
-                    System.out.println(entry.getKey() + ": " + entry.getValue());
-                    if ("Web-ContextPath".equals(entry.getKey().toString())) {
-                        assertTrue(contextPath.equals(entry.getValue().toString()));
-                    }
+            Attributes mainAttributes = manifest.getMainAttributes();
+            Set<Entry<Object, Object>> entrySet = mainAttributes.entrySet();
+            for (Entry<Object, Object> entry : entrySet) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+                if ("Web-ContextPath".equals(entry.getKey().toString())) {
+                    assertTrue(contextPath.equals(entry.getValue().toString()));
                 }
             }
         }

@@ -39,7 +39,7 @@ public class WebContainerUtilsTests {
 
     private static final String TEST_SYMBOLIC_NAME = "a";
 
-    private static final Dictionary<String, String> EMPTY_PROPERTIES = new Hashtable<String, String>();
+    private static final Dictionary<String, String> EMPTY_PROPERTIES = new Hashtable<>();
 
     @Test
     public void testGetBaseNameNoExtension() {
@@ -91,7 +91,7 @@ public class WebContainerUtilsTests {
 
     @Test
     public void testIsWebBundleWithWebContextPath() throws Exception {
-        Dictionary<String, String> p = new Hashtable<String, String>();
+        Dictionary<String, String> p = new Hashtable<>();
         p.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/foo");
 
         testIsBundleWith("file:foo.jar", p, null, "/foo", true);
@@ -114,7 +114,7 @@ public class WebContainerUtilsTests {
 
     @Test
     public void testContextPathSupplied() throws Exception {
-        Dictionary<String, String> p = new Hashtable<String, String>();
+        Dictionary<String, String> p = new Hashtable<>();
         p.put(WebContainerUtils.HEADER_WEB_CONTEXT_PATH, "/foo");
 
         testIsBundleWith(null, p, null, "/foo", false);
@@ -132,7 +132,7 @@ public class WebContainerUtilsTests {
 
     @Test
     public void testContextPathDefaultedComplexPath() throws Exception {
-        Dictionary<String, String> p = new Hashtable<String, String>();
+        Dictionary<String, String> p = new Hashtable<>();
 
         Bundle bundle = createNiceMock(Bundle.class);
         expect(bundle.getLocation()).andReturn("file:../formtags.war?Import-Package:org.foo.bar").andReturn("initial@file:../formtags.war").andReturn(
@@ -162,7 +162,7 @@ public class WebContainerUtilsTests {
 
     @Test
     public void testServletContextOsgiWebVersionPropertySupplied() {
-        Dictionary<String, String> headers = new Hashtable<String, String>();
+        Dictionary<String, String> headers = new Hashtable<>();
         headers.put(WebContainerUtils.BUNDLE_VERSION_HEADER, TEST_BUNDLE_VERSION.toString());
 
         testVersion(TEST_BUNDLE_VERSION, headers);
@@ -207,7 +207,7 @@ public class WebContainerUtilsTests {
         expect(bundle.getHeaders()).andReturn(headers).anyTimes();
         replay(bundle);
 
-        Dictionary<String, String> p = new Hashtable<String, String>();
+        Dictionary<String, String> p = new Hashtable<>();
         WebContainerUtils.setServletContextBundleProperties(p, bundle);
         if (symbolicName == null) {
             assertNull(p.get(WebContainerUtils.OSGI_WEB_SYMBOLICNAME));
@@ -222,7 +222,7 @@ public class WebContainerUtilsTests {
         expect(bundle.getHeaders()).andReturn(headers).anyTimes();
         replay(bundle);
 
-        Dictionary<String, String> p = new Hashtable<String, String>();
+        Dictionary<String, String> p = new Hashtable<>();
         WebContainerUtils.setServletContextBundleProperties(p, bundle);
         if (version == null) {
             assertNull(p.get(WebContainerUtils.OSGI_WEB_VERSION));

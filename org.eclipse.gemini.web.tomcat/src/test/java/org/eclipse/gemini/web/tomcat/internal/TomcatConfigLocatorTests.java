@@ -47,7 +47,7 @@ public class TomcatConfigLocatorTests {
     @Test
     public void testStartAndStopWithUserConfig() throws Exception {
         URL url = new URL("file:src/test/resources/server.xml");
-        Vector<URL> v = new Vector<URL>();
+        Vector<URL> v = new Vector<>();
         v.add(url);
 
         startAndStop(v.elements());

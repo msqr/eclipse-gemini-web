@@ -199,10 +199,9 @@ public class StandardWebApplicationTests {
         if (withExtender) {
             return new StandardWebApplication(this.bundle, this.extender, this.webApplicationHandle, this.servletContainer, this.eventManager,
                 this.webApplicationStartFailureRetryController, this.thisBundle.getBundleContext());
-        } else {
-            return new StandardWebApplication(this.bundle, null, this.webApplicationHandle, this.servletContainer, this.eventManager,
-                this.webApplicationStartFailureRetryController, this.thisBundle.getBundleContext());
         }
+        return new StandardWebApplication(this.bundle, null, this.webApplicationHandle, this.servletContainer, this.eventManager,
+            this.webApplicationStartFailureRetryController, this.thisBundle.getBundleContext());
     }
 
     private StandardWebApplication startStopExpectations() {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -35,7 +35,7 @@ public class InstallationOptionsTests {
 
     @Test
     public void testBundleManifestVersion() {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(Constants.BUNDLE_MANIFESTVERSION, "2");
         InstallationOptions options = new InstallationOptions(map);
         assertEquals("2", options.getBundleManifestVersion());
@@ -43,7 +43,7 @@ public class InstallationOptionsTests {
 
     @Test
     public void testBundleClassPath() {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(Constants.BUNDLE_CLASSPATH, "foo,bar");
         InstallationOptions options = new InstallationOptions(map);
 
@@ -78,7 +78,7 @@ public class InstallationOptionsTests {
         String contextPath = "/test";
         String extractLocation = "/tmp";
 
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
 
         map.put(Constants.BUNDLE_SYMBOLICNAME, symbolicName);
         map.put(Constants.BUNDLE_MANIFESTVERSION, bundleManifestVersion);
@@ -108,7 +108,7 @@ public class InstallationOptionsTests {
 
     @Test
     public void testNonCamelCaseOption() {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("bundle-manifestversion", "3");
         InstallationOptions options = new InstallationOptions(map);
         assertEquals("3", options.getBundleManifestVersion());

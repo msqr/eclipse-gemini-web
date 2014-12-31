@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -33,7 +33,7 @@ final class BundleClassPathURLExtractor {
     private static final String JAR_EXTENSION = ".jar";
 
     public static Set<URI> extractBundleClassPathURLs(Bundle bundle) {
-        Set<URI> results = new HashSet<URI>();
+        Set<URI> results = new HashSet<>();
         String bcp = bundle.getHeaders().get(org.osgi.framework.Constants.BUNDLE_CLASSPATH);
         if (bcp != null) {
             String[] entries = bcp.split(",");

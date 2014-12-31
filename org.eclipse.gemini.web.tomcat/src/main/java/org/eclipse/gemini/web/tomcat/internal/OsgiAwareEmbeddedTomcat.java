@@ -365,7 +365,7 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
         if (this.authenticators == null) {
             synchronized (this.monitor) {
                 if (this.authenticators == null) {
-                    this.authenticators = new HashMap<String, Authenticator>();
+                    this.authenticators = new HashMap<>();
                 }
             }
         }
@@ -463,7 +463,7 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
      * In the traditional way this factory is specified via <code>java.naming.factory.initial</code> system property.
      */
     private void registerJavaURLContextFactory() {
-        Dictionary<String, String> serviceProperties = new Hashtable<String, String>();
+        Dictionary<String, String> serviceProperties = new Hashtable<>();
         serviceProperties.put(JNDI_URLSCHEME, JAVA_JNDI_URLSCHEME);
         ServiceRegistration<ObjectFactory> serviceRegistration = this.bundleContext.registerService(ObjectFactory.class, new javaURLContextFactory(),
             serviceProperties);

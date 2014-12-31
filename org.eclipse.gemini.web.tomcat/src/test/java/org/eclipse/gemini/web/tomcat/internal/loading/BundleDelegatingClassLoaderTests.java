@@ -188,20 +188,18 @@ public class BundleDelegatingClassLoaderTests extends TestCase {
                 } catch (MalformedURLException e) {
                     return null;
                 }
-            } else {
-                return null;
             }
+            return null;
         }
 
         @Override
         public Enumeration<URL> getResources(String name) throws IOException {
             if ("file://bla-bla".equals(name)) {
-                List<URL> resources = new ArrayList<URL>();
+                List<URL> resources = new ArrayList<>();
                 resources.add(new URL("file://bla-bla"));
                 return Collections.enumeration(resources);
-            } else {
-                return null;
             }
+            return null;
         }
 
     }

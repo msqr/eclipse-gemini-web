@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -26,7 +26,7 @@ public class ServiceTemplate<S> {
     private final ServiceTracker<Object, Object> tracker;
 
     public ServiceTemplate(BundleContext context, Class<S> clazz) {
-        this.tracker = new ServiceTracker<Object, Object>(context, clazz.getName(), new ServiceTemplateCustomizer(context));
+        this.tracker = new ServiceTracker<>(context, clazz.getName(), new ServiceTemplateCustomizer(context));
     }
 
     public void start() {

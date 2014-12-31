@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -78,7 +78,7 @@ public class BundleDependenciesJarScannerTests {
     @Test
     public void scanDirectory() throws IOException {
         expect(this.bundle.getHeaders()).andReturn(new Hashtable<String, String>());
-        expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<Bundle>(Arrays.asList(this.dependency)));
+        expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<>(Arrays.asList(this.dependency)));
 
         File dependencyFile = new File("src/test/resources");
         expect(this.bundleFileResolver.resolve(this.dependency)).andReturn(dependencyFile);
@@ -96,7 +96,7 @@ public class BundleDependenciesJarScannerTests {
     @Test
     public void scanFile() throws IOException {
         expect(this.bundle.getHeaders()).andReturn(new Hashtable<String, String>());
-        expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<Bundle>(Arrays.asList(this.dependency)));
+        expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<>(Arrays.asList(this.dependency)));
 
         File dependencyFile = new File("");
         expect(this.bundleFileResolver.resolve(this.dependency)).andReturn(dependencyFile);
@@ -114,7 +114,7 @@ public class BundleDependenciesJarScannerTests {
     @Test
     public void scanJarUrlConnection() throws IOException {
         expect(this.bundle.getHeaders()).andReturn(new Hashtable<String, String>());
-        expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<Bundle>(Arrays.asList(this.dependency))).times(2);
+        expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<>(Arrays.asList(this.dependency))).times(2);
         expect(this.dependency.getLocation()).andReturn("file:src/test/resources/bundle.jar").andReturn(
             "reference:file:src/test/resources/bundle.jar");
         expect(this.dependency.getSymbolicName()).andReturn("bundle").anyTimes();

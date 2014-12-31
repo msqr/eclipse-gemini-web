@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -39,9 +39,8 @@ public final class ManifestAsserts {
             if (importName.equals(packageName)) {
                 if (vr.includes(version)) {
                     return;
-                } else {
-                    fail("Package '" + packageName + "' not found at version '" + version + "'. Found range :" + vr);
                 }
+                fail("Package '" + packageName + "' not found at version '" + version + "'. Found range :" + vr);
             }
         }
         fail("Import-Package '" + packageName + "' not found at any version");
@@ -49,16 +48,15 @@ public final class ManifestAsserts {
 
     public static void assertIncludesExport(String packageName, Version version, BundleManifest manifest) {
         List<ExportedPackage> exportedPackages = manifest.getExportPackage().getExportedPackages();
-        List<Version> nearMatches = new ArrayList<Version>();
+        List<Version> nearMatches = new ArrayList<>();
         for (ExportedPackage packageExport : exportedPackages) {
             String v = packageExport.getAttributes().get(Constants.VERSION_ATTRIBUTE);
             Version pv = v == null ? Version.emptyVersion : new Version(v);
             if (packageExport.getPackageName().equals(packageName)) {
                 if (pv.equals(version)) {
                     return;
-                } else {
-                    nearMatches.add(pv);
                 }
+                nearMatches.add(pv);
             }
         }
         if (nearMatches.isEmpty()) {

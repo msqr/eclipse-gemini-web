@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -108,7 +108,7 @@ public class EventManagerTests {
     @Test
     public void failed() {
         Exception failure = new Exception();
-        Set<Long> collidingBundles = new HashSet<Long>();
+        Set<Long> collidingBundles = new HashSet<>();
         collidingBundles.add(2L);
         collidingBundles.add(3L);
         this.eventManager.sendFailed(this.bundle, null, CONTEXT_PATH, failure, "/path", collidingBundles);

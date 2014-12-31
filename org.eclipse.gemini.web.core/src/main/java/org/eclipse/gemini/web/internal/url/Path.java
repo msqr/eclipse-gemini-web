@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 VMware Inc.
+ * Copyright (c) 2010, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -50,9 +50,8 @@ final class Path {
     private String head() {
         if (!isEmpty()) {
             return this.baseComponents[0];
-        } else {
-            throw new IllegalStateException("head not applicable to an empty path");
         }
+        throw new IllegalStateException("head not applicable to an empty path");
     }
 
     private Path tail() {
@@ -60,9 +59,8 @@ final class Path {
             String[] c = new String[this.baseComponents.length - 1];
             System.arraycopy(this.baseComponents, 1, c, 0, c.length);
             return new Path(c);
-        } else {
-            throw new IllegalStateException("tail not applicable to an empty path");
         }
+        throw new IllegalStateException("tail not applicable to an empty path");
     }
 
     private Path front() {
@@ -70,9 +68,8 @@ final class Path {
             String[] c = new String[this.baseComponents.length - 1];
             System.arraycopy(this.baseComponents, 0, c, 0, c.length);
             return new Path(c);
-        } else {
-            throw new IllegalStateException("front not applicable to an empty path");
         }
+        throw new IllegalStateException("front not applicable to an empty path");
     }
 
     private static void validatePath(String basePath) {

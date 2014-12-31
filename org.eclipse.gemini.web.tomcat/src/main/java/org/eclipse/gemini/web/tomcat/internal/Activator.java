@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -74,7 +74,7 @@ public class Activator implements BundleActivator {
     }
 
     private void registerURLStreamHandler(BundleContext context) {
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
+        Dictionary<String, Object> properties = new Hashtable<>();
         properties.put(URLConstants.URL_HANDLER_PROTOCOL, new String[] { JNDI_SCHEME });
 
         DirContextURLStreamHandlerService handler = new DirContextURLStreamHandlerService();

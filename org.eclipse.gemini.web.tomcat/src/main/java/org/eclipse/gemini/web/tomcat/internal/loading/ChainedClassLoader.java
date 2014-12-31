@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2013 VMware Inc.
+ * Copyright (c) 2009, 2014 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -52,7 +52,7 @@ public final class ChainedClassLoader extends ClassLoader implements BundleRefer
      */
     ChainedClassLoader(ClassLoader... loaders) {
 
-        List<ClassLoader> l = new ArrayList<ClassLoader>();
+        List<ClassLoader> l = new ArrayList<>();
 
         for (int i = 0; i < loaders.length; i++) {
             ClassLoader classLoader = loaders[i];
@@ -85,9 +85,8 @@ public final class ChainedClassLoader extends ClassLoader implements BundleRefer
                     return doGetResource(name);
                 }
             });
-        } else {
-            return doGetResource(name);
         }
+        return doGetResource(name);
     }
 
     @Override
@@ -112,13 +111,12 @@ public final class ChainedClassLoader extends ClassLoader implements BundleRefer
                     throw new IllegalStateException("Unexpected Exception from privileged action.", exception);
                 }
             }
-        } else {
-            return doGetResources(name);
         }
+        return doGetResources(name);
     }
 
     private Enumeration<URL> doGetResources(String name) throws IOException {
-        Map<String, URL> urls = new HashMap<String, URL>();
+        Map<String, URL> urls = new HashMap<>();
         for (ClassLoader loader : this.loaders) {
             Enumeration<URL> resources = loader.getResources(name);
             if (resources != null) {
@@ -160,9 +158,8 @@ public final class ChainedClassLoader extends ClassLoader implements BundleRefer
             } catch (PrivilegedActionException pae) {
                 throw (ClassNotFoundException) pae.getException();
             }
-        } else {
-            return doLoadClass(name);
         }
+        return doLoadClass(name);
     }
 
     private Class<?> doLoadClass(String name) throws ClassNotFoundException {
