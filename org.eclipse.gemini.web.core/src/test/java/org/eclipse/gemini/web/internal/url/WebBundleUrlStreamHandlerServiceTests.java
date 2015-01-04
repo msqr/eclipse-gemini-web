@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2014 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -20,16 +20,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -38,8 +37,6 @@ import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
-import org.eclipse.virgo.util.io.FileSystemUtils;
-import org.eclipse.virgo.util.io.PathReference;
 import org.junit.Test;
 
 public class WebBundleUrlStreamHandlerServiceTests {
@@ -69,12 +66,14 @@ public class WebBundleUrlStreamHandlerServiceTests {
         URL tempDirectory = new URL("file:target/test-classes/temp/web-app-dir");
 
         // Create content
-        PathReference webAppDir = new PathReference(directory.getPath());
-        PathReference webXml = webAppDir.newChild("WEB-INF" + File.separator + "web.xml");
-        webXml.createFile();
+        Path webAppDir = Paths.get(directory.getPath());
+        Path webXml = webAppDir.resolve("WEB-INF").resolve("web.xml");
+        Files.createDirectories(webXml.getParent());
+        Files.createFile(webXml);
 
-        PathReference signatureFile = webAppDir.newChild("META-INF" + File.separator + "signature.SF");
-        signatureFile.createFile();
+        Path signatureFile = webAppDir.resolve("META-INF").resolve("signature.SF");
+        Files.createDirectories(signatureFile.getParent());
+        Files.createFile(signatureFile);
 
         // There is no Manifest in the directory
         // Expectation: Manifest will have Web-ContextPath header
@@ -82,13 +81,13 @@ public class WebBundleUrlStreamHandlerServiceTests {
         DirTransformingURLConnection connection = (DirTransformingURLConnection) url.toURL().openConnection();
         assertNotNull(connection);
         connection.setTransformedURL(tempDirectory);
-        checkContent(connection, "/test", webXml.toFile());
-        assertTrue(FileSystemUtils.deleteRecursively(tempDirectory.getPath()));
+        checkContent(connection, "/test", webXml);
+        assertTrue(FileUtils.deleteDirectory(Paths.get(tempDirectory.getPath())));
 
         // Create content
-        PathReference manifest = webAppDir.newChild(JarFile.MANIFEST_NAME);
-        manifest.createFile();
-        createManifest(manifest.toFile(), "Manifest-Version: 1.0", "Class-Path: ");
+        Path manifest = webAppDir.resolve(JarFile.MANIFEST_NAME);
+        Files.createDirectories(manifest.getParent());
+        createManifest(manifest, "Manifest-Version: 1.0", "Class-Path: ");
 
         // There is Manifest in the directory with basic headers
         // Expectation: Manifest will have Web-ContextPath header
@@ -96,11 +95,11 @@ public class WebBundleUrlStreamHandlerServiceTests {
         connection = (DirTransformingURLConnection) url.toURL().openConnection();
         assertNotNull(connection);
         connection.setTransformedURL(tempDirectory);
-        checkContent(connection, "/test1", webXml.toFile());
-        assertTrue(FileSystemUtils.deleteRecursively(tempDirectory.getPath()));
+        checkContent(connection, "/test1", webXml);
+        assertTrue(FileUtils.deleteDirectory(Paths.get(tempDirectory.getPath())));
 
         // Create content
-        createManifest(manifest.toFile(), "Manifest-Version: 1.0", "Class-Path: ", "Web-ContextPath: /test2");
+        createManifest(manifest, "Manifest-Version: 1.0", "Class-Path: ", "Web-ContextPath: /test2");
 
         // There is Manifest in the directory with basic headers +
         // Web-ContextPath header
@@ -109,20 +108,20 @@ public class WebBundleUrlStreamHandlerServiceTests {
         connection = (DirTransformingURLConnection) url.toURL().openConnection();
         assertNotNull(connection);
         connection.setTransformedURL(tempDirectory);
-        checkContent(connection, "/test2", webXml.toFile());
-        assertTrue(FileSystemUtils.deleteRecursively(tempDirectory.getPath()));
+        checkContent(connection, "/test2", webXml);
+        assertTrue(FileUtils.deleteDirectory(Paths.get(tempDirectory.getPath())));
 
-        assertTrue(FileSystemUtils.deleteRecursively(directory.getPath()));
+        assertTrue(FileUtils.deleteDirectory(Paths.get(directory.getPath())));
     }
 
-    private void checkContent(URLConnection connection, String contextPath, File webXml) throws Exception {
+    private void checkContent(URLConnection connection, String contextPath, Path webXml) throws Exception {
         try (InputStream inputStream = connection.getInputStream();) {
             assertNotNull(inputStream);
         }
 
-        File webAppDir = new File(connection.getURL().getPath());
+        Path webAppDir = Paths.get(connection.getURL().getPath());
         // Check Manifest
-        try (InputStream is = new FileInputStream(new File(webAppDir, JarFile.MANIFEST_NAME));) {
+        try (InputStream is = Files.newInputStream(webAppDir.resolve(JarFile.MANIFEST_NAME));) {
             Manifest manifest = new Manifest(is);
             Attributes mainAttributes = manifest.getMainAttributes();
             Set<Entry<Object, Object>> entrySet = mainAttributes.entrySet();
@@ -135,15 +134,15 @@ public class WebBundleUrlStreamHandlerServiceTests {
         }
 
         // Check web.xml
-        assertEquals(webXml.length(), new File(webAppDir, "WEB-INF" + File.separator + "web.xml").length());
+        assertEquals(webXml.toFile().length(), webAppDir.resolve("WEB-INF").resolve("web.xml").toFile().length());
 
         // Check signature file
-        File signatureFile = new File(webAppDir, "META-INF" + File.separator + "signature.SF");
-        assertTrue(!signatureFile.exists());
+        Path signatureFile = webAppDir.resolve("META-INF").resolve("signature.SF");
+        assertTrue(Files.notExists(signatureFile));
     }
 
-    private void createManifest(File manifest, String... headers) throws Exception {
-        try (OutputStream os = new FileOutputStream(manifest); PrintWriter writer = new PrintWriter(os);) {
+    private void createManifest(Path manifest, String... headers) throws Exception {
+        try (PrintWriter writer = new PrintWriter(Files.newOutputStream(manifest));) {
             for (String header : headers) {
                 writer.println(header);
             }

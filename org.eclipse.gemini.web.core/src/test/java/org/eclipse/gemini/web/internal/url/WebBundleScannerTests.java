@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,22 +19,25 @@ package org.eclipse.gemini.web.internal.url;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.easymock.EasyMock;
-import org.eclipse.virgo.util.io.JarUtils;
-import org.eclipse.virgo.util.io.PathReference;
 import org.junit.Test;
 
 public class WebBundleScannerTests {
 
-    private static final File WAR_FILE = new File("target/resources/simple-war.war");
+    private static final Path WAR_FILE = Paths.get("target/resources/simple-war.war");
 
-    private static final File WAR_CLASSPATHDEPS = new File("../org.eclipse.gemini.web.test/src/test/resources/classpathdeps.war");
+    private static final Path WAR_CLASSPATHDEPS = Paths.get("../org.eclipse.gemini.web.test/src/test/resources/classpathdeps.war");
 
-    private static final File WAR_WITH_CORRUPTED_JAR = new File("src/test/resources/contains-jar-with-bad-formated-manifest");
+    private static final Path WAR_WITH_CORRUPTED_JAR = Paths.get("src/test/resources/contains-jar-with-bad-formated-manifest");
 
     @Test
     public void testScanClasspathDeps() throws IOException {
@@ -42,7 +45,7 @@ public class WebBundleScannerTests {
 
         setExpectationsClasspathDeps(callback);
 
-        scan(WAR_CLASSPATHDEPS.toURI().toURL(), callback);
+        scan(WAR_CLASSPATHDEPS.toUri().toURL(), callback);
     }
 
     @Test
@@ -51,7 +54,7 @@ public class WebBundleScannerTests {
 
         setExpectations(callback);
 
-        scan(WAR_FILE.toURI().toURL(), callback);
+        scan(WAR_FILE.toUri().toURL(), callback);
     }
 
     private void setExpectationsClasspathDeps(WebBundleScannerCallback callback) {
@@ -101,57 +104,56 @@ public class WebBundleScannerTests {
 
         setExpectationsIncludingNestedJars(callback);
 
-        scan(WAR_FILE.toURI().toURL(), callback, true);
+        scan(WAR_FILE.toUri().toURL(), callback, true);
     }
 
     @Test
     public void testScanDir() throws Exception {
-        PathReference pr = unpackToDir(WAR_FILE);
+        Path pr = unpackToDir(WAR_FILE);
         try {
             WebBundleScannerCallback callback = EasyMock.createMock(WebBundleScannerCallback.class);
 
             setExpectations(callback);
 
-            scan(pr.toURI().toURL(), callback);
+            scan(pr.toUri().toURL(), callback);
         } finally {
-            pr.delete(true);
+            FileUtils.deleteDirectory(pr);
         }
     }
 
     @Test
     public void testScanDirIncludingNestedJars() throws Exception {
-        PathReference pr = unpackToDir(WAR_FILE);
+        Path pr = unpackToDir(WAR_FILE);
         try {
             WebBundleScannerCallback callback = EasyMock.createMock(WebBundleScannerCallback.class);
 
             setExpectationsIncludingNestedJars(callback);
 
-            scan(pr.toURI().toURL(), callback, true);
+            scan(pr.toUri().toURL(), callback, true);
         } finally {
-            pr.delete(true);
+            FileUtils.deleteDirectory(pr);
         }
     }
 
     @Test
     public void testScanDirIncludingClasspathDeps() throws Exception {
-        PathReference pr = unpackToDir(WAR_CLASSPATHDEPS);
+        Path pr = unpackToDir(WAR_CLASSPATHDEPS);
         try {
             WebBundleScannerCallback callback = EasyMock.createMock(WebBundleScannerCallback.class);
 
             setExpectationsClasspathDeps(callback);
 
-            scan(pr.toURI().toURL(), callback, true);
+            scan(pr.toUri().toURL(), callback, true);
         } finally {
-            pr.delete(true);
+            FileUtils.deleteDirectory(pr);
         }
     }
 
     @Test(expected = IOException.class)
     public void testScanDirWithCorruptedNestedJars() throws Exception {
-        PathReference pr = new PathReference(WAR_WITH_CORRUPTED_JAR);
         WebBundleScannerCallback callback = EasyMock.createMock(WebBundleScannerCallback.class);
         callback.jarFound("WEB-INF/lib/jarfile.jar");
-        scan(pr.toURI().toURL(), callback, true);
+        scan(WAR_WITH_CORRUPTED_JAR.toUri().toURL(), callback, true);
     }
 
     private void scan(final URL url, final WebBundleScannerCallback callback) throws IOException {
@@ -167,11 +169,21 @@ public class WebBundleScannerTests {
         verify(callback);
     }
 
-    private PathReference unpackToDir(File warFile) throws IOException {
-        String tmpDir = System.getProperty("java.io.tmpdir");
-        PathReference dest = new PathReference(new File(tmpDir, "unpack-" + System.currentTimeMillis()));
-        PathReference src = new PathReference(warFile);
-        JarUtils.unpackTo(src, dest);
-        return dest;
+    private Path unpackToDir(Path warFile) throws IOException {
+        Path destination = Paths.get(System.getProperty("java.io.tmpdir"), "unpack-" + System.currentTimeMillis());
+        Files.createDirectories(destination);
+        try (ZipFile zip = new ZipFile(warFile.toFile());) {
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                Path entryPath = destination.resolve(entry.getName());
+                if (entry.isDirectory()) {
+                    Files.createDirectories(entryPath);
+                } else {
+                    Files.copy(zip.getInputStream(entry), entryPath);
+                }
+            }
+        }
+        return destination;
     }
 }

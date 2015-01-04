@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP AG
+ * Copyright (c) 2010, 2015 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,15 +19,16 @@ package org.eclipse.gemini.web.internal.url;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.gemini.web.internal.url.DirTransformer.DirTransformerCallback;
-import org.eclipse.virgo.util.io.PathReference;
 import org.junit.Test;
 
 public class DirTransformingURLConnectionTests {
@@ -46,15 +47,16 @@ public class DirTransformingURLConnectionTests {
         URL tempDirectory = new URL(TARGET_URL);
 
         // Create content
-        PathReference webAppDir = new PathReference(directory.getPath());
-        PathReference webXml = webAppDir.newChild(WEB_INF + File.separator + WEB_XML);
-        webXml.createFile();
+        Path webAppDir = Paths.get(directory.getPath());
+        Path webXml = webAppDir.resolve(WEB_INF).resolve(WEB_XML);
+        Files.createDirectories(webXml.getParent());
+        Files.createFile(webXml);
 
-        final List<PathReference> files = new ArrayList<>();
+        final List<Path> files = new ArrayList<>();
         DirTransformer transformer = new DirTransformer(new DirTransformerCallback() {
 
             @Override
-            public boolean transformFile(InputStream inputStream, PathReference toFile) throws IOException {
+            public boolean transformFile(InputStream inputStream, Path toFile) throws IOException {
                 files.add(toFile);
                 return false;
             }
@@ -68,11 +70,11 @@ public class DirTransformingURLConnectionTests {
         URL url = connection.getURL();
         assertTrue(tempDirectory.equals(url));
 
-        PathReference tempWebAppDir = new PathReference(tempDirectory.getPath());
-        assertTrue(tempWebAppDir.newChild(WEB_INF + File.separator + WEB_XML).exists());
+        Path tempWebAppDir = Paths.get(tempDirectory.getPath());
+        assertTrue(Files.exists(tempWebAppDir.resolve(WEB_INF).resolve(WEB_XML)));
         assertTrue(files.size() == 1);
 
-        assertTrue(tempWebAppDir.delete(true));
-        assertTrue(webAppDir.delete(true));
+        assertTrue(FileUtils.deleteDirectory(tempWebAppDir));
+        assertTrue(FileUtils.deleteDirectory(webAppDir));
     }
 }

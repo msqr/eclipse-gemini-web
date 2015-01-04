@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP AG
+ * Copyright (c) 2010, 2015 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,14 +19,17 @@ package org.eclipse.gemini.web.internal.url;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.nio.file.CopyOption;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.jar.JarFile;
-
-import org.eclipse.virgo.util.io.PathReference;
 
 /**
  * Utility class for transforming the files in a directory.
@@ -61,7 +64,7 @@ final class DirTransformer {
          * @return <code>true</code> if the file was transformed, otherwise <code>false</code>
          * @throws IOException if transformation fails
          */
-        boolean transformFile(InputStream inputStream, PathReference toFile) throws IOException;
+        boolean transformFile(InputStream inputStream, Path toFile) throws IOException;
     }
 
     private static final String MANIFEST_VERSION_HEADER = "Manifest-Version: 1.0";
@@ -101,42 +104,41 @@ final class DirTransformer {
      * @throws IOException if the directory cannot be transformed.
      */
     void transform(URL url, URL transformedUrl, boolean ensureManifestIsPresent) throws IOException {
-        PathReference fromDirectory = new PathReference(url.getPath());
-        PathReference toDirectory = new PathReference(transformedUrl.getPath());
+        Path fromDirectory = Paths.get(url.getPath());
+        Path toDirectory = Paths.get(transformedUrl.getPath());
         transformDir(fromDirectory, toDirectory);
 
-        PathReference manifest = fromDirectory.newChild(JarFile.MANIFEST_NAME);
-        if (ensureManifestIsPresent && !manifest.exists()) {
-            PathReference toFile = toDirectory.newChild(JarFile.MANIFEST_NAME);
-            toFile.getParent().createDirectory();
+        Path manifest = fromDirectory.resolve(JarFile.MANIFEST_NAME);
+        if (ensureManifestIsPresent && Files.notExists(manifest)) {
+            Path toFile = toDirectory.resolve(JarFile.MANIFEST_NAME);
+            Files.createDirectories(toFile.getParent());
             try (InputStream defaultManifestStream = getDefaultManifestStream();) {
                 this.callback.transformFile(defaultManifestStream, toFile);
             }
         }
     }
 
-    private void transformDir(PathReference fromDirectory, PathReference toDirectory) throws IOException {
-        File[] fileList = fromDirectory.toFile().listFiles();
-        PathReference fromFile = null;
-        for (int i = 0; fileList != null && i < fileList.length; i++) {
-            fromFile = new PathReference(fileList[i]);
-            PathReference toFile = toDirectory.newChild(fromFile.getName());
-            if (!fromFile.isDirectory()) {
-                transformFile(fromFile, toFile);
-            } else {
-                transformDir(fromFile, toFile);
+    private void transformDir(Path fromDirectory, final Path toDirectory) throws IOException {
+        try (DirectoryStream<Path> fileList = Files.newDirectoryStream(fromDirectory);) {
+            for (Path fromFile : fileList) {
+                Path toFile = toDirectory.resolve(fromFile.getFileName());
+                if (!Files.isDirectory(fromFile)) {
+                    transformFile(fromFile, toFile);
+                } else {
+                    transformDir(fromFile, toFile);
+                }
             }
         }
     }
 
-    private void transformFile(PathReference fromFile, PathReference toFile) throws IOException {
+    private void transformFile(Path fromFile, Path toFile) throws IOException {
         boolean transformed = false;
-        try (FileInputStream fis = new FileInputStream(fromFile.toFile());) {
+        try (InputStream fis = Files.newInputStream(fromFile);) {
             transformed = this.callback.transformFile(fis, toFile);
         }
         if (!transformed) {
-            toFile.getParent().createDirectory();
-            fromFile.copy(toFile);
+            Files.createDirectories(toFile.getParent());
+            Files.copy(fromFile, toFile, new CopyOption[] { StandardCopyOption.REPLACE_EXISTING });
         }
     }
 

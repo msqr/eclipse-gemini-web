@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2014 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,6 +16,7 @@
 
 package org.eclipse.gemini.web.tomcat.internal;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -23,7 +24,6 @@ import java.util.Hashtable;
 import org.eclipse.gemini.web.core.WebContainerProperties;
 import org.eclipse.gemini.web.core.spi.ServletContainer;
 import org.eclipse.gemini.web.tomcat.internal.loading.DirContextURLStreamHandlerService;
-import org.eclipse.virgo.util.io.IOUtils;
 import org.eclipse.virgo.util.osgi.ServiceRegistrationTracker;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -102,11 +102,17 @@ public class Activator implements BundleActivator {
 
     private TomcatServletContainer createContainer(BundleContext context) throws BundleException {
         TomcatServletContainerFactory factory = new TomcatServletContainerFactory();
-        InputStream configFile = resolveConfigFile(context);
+        InputStream configFile = null;
         try {
+            configFile = resolveConfigFile(context);
             return factory.createContainer(configFile, context);
         } finally {
-            IOUtils.closeQuietly(configFile);
+            if (configFile != null) {
+                try {
+                    configFile.close();
+                } catch (IOException e) {
+                }
+            }
         }
     }
 

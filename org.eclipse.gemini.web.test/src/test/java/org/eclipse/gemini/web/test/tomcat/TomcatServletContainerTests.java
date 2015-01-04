@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2014 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -24,8 +24,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,18 +33,19 @@ import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
 
 import org.eclipse.gemini.web.core.spi.ServletContainer;
 import org.eclipse.gemini.web.core.spi.WebApplicationHandle;
+import org.eclipse.gemini.web.test.FileUtils;
 import org.eclipse.virgo.test.framework.OsgiTestRunner;
 import org.eclipse.virgo.test.framework.TestFrameworkUtils;
-import org.eclipse.virgo.util.io.FileCopyUtils;
-import org.eclipse.virgo.util.io.FileSystemUtils;
-import org.eclipse.virgo.util.io.PathReference;
-import org.eclipse.virgo.util.io.ZipUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -199,17 +199,16 @@ public class TomcatServletContainerTests {
 
     private void testJSTL(boolean exploded) throws BundleException, MalformedURLException, IOException {
         String jstlLocation;
-        PathReference unzippedJstl = null;
+        Path unzippedJstl = null;
         if (!exploded) {
             jstlLocation = "file:" + IVY_CACHE
                 + "/repository/org.eclipse.virgo.mirrored/javax.servlet.jsp.jstl/1.2.0.v201105211821/javax.servlet.jsp.jstl-1.2.0.v201105211821.jar";
         } else {
             String jstlPath = IVY_CACHE
                 + "/repository/org.eclipse.virgo.mirrored/javax.servlet.jsp.jstl/1.2.0.v201105211821/javax.servlet.jsp.jstl-1.2.0.v201105211821.jar";
-            PathReference jstl = new PathReference(jstlPath);
-            unzippedJstl = explode(jstl);
+            unzippedJstl = explode(Paths.get(jstlPath));
 
-            jstlLocation = "file:" + unzippedJstl.getAbsolutePath();
+            jstlLocation = "file:" + unzippedJstl.toAbsolutePath().toString();
         }
         Bundle jstlBundle = this.bundleContext.installBundle(jstlLocation);
 
@@ -233,7 +232,7 @@ public class TomcatServletContainerTests {
         } finally {
             jstlBundle.uninstall();
             if (exploded && unzippedJstl != null) {
-                unzippedJstl.delete(true);
+                assertTrue(FileUtils.deleteDirectory(unzippedJstl));
             }
         }
     }
@@ -357,9 +356,8 @@ public class TomcatServletContainerTests {
         }
     }
 
-    private PathReference explode(PathReference packed) throws IOException {
-        PathReference target = new PathReference("target");
-        return ZipUtils.unzipTo(packed, target);
+    private Path explode(Path packed) throws IOException {
+        return FileUtils.unpackToDir(packed, Paths.get("target/tmp"));
     }
 
     @Test
@@ -382,16 +380,16 @@ public class TomcatServletContainerTests {
     @Test
     public void testWarWithContextXml() throws Exception {
         // Copy default context.xml
-        File defaultContextXml = new File("target/config/context.xml");
+        Path defaultContextXml = Paths.get("target/config/context.xml");
         createFileWithContent(defaultContextXml, "<Context crossContext=\"true\"/>");
 
         // Copy default context.xml.default
-        File defaultHostContextXml = new File("target/config/Catalina/localhost/context.xml.default");
+        Path defaultHostContextXml = Paths.get("target/config/Catalina/localhost/context.xml.default");
         String content = "<Context>"
             + "<Resource name=\"mail/Session1\" auth=\"Container\" type=\"javax.mail.Session\" mail.smtp.host=\"localhost\"/>" + "</Context>";
         createFileWithContent(defaultHostContextXml, content);
 
-        File tomcatServerXml = new File("target/config/tomcat-server.xml");
+        Path tomcatServerXml = Paths.get("target/config/tomcat-server.xml");
         createFileWithContent(tomcatServerXml, "");
 
         String location1 = LOCATION_WAR_WITH_CONTEXT_XML_RESOURCES;
@@ -423,33 +421,33 @@ public class TomcatServletContainerTests {
             this.container.stopWebApplication(handle2);
             bundle2.uninstall();
 
-            assertTrue(defaultContextXml.delete());
-            assertTrue(defaultHostContextXml.delete());
-            assertTrue(tomcatServerXml.delete());
+            Files.delete(defaultContextXml);
+            Files.delete(defaultHostContextXml);
+            Files.delete(tomcatServerXml);
         }
     }
 
     @Test
     public void testInstallWebAppDir() throws Exception {
         // Create web app dir
-        File webAppDir = new File("target/test-classes/simple-web-app-dir");
-        File indexJsp = new File(webAppDir, "index.jsp");
+        Path webAppDir = Paths.get("target/test-classes/simple-web-app-dir");
+        Path indexJsp = webAppDir.resolve("index.jsp");
         createFileWithContent(indexJsp, "Hello World!\n"
             + "config.getServletContext().getResourcePaths(/): <%=config.getServletContext().getResourcePaths(\"/\")%>\n"
             + "config.getServletContext().getRealPath(/): <%=config.getServletContext().getRealPath(\"/\")%>\n"
             + "**************  REAL PATH: <%=request.getRealPath(\".\")%>\n"
             + "**************  REAL PATH: <%=request.getRealPath(\"META-INF/.\")%>\n");
-        File metaInf = new File(webAppDir, "META-INF");
-        File manifest = new File(metaInf, "MANIFEST.MF");
+        Path metaInf = webAppDir.resolve("META-INF");
+        Path manifest = metaInf.resolve("MANIFEST.MF");
         createFileWithContent(manifest, "");
-        File otherMetaInf = new File(webAppDir, "blah/META-INF.");
-        File otherManifest = new File(otherMetaInf, "MANIFEST.MF");
+        Path otherMetaInf = webAppDir.resolve("blah/META-INF.");
+        Path otherManifest = otherMetaInf.resolve("MANIFEST.MF");
         createFileWithContent(otherManifest, "Manifest-Version: 1.0");
-        File otherDirectory = new File(webAppDir, "blah/META-INF.blah");
-        File otherStaticResource = new File(otherDirectory, "test.txt");
+        Path otherDirectory = webAppDir.resolve("blah/META-INF.blah");
+        Path otherStaticResource = otherDirectory.resolve("test.txt");
         createFileWithContent(otherStaticResource, "TEST");
 
-        Object[] result = startWebApplicationWith(LOCATION_PREFIX + webAppDir.getAbsolutePath() + "?Web-ContextPath=/simple-web-app-dir",
+        Object[] result = startWebApplicationWith(LOCATION_PREFIX + webAppDir.toAbsolutePath().toString() + "?Web-ContextPath=/simple-web-app-dir",
             "/simple-web-app-dir");
 
         try {
@@ -460,8 +458,8 @@ public class TomcatServletContainerTests {
         } finally {
             this.container.stopWebApplication((WebApplicationHandle) result[1]);
             ((Bundle) result[0]).uninstall();
-            FileSystemUtils.deleteRecursively(webAppDir);
-            FileSystemUtils.deleteRecursively(new File("temp"));
+            assertTrue(FileUtils.deleteDirectory(webAppDir));
+            assertTrue(FileUtils.deleteDirectory(Paths.get("temp")));
         }
     }
 
@@ -537,12 +535,12 @@ public class TomcatServletContainerTests {
 
     @Test
     public void testServletContainerWithCustomDefaultWebXml() throws Exception {
-        File tomcatServerXml = new File("target/config/tomcat-server.xml");
+        Path tomcatServerXml = Paths.get("target/config/tomcat-server.xml");
         createFileWithContent(tomcatServerXml, "");
 
         // In this custom default web.xml the directory listing is enabled
         // Thus we will ensure that a custom default web.xml is used
-        File defaultWebXml = new File("target/config/web.xml");
+        Path defaultWebXml = Paths.get("target/config/web.xml");
         createFileWithContent(
             defaultWebXml,
             "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
@@ -563,19 +561,19 @@ public class TomcatServletContainerTests {
             this.container.stopWebApplication((WebApplicationHandle) result[1]);
             ((Bundle) result[0]).uninstall();
 
-            assertTrue(tomcatServerXml.delete());
-            FileCopyUtils.copy(new File("src/test/resources/web.xml"), defaultWebXml);
+            Files.delete(tomcatServerXml);
+            FileUtils.copy(Paths.get("src/test/resources/web.xml"), defaultWebXml);
         }
     }
 
     @Test
     public void testDirectoryListing() throws Exception {
-        File tomcatServerXml = new File("target/config/tomcat-server.xml");
+        Path tomcatServerXml = Paths.get("target/config/tomcat-server.xml");
         createFileWithContent(tomcatServerXml, "");
 
         // In this custom default web.xml the directory listing is enabled
         // Thus we will ensure that a custom default web.xml is used
-        File defaultWebXml = new File("target/config/web.xml");
+        Path defaultWebXml = Paths.get("target/config/web.xml");
         createFileWithContent(defaultWebXml, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
             + "<web-app xmlns=\"http://java.sun.com/xml/ns/javaee\"\nxmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
             + "xsi:schemaLocation=\"http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd\"\nversion=\"2.5\">\n"
@@ -586,21 +584,21 @@ public class TomcatServletContainerTests {
             + "<servlet-mapping><servlet-name>default</servlet-name><url-pattern>/</url-pattern></servlet-mapping></web-app>");
 
         // Create web app dir
-        File webAppDir = new File("target/test-classes/simple-web-app-dir");
-        File testFolder = new File(webAppDir, "test");
-        File testHtml = new File(testFolder, "test.html");
+        Path webAppDir = Paths.get("target/test-classes/simple-web-app-dir");
+        Path testFolder = webAppDir.resolve("test");
+        Path testHtml = testFolder.resolve("test.html");
         createFileWithContent(testHtml, "Hello World!");
-        File metaInf = new File(webAppDir, "META-INF");
-        File manifest = new File(metaInf, "MANIFEST.MF");
+        Path metaInf = webAppDir.resolve("META-INF");
+        Path manifest = metaInf.resolve("MANIFEST.MF");
         createFileWithContent(manifest, "Manifest-Version: 1.0\n" + "Bundle-ManifestVersion: 2\n" + "Web-ContextPath: /simple-web-app-dir\n"
             + "Bundle-SymbolicName: simple-web-app-dir\n\n");
 
-        Object[] result = startWebApplicationWith("reference:file:" + webAppDir.getAbsolutePath(), "/simple-web-app-dir");
+        Object[] result = startWebApplicationWith("reference:file:" + webAppDir.toAbsolutePath().toString(), "/simple-web-app-dir");
         try {
             validateURL("http://localhost:8080/simple-web-app-dir/test/test.html");
             validateURL("http://localhost:8080/simple-web-app-dir/test");
 
-            FileSystemUtils.deleteRecursively(testFolder);
+            assertTrue(FileUtils.deleteDirectory(testFolder));
             // there is cacheTTL property which default value is 5s
             Thread.sleep(5000);
             validateNotFound("http://localhost:8080/simple-web-app-dir/test");
@@ -608,19 +606,19 @@ public class TomcatServletContainerTests {
             this.container.stopWebApplication((WebApplicationHandle) result[1]);
             ((Bundle) result[0]).uninstall();
 
-            FileSystemUtils.deleteRecursively(webAppDir);
-            assertTrue(tomcatServerXml.delete());
-            FileCopyUtils.copy(new File("src/test/resources/web.xml"), defaultWebXml);
+            assertTrue(FileUtils.deleteDirectory(webAppDir));
+            Files.delete(tomcatServerXml);
+            FileUtils.copy(Paths.get("src/test/resources/web.xml"), defaultWebXml);
         }
     }
 
-    private void createFileWithContent(File file, String content) throws Exception {
-        if (!file.getParentFile().exists()) {
-            assertTrue(file.getParentFile().mkdirs());
+    private void createFileWithContent(Path file, String content) throws Exception {
+        if (Files.notExists(file.getParent())) {
+            Files.createDirectories(file.getParent());
         }
-        try (FileWriter fWriter = new FileWriter(file);) {
-            fWriter.write(content);
-            fWriter.flush();
+        try (BufferedWriter bWriter = Files.newBufferedWriter(file, StandardCharsets.UTF_8);) {
+            bWriter.write(content);
+            bWriter.flush();
         }
     }
 

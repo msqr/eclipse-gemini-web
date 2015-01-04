@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2014 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,14 +16,15 @@
 
 package org.eclipse.gemini.web.internal.url;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -40,10 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 final class WebBundleScanner {
-
-    private static final String LIB_DIR_SUFFIX = File.separator + "WEB-INF" + File.separator + "lib";
-
-    private static final String CLASSES_DIR_SUFFIX = File.separator + "WEB-INF" + File.separator + "classes";
 
     private static final String FILE_SCHEME = "file";
 
@@ -113,13 +110,13 @@ final class WebBundleScanner {
 
     private void scanWarDirectory() throws IOException {
         try {
-            File bundleDir = WebContainerUtils.sourceAsFile(this.source);
-            File libDir = new File(bundleDir, LIB_DIR_SUFFIX);
-            if (libDir.isDirectory()) {
+            java.nio.file.Path bundleDir = WebContainerUtils.sourceAsPath(this.source);
+            java.nio.file.Path libDir = bundleDir.resolve("WEB-INF").resolve("lib");
+            if (Files.isDirectory(libDir)) {
                 doScanLibDirectory(libDir);
             }
-            File classesDir = new File(bundleDir, CLASSES_DIR_SUFFIX);
-            if (classesDir.isDirectory()) {
+            java.nio.file.Path classesDir = bundleDir.resolve("WEB-INF").resolve("classes");
+            if (Files.isDirectory(classesDir)) {
                 doScanClassesDirectory(classesDir);
             }
         } catch (URISyntaxException e) {
@@ -127,12 +124,11 @@ final class WebBundleScanner {
         }
     }
 
-    private void doScanLibDirectory(File libDir) throws IOException {
-        File[] files = libDir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isFile() && file.getName().endsWith(JAR_SUFFIX)) {
-                    String pathToJar = LIB_ENTRY_PREFIX + file.getName();
+    private void doScanLibDirectory(java.nio.file.Path libDir) throws IOException {
+        try (DirectoryStream<java.nio.file.Path> files = Files.newDirectoryStream(libDir)) {
+            for (java.nio.file.Path file : files) {
+                if (!Files.isDirectory(file) && file.getFileName().toString().endsWith(JAR_SUFFIX)) {
+                    String pathToJar = LIB_ENTRY_PREFIX + file.getFileName().toString();
                     if (driveCallBackIfNewJarFound(pathToJar)) {
                         doScanNestedJar(file);
                     }
@@ -151,22 +147,21 @@ final class WebBundleScanner {
         return true;
     }
 
-    private void doScanNestedJar(File file) throws IOException {
-        try (JarInputStream jis = new JarInputStream(new FileInputStream(file));) {
-            doScanNestedJar(file.getAbsolutePath(), jis);
+    private void doScanNestedJar(java.nio.file.Path file) throws IOException {
+        try (JarInputStream jis = new JarInputStream(Files.newInputStream(file));) {
+            doScanNestedJar(file.toAbsolutePath().toString(), jis);
         } catch (IOException e) {
-            throw new IOException("Cannot scan " + file.getAbsolutePath(), e);
+            throw new IOException("Cannot scan " + file.toAbsolutePath().toString(), e);
         }
     }
 
-    private void doScanClassesDirectory(File classesDir) {
-        File[] files = classesDir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
+    private void doScanClassesDirectory(java.nio.file.Path classesDir) throws IOException {
+        try (DirectoryStream<java.nio.file.Path> files = Files.newDirectoryStream(classesDir)) {
+            for (java.nio.file.Path file : files) {
+                if (Files.isDirectory(file)) {
                     doScanClassesDirectory(file);
-                } else if (file.isFile() && file.getName().endsWith(CLASS_SUFFIX)) {
-                    String path = normalizePath(file.getPath());
+                } else if (file.getFileName().toString().endsWith(CLASS_SUFFIX)) {
+                    String path = normalizePath(file.toString());
                     this.callBack.classFound(path.substring(path.lastIndexOf(CLASSES_ENTRY_PREFIX) + CLASSES_ENTRY_PREFIX.length()));
                 }
             }
@@ -242,14 +237,14 @@ final class WebBundleScanner {
     private void scanNestedJarInWarDirectory(Path directoryPath, String jarPath) throws IOException {
         Path entryPath = directoryPath.applyRelativePath(new Path(jarPath));
         try {
-            File bundleDir = WebContainerUtils.sourceAsFile(this.source);
-            File nestedJar = new File(entryPath.toString());
+            java.nio.file.Path bundleDir = WebContainerUtils.sourceAsPath(this.source);
+            java.nio.file.Path nestedJar = Paths.get(entryPath.toString());
             if (!nestedJar.isAbsolute()) {
-                nestedJar = new File(bundleDir, entryPath.toString());
+                nestedJar = bundleDir.resolve(entryPath.toString());
             }
-            if (nestedJar.isFile()) {
-                URI pathToJar = bundleDir.toURI().relativize(nestedJar.toURI());
-                if (pathToJar.equals(nestedJar.toURI())) {
+            if (!Files.isDirectory(nestedJar)) {
+                URI pathToJar = bundleDir.toUri().relativize(nestedJar.toUri());
+                if (pathToJar.equals(nestedJar.toUri())) {
                     // Do nothing - cannot obtain relative path
                     return;
                 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP AG
+ * Copyright (c) 2010, 2015 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -20,13 +20,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -34,18 +34,17 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 import org.eclipse.gemini.web.internal.url.DirTransformer.DirTransformerCallback;
-import org.eclipse.virgo.util.io.PathReference;
 import org.junit.Test;
 
 public class DirTransformerTests {
 
     private static final String WEB_INF = "WEB-INF";
 
-    private static final String META_INF = "META-INF";
+    private static final Path META_INF = Paths.get("META-INF");
 
     private static final String WEB_XML = "web.xml";
 
-    private static final String MANIFEST_MF = "MANIFEST.MF";
+    private static final Path MANIFEST_MF = Paths.get("MANIFEST.MF");
 
     private static final String HEADER_1 = "Manifest-Version: 1.0";
 
@@ -63,36 +62,37 @@ public class DirTransformerTests {
         URL tempDirectory = new URL(TARGET_URL);
 
         // Create content
-        PathReference webAppDir = new PathReference(directory.getPath());
-        PathReference webXml = webAppDir.newChild(WEB_INF + File.separator + WEB_XML);
-        webXml.createFile();
-        PathReference manifest = webAppDir.newChild(JarFile.MANIFEST_NAME);
+        Path webAppDir = Paths.get(directory.getPath());
+        Path webXml = webAppDir.resolve(WEB_INF).resolve(WEB_XML);
+        Files.createDirectories(webXml.getParent());
+        Files.createFile(webXml);
+        Path manifest = webAppDir.resolve(JarFile.MANIFEST_NAME);
 
-        final List<PathReference> transformedFiles = new ArrayList<>();
+        final List<Path> transformedFiles = new ArrayList<>();
         DirTransformer transformer = new DirTransformer(new DirTransformerCallback() {
 
             @Override
-            public boolean transformFile(InputStream inputStream, PathReference toFile) throws IOException {
+            public boolean transformFile(InputStream inputStream, Path toFile) throws IOException {
                 transformedFiles.add(toFile);
                 return false;
             }
         });
 
-        PathReference tempWebAppDir = new PathReference(tempDirectory.getPath());
+        Path tempWebAppDir = Paths.get(tempDirectory.getPath());
         transformer.transform(directory, tempDirectory, false);
         assertEquals(1, transformedFiles.size());
-        assertTrue(!manifest.exists());
+        assertTrue(Files.notExists(manifest));
         assertTrue(!transformedFiles.contains(manifest));
-        assertTrue(tempWebAppDir.delete(true));
+        assertTrue(FileUtils.deleteDirectory(tempWebAppDir));
         transformedFiles.clear();
 
         transformer.transform(directory, tempDirectory, true);
         assertEquals(2, transformedFiles.size());
-        assertTrue(!manifest.exists());
-        assertTrue(transformedFiles.contains(tempWebAppDir.newChild(JarFile.MANIFEST_NAME)));
+        assertTrue(Files.notExists(manifest));
+        assertTrue(transformedFiles.contains(tempWebAppDir.resolve(JarFile.MANIFEST_NAME)));
 
-        assertTrue(tempWebAppDir.delete(true));
-        assertTrue(webAppDir.delete(true));
+        assertTrue(FileUtils.deleteDirectory(tempWebAppDir));
+        assertTrue(FileUtils.deleteDirectory(webAppDir));
     }
 
     @Test
@@ -101,18 +101,18 @@ public class DirTransformerTests {
         URL tempDirectory = new URL(TARGET_URL);
 
         // Create content
-        PathReference webAppDir = new PathReference(directory.getPath());
-        PathReference manifest = webAppDir.newChild(JarFile.MANIFEST_NAME);
-        manifest.getParent().createDirectory();
-        createManifest(manifest.toFile(), HEADER_1, HEADER_2);
+        Path webAppDir = Paths.get(directory.getPath());
+        Path manifest = webAppDir.resolve(JarFile.MANIFEST_NAME);
+        Files.createDirectories(manifest.getParent());
+        createManifest(manifest, HEADER_1, HEADER_2);
 
         DirTransformer transformer = new DirTransformer(new DirTransformerCallback() {
 
             @Override
-            public boolean transformFile(InputStream inputStream, PathReference toFile) throws IOException {
-                if (MANIFEST_MF.equals(toFile.getName()) && META_INF.equals(toFile.getParent().getName())) {
-                    toFile.getParent().createDirectory();
-                    createManifest(toFile.toFile(), HEADER_3);
+            public boolean transformFile(InputStream inputStream, Path toFile) throws IOException {
+                if (MANIFEST_MF.equals(toFile.getFileName()) && META_INF.equals(toFile.getParent().getFileName())) {
+                    Files.createDirectories(toFile.getParent());
+                    createManifest(toFile, HEADER_3);
                     return true;
                 }
                 return false;
@@ -120,11 +120,11 @@ public class DirTransformerTests {
         });
 
         transformer.transform(directory, tempDirectory);
-        PathReference tempWebAppDir = new PathReference(tempDirectory.getPath());
-        checkManifest(tempWebAppDir.newChild(JarFile.MANIFEST_NAME).toFile());
+        Path tempWebAppDir = Paths.get(tempDirectory.getPath());
+        checkManifest(tempWebAppDir.resolve(JarFile.MANIFEST_NAME));
 
-        assertTrue(tempWebAppDir.delete(true));
-        assertTrue(webAppDir.delete(true));
+        assertTrue(FileUtils.deleteDirectory(tempWebAppDir));
+        assertTrue(FileUtils.deleteDirectory(webAppDir));
     }
 
     @Test
@@ -133,9 +133,10 @@ public class DirTransformerTests {
         URL tempDirectory = new URL(TARGET_URL);
 
         // Create content
-        PathReference webAppDir = new PathReference(directory.getPath());
-        PathReference webXml = webAppDir.newChild(WEB_INF + File.separator + WEB_XML);
-        webXml.createFile();
+        Path webAppDir = Paths.get(directory.getPath());
+        Path webXml = webAppDir.resolve(WEB_INF).resolve(WEB_XML);
+        Files.createDirectories(webXml.getParent());
+        Files.createFile(webXml);
 
         try {
             new DirTransformer(null);
@@ -146,25 +147,25 @@ public class DirTransformerTests {
         DirTransformer transformer = new DirTransformer(new DirTransformerCallback() {
 
             @Override
-            public boolean transformFile(InputStream inputStream, PathReference toFile) throws IOException {
+            public boolean transformFile(InputStream inputStream, Path toFile) throws IOException {
                 return false;
             }
         });
 
         transformer.transform(directory, tempDirectory);
-        PathReference tempWebAppDir = new PathReference(tempDirectory.getPath());
-        assertDirsSame(webAppDir.toFile(), tempWebAppDir.toFile());
+        Path tempWebAppDir = Paths.get(tempDirectory.getPath());
+        assertDirsSame(webAppDir, tempWebAppDir);
 
-        assertTrue(tempWebAppDir.delete(true));
-        assertTrue(webAppDir.delete(true));
+        assertTrue(FileUtils.deleteDirectory(tempWebAppDir));
+        assertTrue(FileUtils.deleteDirectory(webAppDir));
     }
 
-    private void assertDirsSame(File source, File destination) throws IOException {
-        assertEquals(source.getName(), destination.getName());
-        assertEquals(source.length(), destination.length());
+    private void assertDirsSame(Path webAppDir, Path tempWebAppDir) throws IOException {
+        assertEquals(webAppDir.getFileName(), tempWebAppDir.getFileName());
+        assertEquals(webAppDir.toFile().length(), tempWebAppDir.toFile().length());
 
-        File[] sourceFiles = source.listFiles();
-        File[] destinationFiles = destination.listFiles();
+        File[] sourceFiles = webAppDir.toFile().listFiles();
+        File[] destinationFiles = tempWebAppDir.toFile().listFiles();
         if (sourceFiles != null && destinationFiles != null) {
             assertEquals(sourceFiles.length, destinationFiles.length);
 
@@ -177,8 +178,8 @@ public class DirTransformerTests {
         }
     }
 
-    private void checkManifest(File manifestFile) throws IOException {
-        try (InputStream is = new FileInputStream(manifestFile);) {
+    private void checkManifest(Path manifestFile) throws IOException {
+        try (InputStream is = Files.newInputStream(manifestFile);) {
             Manifest manifest = new Manifest(is);
             Attributes attr = manifest.getMainAttributes();
             String value = attr.getValue("Custom-Header");
@@ -187,8 +188,8 @@ public class DirTransformerTests {
         }
     }
 
-    private void createManifest(File manifest, String... headers) throws IOException {
-        try (OutputStream outputStream = new FileOutputStream(manifest); PrintWriter writer = new PrintWriter(manifest);) {
+    private void createManifest(Path toFile, String... headers) throws IOException {
+        try (PrintWriter writer = new PrintWriter(Files.newOutputStream(toFile))) {
             for (String header : headers) {
                 writer.println(header);
             }

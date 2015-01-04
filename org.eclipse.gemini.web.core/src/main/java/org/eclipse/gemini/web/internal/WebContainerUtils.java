@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2014 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,10 +16,12 @@
 
 package org.eclipse.gemini.web.internal;
 
-import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Dictionary;
 import java.util.Locale;
 
@@ -218,7 +220,7 @@ public final class WebContainerUtils {
     public static boolean isDirectory(URL source) {
         if (FILE_SCHEME.equals(source.getProtocol())) {
             try {
-                return sourceAsFile(source).isDirectory();
+                return Files.isDirectory(sourceAsPath(source));
             } catch (URISyntaxException e) {
                 LOGGER.warn("Unable to determine if bundle '" + source + "'is a directory.", e);
             }
@@ -226,11 +228,11 @@ public final class WebContainerUtils {
         return false;
     }
 
-    public static File sourceAsFile(URL source) throws URISyntaxException {
+    public static Path sourceAsPath(URL source) throws URISyntaxException {
         URI uri = source.toURI();
         if (uri.isOpaque()) {
-            return new File(uri.getSchemeSpecificPart());
+            return Paths.get(uri.getSchemeSpecificPart());
         }
-        return new File(uri);
+        return Paths.get(uri);
     }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 SAP AG
+ * Copyright (c) 2010, 2015 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -19,11 +19,9 @@ package org.eclipse.gemini.web.internal.url;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-
-import org.eclipse.virgo.util.io.PathReference;
+import java.nio.file.Paths;
 
 /**
  * Implementation of {@link URLConnection} that transforms directory files as they are read.
@@ -53,7 +51,6 @@ final class DirTransformingURLConnection extends URLConnection {
      * @param transformer the <code>DirTransformer</code> to apply as content is being read.
      * @throws MalformedURLException the exception is thrown in case the new URL, where is the transformed data, cannot
      *         be created.
-     * @throws URISyntaxException
      */
     DirTransformingURLConnection(URL url, DirTransformer transformer) throws MalformedURLException {
         this(url, transformer, false);
@@ -69,7 +66,6 @@ final class DirTransformingURLConnection extends URLConnection {
      * @param ensureManifestIsPresent <code>true</code> if the presence of a MANIFEST.MF should be ensured.
      * @throws MalformedURLException the exception is thrown in case the new URL, where is the transformed data, cannot
      *         be created.
-     * @throws URISyntaxException
      */
     DirTransformingURLConnection(URL url, DirTransformer transformer, boolean ensureManifestIsPresent) throws MalformedURLException {
         super(url);
@@ -77,8 +73,7 @@ final class DirTransformingURLConnection extends URLConnection {
         this.ensureManifestIsPresent = ensureManifestIsPresent;
 
         this.transformedURL = new URL(TEMP_DIR + getPath());
-        PathReference transformedDir = new PathReference(this.transformedURL.getPath());
-        transformedDir.delete(true);
+        FileUtils.deleteDirectory(Paths.get(this.transformedURL.getPath()));
     }
 
     @Override

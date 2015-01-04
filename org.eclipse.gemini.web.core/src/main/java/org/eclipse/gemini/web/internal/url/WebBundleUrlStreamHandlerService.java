@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2014 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,13 +17,15 @@
 package org.eclipse.gemini.web.internal.url;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.jar.Attributes;
@@ -39,7 +41,6 @@ import org.eclipse.gemini.web.internal.url.DirTransformer.DirTransformerCallback
 import org.eclipse.virgo.util.io.JarTransformer;
 import org.eclipse.virgo.util.io.JarTransformer.JarTransformerCallback;
 import org.eclipse.virgo.util.io.JarTransformingURLConnection;
-import org.eclipse.virgo.util.io.PathReference;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifest;
 import org.eclipse.virgo.util.osgi.manifest.BundleManifestFactory;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
@@ -77,9 +78,9 @@ public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHan
 
     private static final class Callback implements JarTransformerCallback, DirTransformerCallback {
 
-        private static final String META_INF = "META-INF";
+        private static final Path META_INF = Paths.get("META-INF");
 
-        private static final String MANIFEST_MF = "MANIFEST.MF";
+        private static final Path MANIFEST_MF = Paths.get("MANIFEST.MF");
 
         private final WebBundleManifestTransformer transformer;
 
@@ -123,7 +124,7 @@ public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHan
         private boolean isSignatureFile(String entryName) {
             String[] entryNameComponents = entryName.split("/");
             if (entryNameComponents.length == 2) {
-                if (META_INF.equals(entryNameComponents[0])) {
+                if ("META-INF".equals(entryNameComponents[0])) {
                     String entryFileName = entryNameComponents[1];
                     if (entryFileName.endsWith(".SF") || entryFileName.endsWith(".DSA") || entryFileName.endsWith(".RSA")) {
                         return true;
@@ -148,10 +149,10 @@ public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHan
         }
 
         @Override
-        public boolean transformFile(InputStream inputStream, PathReference toFile) throws IOException {
-            if (MANIFEST_MF.equals(toFile.getName()) && META_INF.equals(toFile.getParent().getName())) {
-                toFile.getParent().createDirectory();
-                try (OutputStream outputStream = new FileOutputStream(toFile.toFile());) {
+        public boolean transformFile(InputStream inputStream, Path toFile) throws IOException {
+            if (MANIFEST_MF.equals(toFile.getFileName()) && META_INF.equals(toFile.getParent().getFileName())) {
+                Files.createDirectories(toFile.getParent());
+                try (OutputStream outputStream = Files.newOutputStream(toFile);) {
                     transformManifest(inputStream, outputStream);
                 }
                 return true;
@@ -162,9 +163,9 @@ public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHan
             return isSignatureFile(toFile);
         }
 
-        private boolean isSignatureFile(PathReference file) {
-            if (META_INF.equals(file.getParent().getName())) {
-                String fileName = file.getName();
+        private boolean isSignatureFile(Path file) {
+            if (META_INF.equals(file.getParent().getFileName())) {
+                String fileName = file.getFileName().toString();
                 if (fileName.endsWith(".SF") || fileName.endsWith(".DSA") || fileName.endsWith(".RSA")) {
                     return true;
                 }

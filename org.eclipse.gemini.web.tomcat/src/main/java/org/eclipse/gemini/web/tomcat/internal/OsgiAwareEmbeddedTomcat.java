@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2014 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -20,6 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -52,8 +55,6 @@ import org.eclipse.gemini.web.core.spi.ServletContainerException;
 import org.eclipse.gemini.web.tomcat.internal.loading.ChainedClassLoader;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolverFactory;
 import org.eclipse.gemini.web.tomcat.internal.support.PackageAdminBundleDependencyDeterminer;
-import org.eclipse.virgo.util.io.FatalIOException;
-import org.eclipse.virgo.util.io.PathReference;
 import org.eclipse.virgo.util.osgi.ServiceRegistrationTracker;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -334,13 +335,19 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
         if (this.basedir == null) {
             // Create a temp dir.
             this.basedir = System.getProperty(USER_DIR);
-            PathReference home = new PathReference(this.basedir);
-            home.createDirectory();
+            Path home = Paths.get(this.basedir);
+            try {
+                Files.createDirectories(home);
+            } catch (IOException e1) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Cannot create directory " + home);
+                }
+            }
             if (!home.isAbsolute()) {
                 try {
-                    this.basedir = home.getCanonicalPath();
-                } catch (FatalIOException e) {
-                    this.basedir = home.getAbsolutePath();
+                    this.basedir = home.toRealPath().toString();
+                } catch (IOException e) {
+                    this.basedir = home.toAbsolutePath().toString();
                 }
             }
         }

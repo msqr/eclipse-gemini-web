@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,15 +16,15 @@
 
 package org.eclipse.gemini.web.test.extender;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import junit.framework.Assert;
 
+import org.eclipse.gemini.web.test.FileUtils;
 import org.eclipse.virgo.test.framework.OsgiTestRunner;
 import org.eclipse.virgo.test.framework.TestFrameworkUtils;
-import org.eclipse.virgo.util.io.JarUtils;
-import org.eclipse.virgo.util.io.PathReference;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +36,7 @@ import org.osgi.framework.BundleException;
 @RunWith(OsgiTestRunner.class)
 public class ClassPathDependencyTests {
 
-    private static final File WAR_FILE = new File("src/test/resources/classpathdeps.war");
+    private static final Path WAR_FILE = Paths.get("src/test/resources/classpathdeps.war");
 
     private BundleContext context;
 
@@ -76,23 +76,13 @@ public class ClassPathDependencyTests {
     }
 
     private void deployWarDir() throws BundleException, IOException {
-        PathReference pr = unpackToDir();
+        Path pr = FileUtils.unpackToDir(WAR_FILE, Paths.get(System.getProperty("java.io.tmpdir"), "unpack-" + System.currentTimeMillis()));
         try {
-            this.war = this.context.installBundle("webbundle:file:" + pr.getAbsolutePath() + "?Web-ContextPath=/classpathdeps");
+            this.war = this.context.installBundle("webbundle:file:" + pr.toAbsolutePath().toString() + "?Web-ContextPath=/classpathdeps");
             this.war.start();
         } finally {
-            pr.delete(true);
-            PathReference tempDir = new PathReference(new File("temp" + File.separator + pr.getName()));
-            tempDir.delete(true);
+            Assert.assertTrue(FileUtils.deleteDirectory(Paths.get("temp").resolve(pr.getFileName())));
         }
-    }
-
-    private PathReference unpackToDir() throws IOException {
-        String tmpDir = System.getProperty("java.io.tmpdir");
-        PathReference dest = new PathReference(new File(tmpDir, "unpack-" + System.currentTimeMillis()));
-        PathReference src = new PathReference(WAR_FILE);
-        JarUtils.unpackTo(src, dest);
-        return dest;
     }
 
     private void deployWar() throws BundleException {

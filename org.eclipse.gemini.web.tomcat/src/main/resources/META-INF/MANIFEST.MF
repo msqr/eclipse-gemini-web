@@ -27,9 +27,9 @@ Import-Package: javax.management;version="0",javax.naming;version="0",
  g.eclipse.osgi.baseadaptor.bundlefile;version="0";resolution:="option
  al",org.eclipse.osgi.framework.adaptor;version="0";resolution:="optio
  nal",org.eclipse.osgi.framework.internal.core;version="0";resolution:
- ="optional",org.eclipse.virgo.util.io;version="2.0",org.eclipse.virgo
- .util.osgi;version="2.0",org.osgi.framework;version="0",org.osgi.serv
- ice.packageadmin;version="1.0",org.osgi.service.url;version="1.0",org
- .osgi.util.tracker;version="1.4.0",org.slf4j;version="1.7.2",org.spri
- ngframework.osgi.util;version="1.2.0",org.xml.sax;version="0"
+ ="optional",org.eclipse.virgo.util.osgi;version="2.0",org.osgi.framew
+ ork;version="0",org.osgi.service.packageadmin;version="1.0",org.osgi.
+ service.url;version="1.0",org.osgi.util.tracker;version="1.4.0",org.s
+ lf4j;version="1.7.2",org.springframework.osgi.util;version="1.2.0",or
+ g.xml.sax;version="0"
 
