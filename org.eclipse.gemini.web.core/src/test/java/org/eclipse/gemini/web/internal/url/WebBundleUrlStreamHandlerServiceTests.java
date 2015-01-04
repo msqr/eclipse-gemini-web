@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2014 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -52,14 +52,21 @@ public class WebBundleUrlStreamHandlerServiceTests {
         assertNotNull(connection);
 
         InputStream inputStream = connection.getInputStream();
-        JarInputStream jarInputStream = new JarInputStream(inputStream);
-        Manifest manifest = jarInputStream.getManifest();
+        JarInputStream jarInputStream = null;
+        try {
+            jarInputStream = new JarInputStream(inputStream);
+            Manifest manifest = jarInputStream.getManifest();
 
-        if (manifest != null) {
-            Attributes mainAttributes = manifest.getMainAttributes();
-            Set<Entry<Object, Object>> entrySet = mainAttributes.entrySet();
-            for (Entry<Object, Object> entry : entrySet) {
-                System.out.println(entry.getKey() + ": " + entry.getValue());
+            if (manifest != null) {
+                Attributes mainAttributes = manifest.getMainAttributes();
+                Set<Entry<Object, Object>> entrySet = mainAttributes.entrySet();
+                for (Entry<Object, Object> entry : entrySet) {
+                    System.out.println(entry.getKey() + ": " + entry.getValue());
+                }
+            }
+        } finally {
+            if (jarInputStream != null) {
+                jarInputStream.close();
             }
         }
     }
