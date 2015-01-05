@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2014 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -26,6 +26,7 @@ import static org.easymock.EasyMock.verify;
 import java.io.File;
 import java.io.IOException;
 import java.net.JarURLConnection;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -62,7 +63,7 @@ public class BundleDependenciesJarScannerTests {
     private final Bundle dependency = createMock(Bundle.class);
 
     @Test
-    public void noDependencies() {
+    public void noDependencies() throws IOException {
         expect(this.bundle.getHeaders()).andReturn(new Hashtable<String, String>());
         expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(Collections.<Bundle> emptySet());
 
@@ -71,6 +72,8 @@ public class BundleDependenciesJarScannerTests {
         ClassLoader classLoader = new BundleWebappClassLoader(this.bundle, this.classLoaderCustomizer);
 
         this.scanner.scan(null, classLoader, this.callback, null);
+
+        ((URLClassLoader) classLoader).close();
 
         verify(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
     }
@@ -90,6 +93,8 @@ public class BundleDependenciesJarScannerTests {
 
         this.scanner.scan(null, classLoader, this.callback, null);
 
+        ((URLClassLoader) classLoader).close();
+
         verify(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
     }
 
@@ -107,6 +112,8 @@ public class BundleDependenciesJarScannerTests {
         ClassLoader classLoader = new BundleWebappClassLoader(this.bundle, this.classLoaderCustomizer);
 
         this.scanner.scan(null, classLoader, this.callback, null);
+
+        ((URLClassLoader) classLoader).close();
 
         verify(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
     }
@@ -129,6 +136,8 @@ public class BundleDependenciesJarScannerTests {
         this.scanner.scan(null, classLoader, this.callback, null);
 
         this.scanner.scan(null, classLoader, this.callback, null);
+
+        ((URLClassLoader) classLoader).close();
 
         verify(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
     }
