@@ -50,7 +50,7 @@ public class WebBundleUrl {
 
     private final String location;
 
-    private Map<String, String> options;
+    private volatile Map<String, String> options;
 
     public WebBundleUrl(String location, Map<String, String> options) throws MalformedURLException {
         this.url = createURL(location, options);
