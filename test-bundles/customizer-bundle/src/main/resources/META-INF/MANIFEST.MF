@@ -7,10 +7,10 @@ Import-Package: org.apache.tomcat,
  org.osgi.framework,
  javax.servlet,
  javax.servlet.http,
- org.eclipse.osgi.baseadaptor,
- org.eclipse.osgi.baseadaptor.bundlefile,
- org.eclipse.osgi.framework.adaptor,
- org.eclipse.osgi.framework.internal.core
+ org.eclipse.osgi.container,
+ org.eclipse.osgi.internal.framework,
+ org.eclipse.osgi.storage.bundlefile,
+ org.eclipse.osgi.storage
 Bundle-Activator: org.eclipse.gemini.web.Activator  
  
 

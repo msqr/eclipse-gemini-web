@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP AG
+ * Copyright (c) 2012, 2015 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -28,10 +28,9 @@ import javax.servlet.ServletContext;
 
 import org.apache.tomcat.JarScanner;
 import org.apache.tomcat.JarScannerCallback;
-import org.eclipse.osgi.baseadaptor.BaseData;
-import org.eclipse.osgi.baseadaptor.bundlefile.BundleFile;
-import org.eclipse.osgi.framework.adaptor.BundleData;
-import org.eclipse.osgi.framework.internal.core.BundleHost;
+import org.eclipse.osgi.internal.framework.EquinoxBundle;
+import org.eclipse.osgi.storage.BundleInfo.Generation;
+import org.eclipse.osgi.storage.bundlefile.BundleFile;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
@@ -120,12 +119,10 @@ public class BundleJarScanner implements JarScanner {
     }
 
     private BundleFile getBundleFile(Bundle bundle) {
-        if (bundle instanceof BundleHost) {
-            BundleHost bh = (BundleHost) bundle;
-            BundleData bundleData = bh.getBundleData();
-            if (bundleData instanceof BaseData) {
-                return ((BaseData) bundleData).getBundleFile();
-            }
+        if (bundle instanceof EquinoxBundle) {
+            EquinoxBundle eb = (EquinoxBundle) bundle;
+            Generation current = (Generation) eb.getModule().getCurrentRevision().getRevisionInfo();
+            return current.getBundleFile();
         }
         return null;
     }
