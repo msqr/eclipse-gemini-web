@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -142,7 +143,7 @@ public class WebBundleUrlStreamHandlerServiceTests {
     }
 
     private void createManifest(Path manifest, String... headers) throws Exception {
-        try (PrintWriter writer = new PrintWriter(Files.newOutputStream(manifest));) {
+        try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(manifest, StandardCharsets.UTF_8));) {
             for (String header : headers) {
                 writer.println(header);
             }

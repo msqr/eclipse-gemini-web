@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 SAP AG
+ * Copyright (c) 2014, 2015 SAP AG
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 import javax.servlet.ServletContext;
@@ -187,7 +188,7 @@ public abstract class ExtenderBase {
     protected void validateURL(String path, String expectedResponse) throws MalformedURLException, IOException, InterruptedException {
         InputStream stream = openInputStream(path);
         assertNotNull(stream);
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream));) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));) {
             if (expectedResponse == null) {
                 String line = null;
                 while ((line = reader.readLine()) != null) {
@@ -213,6 +214,7 @@ public abstract class ExtenderBase {
         for (int i = 0; i < 5; i++) {
             try {
                 stream = url.openConnection().getInputStream();
+                break;
             } catch (IOException e) {
                 Thread.sleep(1000);
             }

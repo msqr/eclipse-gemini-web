@@ -311,7 +311,7 @@ public class TomcatServletContainerTests {
             error = true;
         }
         assertNotNull(stream);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
         String line = null;
         while ((line = reader.readLine()) != null) {
             System.out.println(line);
@@ -332,7 +332,7 @@ public class TomcatServletContainerTests {
             error = true;
         }
         assertNotNull(stream);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
         StringBuilder stringBuilder = new StringBuilder();
         String line = null;
         while ((line = reader.readLine()) != null) {

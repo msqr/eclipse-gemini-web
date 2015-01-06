@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -189,7 +190,7 @@ public class DirTransformerTests {
     }
 
     private void createManifest(Path toFile, String... headers) throws IOException {
-        try (PrintWriter writer = new PrintWriter(Files.newOutputStream(toFile))) {
+        try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(toFile, StandardCharsets.UTF_8))) {
             for (String header : headers) {
                 writer.println(header);
             }

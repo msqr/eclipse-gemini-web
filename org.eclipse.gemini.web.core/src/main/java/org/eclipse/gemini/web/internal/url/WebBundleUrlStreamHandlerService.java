@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -108,7 +109,7 @@ public final class WebBundleUrlStreamHandlerService extends AbstractURLStreamHan
         }
 
         private void transformManifest(InputStream inputStream, OutputStream outputStream) throws IOException {
-            InputStreamReader reader = new InputStreamReader(inputStream);
+            InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
             BundleManifest manifest = BundleManifestFactory.createBundleManifest(reader);
             InstallationOptions options = new InstallationOptions(this.webBundleUrl.getOptions());
             if (manifest.getHeader(WebContainerUtils.HEADER_DEFAULT_WAB_HEADERS) != null) {
