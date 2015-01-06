@@ -12,4 +12,4 @@ cp $SRC/javax.servlet.jsp-2.2.0.v201112011158.jar $REPO/javax.servlet.jsp/javax.
 cp $SRC/javax.transaction-1.1.0.v201205091237.jar $REPO/javax.transaction/javax.transaction-1.1.0.v201205091237.jar
 cp $SRC/javax.xml.rpc-1.1.0.v201005080400.jar $REPO/javax.xml.rpc/javax.xml.rpc-1.1.0.v201005080400.jar
 cp $SRC/javax.xml.soap-1.3.0.v201105210645.jar $REPO/javax.xml.soap/javax.xml.soap-1.3.0.v201105210645.jar
-cp $SRC/javax.websocket_1.0.0.v201312030745.jar $REPO/javax.websocket/javax.websocket_1.0.0.v201312030745.jar
+cp $SRC/javax.websocket_1.1.0.v201412180755.jar $REPO/javax.websocket/javax.websocket_1.1.0.v201412180755.jar
