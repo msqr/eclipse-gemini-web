@@ -3,12 +3,12 @@
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution. 
+ * and Apache License v2.0 which accompanies this distribution.
  * The Eclipse Public License is available at
  *   http://www.eclipse.org/legal/epl-v10.html
- * and the Apache License v2.0 is available at 
+ * and the Apache License v2.0 is available at
  *   http://www.opensource.org/licenses/apache2.0.php.
- * You may elect to redistribute this code under either of these licenses.  
+ * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
  *   VMware Inc. - initial contribution
@@ -18,8 +18,10 @@ package org.eclipse.gemini.web.tomcat.internal;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.isA;
+import static org.easymock.EasyMock.isNull;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
@@ -30,19 +32,19 @@ import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Hashtable;
+
+import javax.servlet.ServletContext;
 
 import org.apache.tomcat.JarScannerCallback;
-import org.eclipse.gemini.web.tomcat.internal.loading.BundleWebappClassLoader;
+import org.eclipse.gemini.web.tomcat.internal.loader.BundleWebappClassLoader;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleDependencyDeterminer;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolver;
 import org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer;
+import org.eclipse.virgo.test.stubs.framework.StubBundle;
 import org.eclipse.virgo.test.stubs.framework.StubBundleContext;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 
-/**
- */
 public class BundleDependenciesJarScannerTests {
 
     private final BundleDependencyDeterminer dependencyDeterminer = createMock(BundleDependencyDeterminer.class);
@@ -54,7 +56,7 @@ public class BundleDependenciesJarScannerTests {
     private final BundleDependenciesJarScanner scanner = new BundleDependenciesJarScanner(this.dependencyDeterminer, this.bundleFileResolver,
         this.bundleContext);
 
-    private final Bundle bundle = createMock(Bundle.class);
+    private final Bundle bundle = new StubBundle();
 
     private final JarScannerCallback callback = createMock(JarScannerCallback.class);
 
@@ -62,83 +64,85 @@ public class BundleDependenciesJarScannerTests {
 
     private final Bundle dependency = createMock(Bundle.class);
 
+    private final ServletContext servletContext = createMock(ServletContext.class);
+
     @Test
     public void noDependencies() throws IOException {
-        expect(this.bundle.getHeaders()).andReturn(new Hashtable<String, String>());
         expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(Collections.<Bundle> emptySet());
 
-        replay(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
-
         ClassLoader classLoader = new BundleWebappClassLoader(this.bundle, this.classLoaderCustomizer);
+        expect(this.servletContext.getClassLoader()).andReturn(classLoader);
 
-        this.scanner.scan(null, classLoader, this.callback, null);
+        replay(this.dependencyDeterminer, this.servletContext);
+
+        this.scanner.scan(null, this.servletContext, this.callback);
 
         ((URLClassLoader) classLoader).close();
 
-        verify(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
+        verify(this.dependencyDeterminer, this.servletContext);
     }
 
     @Test
     public void scanDirectory() throws IOException {
-        expect(this.bundle.getHeaders()).andReturn(new Hashtable<String, String>());
         expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<>(Arrays.asList(this.dependency)));
 
         File dependencyFile = new File("src/test/resources");
         expect(this.bundleFileResolver.resolve(this.dependency)).andReturn(dependencyFile);
-        this.callback.scan(dependencyFile);
-
-        replay(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
+        this.callback.scan(dependencyFile, null, true);
 
         ClassLoader classLoader = new BundleWebappClassLoader(this.bundle, this.classLoaderCustomizer);
+        expect(this.servletContext.getClassLoader()).andReturn(classLoader);
 
-        this.scanner.scan(null, classLoader, this.callback, null);
+        replay(this.dependencyDeterminer, this.bundleFileResolver, this.callback, this.servletContext);
+
+        this.scanner.scan(null, this.servletContext, this.callback);
 
         ((URLClassLoader) classLoader).close();
 
-        verify(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
+        verify(this.dependencyDeterminer, this.bundleFileResolver, this.callback, this.servletContext);
     }
 
     @Test
     public void scanFile() throws IOException {
-        expect(this.bundle.getHeaders()).andReturn(new Hashtable<String, String>());
         expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<>(Arrays.asList(this.dependency)));
 
         File dependencyFile = new File("");
         expect(this.bundleFileResolver.resolve(this.dependency)).andReturn(dependencyFile);
-        this.callback.scan(isA(JarURLConnection.class));
-
-        replay(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
+        this.callback.scan(isA(JarURLConnection.class), (String) isNull(), eq(true));
 
         ClassLoader classLoader = new BundleWebappClassLoader(this.bundle, this.classLoaderCustomizer);
+        expect(this.servletContext.getClassLoader()).andReturn(classLoader);
 
-        this.scanner.scan(null, classLoader, this.callback, null);
+        replay(this.dependencyDeterminer, this.bundleFileResolver, this.callback, this.servletContext);
+
+        this.scanner.scan(null, this.servletContext, this.callback);
 
         ((URLClassLoader) classLoader).close();
 
-        verify(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
+        verify(this.dependencyDeterminer, this.bundleFileResolver, this.callback, this.servletContext);
     }
 
     @Test
     public void scanJarUrlConnection() throws IOException {
-        expect(this.bundle.getHeaders()).andReturn(new Hashtable<String, String>());
         expect(this.dependencyDeterminer.getDependencies(this.bundle)).andReturn(new HashSet<>(Arrays.asList(this.dependency))).times(2);
         expect(this.dependency.getLocation()).andReturn("file:src/test/resources/bundle.jar").andReturn(
             "reference:file:src/test/resources/bundle.jar");
         expect(this.dependency.getSymbolicName()).andReturn("bundle").anyTimes();
 
         expect(this.bundleFileResolver.resolve(this.dependency)).andReturn(null).times(2);
-        this.callback.scan(isA(JarURLConnection.class));
-
-        replay(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback, this.dependency);
+        this.callback.scan(isA(JarURLConnection.class), (String) isNull(), eq(true));
 
         ClassLoader classLoader = new BundleWebappClassLoader(this.bundle, this.classLoaderCustomizer);
+        expect(this.servletContext.getClassLoader()).andReturn(classLoader).times(2);
 
-        this.scanner.scan(null, classLoader, this.callback, null);
+        replay(this.dependencyDeterminer, this.bundleFileResolver, this.callback, this.dependency, this.servletContext);
 
-        this.scanner.scan(null, classLoader, this.callback, null);
+        this.scanner.scan(null, this.servletContext, this.callback);
+
+        this.scanner.scan(null, this.servletContext, this.callback);
 
         ((URLClassLoader) classLoader).close();
 
-        verify(this.dependencyDeterminer, this.bundleFileResolver, this.bundle, this.callback);
+        verify(this.dependencyDeterminer, this.bundleFileResolver, this.callback, this.dependency, this.servletContext);
     }
 }
