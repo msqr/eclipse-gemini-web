@@ -8,6 +8,7 @@ Import-Template: org.eclipse.gemini.web.*;version="${version}",
  org.apache.juli.*;version="${org.apache.catalina:[=.=.=, =.+1)}",
  org.apache.naming.*;version="${org.apache.catalina:[=.=.=, =.+1)}",
  org.apache.tomcat.*;version="${org.apache.catalina:[=.=.=, =.+1)}",
+ org.apache.jasper.*;version="${org.apache.catalina:[=.=.=, =.+1)}",
  org.osgi.framework.*;version="0",
  org.osgi.util.tracker.*;version="0",
  org.osgi.service.packageadmin.*;version="0",
@@ -33,6 +34,7 @@ Import-Package: org.apache.catalina.deploy;version="${org.apache.catalina:[=.=.=
  org.apache.catalina.servlets;version="${org.apache.catalina:[=.=.=, =.+1)}",
  org.apache.naming.factory;version="${org.apache.catalina:[=.=.=, =.+1)}",
  org.apache.catalina.filters;version="${org.apache.catalina:[=.=.=, =.+1)}",
- org.apache.catalina.realm;version="${org.apache.catalina:[=.=.=, =.+1)}"
+ org.apache.catalina.realm;version="${org.apache.catalina:[=.=.=, =.+1)}",
+ org.apache.tomcat.util.descriptor.web;version="${org.apache.catalina:[=.=.=, =.+1)}"
 Bundle-Activator: org.eclipse.gemini.web.tomcat.internal.Activator
 Excluded-Exports: *.internal.*,javax.*
