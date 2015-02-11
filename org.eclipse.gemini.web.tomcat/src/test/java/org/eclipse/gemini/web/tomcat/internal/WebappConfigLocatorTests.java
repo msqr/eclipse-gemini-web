@@ -1,14 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP AG
+ * Copyright (c) 2010, 2015 SAP SE
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution. 
+ * and Apache License v2.0 which accompanies this distribution.
  * The Eclipse Public License is available at
  *   http://www.eclipse.org/legal/epl-v10.html
- * and the Apache License v2.0 is available at 
+ * and the Apache License v2.0 is available at
  *   http://www.opensource.org/licenses/apache2.0.php.
- * You may elect to redistribute this code under either of these licenses.  
+ * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
  *   Violeta Georgieva - initial contribution
@@ -23,11 +23,13 @@ import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -87,9 +89,9 @@ public class WebappConfigLocatorTests {
         byte[] buffer = new byte[1024];
         int bytesRead;
 
-        try (FileOutputStream stream = new FileOutputStream(jarFile1.getPath());
+        try (OutputStream stream = Files.newOutputStream(Paths.get(jarFile1.getPath()));
             JarOutputStream out = new JarOutputStream(stream, new Manifest());
-            FileInputStream file = new FileInputStream(new File(urlFile2.getPath()));) {
+            InputStream file = Files.newInputStream(Paths.get(urlFile2.getPath()));) {
             JarEntry jarAdd = new JarEntry(JAR_ENTRY_NAME);
             out.putNextEntry(jarAdd);
             while ((bytesRead = file.read(buffer)) != -1) {
@@ -98,7 +100,8 @@ public class WebappConfigLocatorTests {
             out.closeEntry();
         }
 
-        try (FileOutputStream stream = new FileOutputStream(jarFile2.getPath()); JarOutputStream out = new JarOutputStream(stream, new Manifest());) {
+        try (OutputStream stream = Files.newOutputStream(Paths.get(jarFile2.getPath()));
+            JarOutputStream out = new JarOutputStream(stream, new Manifest());) {
         }
     }
 
@@ -107,26 +110,26 @@ public class WebappConfigLocatorTests {
         URL urlFile1 = new URL(CONFIG_FILE_LOCATION_1);
         URL urlDir1 = new URL(CONFIG_DIR_LOCATION_1);
         // context.xml exists in the configuration directory
-        assertEquals(new File(urlFile1.getPath()).getAbsoluteFile().toURI().toURL(),
-            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_1, null, new File(urlDir1.getPath()), null));
+        assertEquals(Paths.get(urlFile1.getPath()).toAbsolutePath().toUri().toURL(),
+            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_1, null, Paths.get(urlDir1.getPath()), null));
 
         URL urlFile2 = new URL(CONFIG_FILE_LOCATION_2);
         URL urlDir2 = new URL(CONFIG_DIR_LOCATION_2);
         // context.xml does not exist in the configuration directory, but exists
         // in doc base
         // doc base is directory
-        assertEquals(new File(urlFile2.getPath()).getAbsoluteFile().toURI().toURL(),
-            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, urlDir1.getPath(), new File(urlDir1.getPath()), null));
+        assertEquals(Paths.get(urlFile2.getPath()).toAbsolutePath().toUri().toURL(),
+            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, urlDir1.getPath(), Paths.get(urlDir1.getPath()), null));
         // context.xml does not exist in the configuration directory and in doc
         // base
         // doc base is directory
-        assertEquals(null, WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, urlDir2.getPath(), new File(urlDir1.getPath()), null));
+        assertEquals(null, WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, urlDir2.getPath(), Paths.get(urlDir1.getPath()), null));
 
         try {
             // context.xml does not exist in the configuration directory, doc
             // base is jar and does not exist
             URL corruptedJarFile = new URL(CORRUPTED_JAR_NAME);
-            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, corruptedJarFile.getPath(), new File(urlDir1.getPath()), null);
+            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, corruptedJarFile.getPath(), Paths.get(urlDir1.getPath()), null);
         } catch (ServletContainerException e) {
             assertTrue(e.getCause() instanceof IOException);
         }
@@ -138,38 +141,38 @@ public class WebappConfigLocatorTests {
         // in doc base
         // doc base is jar
         // context.xml will be read from the jar
-        assertEquals(new URL(WebappConfigLocator.JAR_SCHEMA + new File(jarFile1.getPath()).getAbsoluteFile().toURI().toString()
+        assertEquals(new URL(WebappConfigLocator.JAR_SCHEMA + Paths.get(jarFile1.getPath()).toAbsolutePath().toUri().toString()
             + WebappConfigLocator.JAR_TO_ENTRY_SEPARATOR + WebappConfigLocator.CONTEXT_XML),
-            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, jarFile1.getPath(), new File(urlDir3.getPath()), null));
+            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, jarFile1.getPath(), Paths.get(urlDir3.getPath()), null));
 
         // context.xml does not exist in the configuration directory, but exists in doc base
         // doc base cannot be resolved
         // bundle is not provided
         assertEquals(null,
-            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, WebappConfigLocator.EMPTY_STRING, new File(urlDir3.getPath()), null));
+            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, WebappConfigLocator.EMPTY_STRING, Paths.get(urlDir3.getPath()), null));
         // context.xml will be read from the bundle
         Bundle bundle = createMock(Bundle.class);
-        expect(bundle.getLocation()).andReturn(new File(jarFile1.getPath()).getAbsoluteFile().toURI().toString());
+        expect(bundle.getLocation()).andReturn(Paths.get(jarFile1.getPath()).toAbsolutePath().toUri().toString());
         replay(bundle);
-        assertEquals(new URL(WebappConfigLocator.JAR_SCHEMA + new File(jarFile1.getPath()).getAbsoluteFile().toURI().toString()
+        assertEquals(new URL(WebappConfigLocator.JAR_SCHEMA + Paths.get(jarFile1.getPath()).toAbsolutePath().toUri().toString()
             + WebappConfigLocator.JAR_TO_ENTRY_SEPARATOR + WebappConfigLocator.CONTEXT_XML),
-            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, WebappConfigLocator.EMPTY_STRING, new File(urlDir3.getPath()), bundle));
+            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, WebappConfigLocator.EMPTY_STRING, Paths.get(urlDir3.getPath()), bundle));
         verify(bundle);
 
         // context.xml does not exist in the configuration directory and in doc
         // base
         // doc base is jar
-        assertEquals(null, WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, jarFile2.getPath(), new File(urlDir1.getPath()), null));
+        assertEquals(null, WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_2, jarFile2.getPath(), Paths.get(urlDir1.getPath()), null));
 
         URL urlFile4 = new URL(CONFIG_FILE_LOCATION_4);
         URL urlFile5 = new URL(CONFIG_FILE_LOCATION_5);
         // different types of context path
-        assertEquals(new File(urlFile4.getPath()).getAbsoluteFile().toURI().toURL(),
-            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_3, jarFile1.getPath(), new File(urlDir3.getPath()), null));
-        assertEquals(new File(urlFile5.toURI().getSchemeSpecificPart()).getAbsoluteFile().toURI().toURL(),
-            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_4, jarFile1.getPath(), new File(urlDir3.getPath()), null));
-        assertEquals(new File(urlFile5.toURI().getSchemeSpecificPart()).getAbsoluteFile().toURI().toURL(),
-            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_5, jarFile1.getPath(), new File(urlDir3.getPath()), null));
+        assertEquals(Paths.get(urlFile4.getPath()).toAbsolutePath().toUri().toURL(),
+            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_3, jarFile1.getPath(), Paths.get(urlDir3.getPath()), null));
+        assertEquals(Paths.get(urlFile5.toURI().getSchemeSpecificPart()).toAbsolutePath().toUri().toURL(),
+            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_4, jarFile1.getPath(), Paths.get(urlDir3.getPath()), null));
+        assertEquals(Paths.get(urlFile5.toURI().getSchemeSpecificPart()).toAbsolutePath().toUri().toURL(),
+            WebappConfigLocator.resolveWebappContextXml(CONTEXT_PATH_5, jarFile1.getPath(), Paths.get(urlDir3.getPath()), null));
     }
 
     @Test
@@ -184,21 +187,21 @@ public class WebappConfigLocatorTests {
 
         replay(mockHost, mockEngine);
 
-        File configDir = new File("");
-        File expected = new File(configDir, ENGINE_NAME);
-        expected = new File(expected, HOST_NAME);
+        Path configDir = Paths.get("");
+        Path expected = configDir.resolve(ENGINE_NAME);
+        expected = expected.resolve(HOST_NAME);
         assertEquals(expected, WebappConfigLocator.resolveWebappConfigDir(configDir, mockHost));
 
-        expected = new File(configDir, HOST_NAME);
+        expected = configDir.resolve(HOST_NAME);
         assertEquals(expected, WebappConfigLocator.resolveWebappConfigDir(configDir, mockHost));
         assertEquals(expected, WebappConfigLocator.resolveWebappConfigDir(configDir, mockHost));
 
-        configDir = new File(WebappConfigLocator.DEFAULT_CONFIG_DIRECTORY);
-        expected = new File(configDir, ENGINE_NAME);
-        expected = new File(expected, HOST_NAME);
+        configDir = Paths.get(WebappConfigLocator.DEFAULT_CONFIG_DIRECTORY);
+        expected = configDir.resolve(ENGINE_NAME);
+        expected = expected.resolve(HOST_NAME);
         assertEquals(expected, WebappConfigLocator.resolveWebappConfigDir(null, mockHost));
 
-        expected = new File(configDir, HOST_NAME);
+        expected = configDir.resolve(HOST_NAME);
         assertEquals(expected, WebappConfigLocator.resolveWebappConfigDir(null, mockHost));
         assertEquals(expected, WebappConfigLocator.resolveWebappConfigDir(null, mockHost));
 
@@ -210,18 +213,18 @@ public class WebappConfigLocatorTests {
         assertEquals(null, WebappConfigLocator.resolveDefaultContextXml(null));
 
         URL urlFile = new URL(CONFIG_FILE_LOCATION_2);
-        assertEquals(new File(urlFile.getPath()).getAbsolutePath(),
-            WebappConfigLocator.resolveDefaultContextXml(new File(urlFile.getPath()).getParentFile()));
+        assertEquals(Paths.get(urlFile.getPath()).toAbsolutePath().toString(),
+            WebappConfigLocator.resolveDefaultContextXml(Paths.get(urlFile.getPath()).getParent()));
 
-        assertEquals(null, WebappConfigLocator.resolveDefaultContextXml(new File(urlFile.getPath()).getParentFile().getParentFile()));
+        assertEquals(null, WebappConfigLocator.resolveDefaultContextXml(Paths.get(urlFile.getPath()).getParent().getParent()));
     }
 
     public void testResolveDefaultWebXml() throws Exception {
         assertEquals(null, WebappConfigLocator.resolveDefaultWebXml(null));
 
         URL configDir = new URL(CONFIG_DIR_LOCATION_1);
-        assertEquals(configDir.getPath(), WebappConfigLocator.resolveDefaultContextXml(new File(configDir.getPath()).getParentFile()));
+        assertEquals(configDir.getPath(), WebappConfigLocator.resolveDefaultContextXml(Paths.get(configDir.getPath()).getParent()));
 
-        assertEquals(null, WebappConfigLocator.resolveDefaultContextXml(new File(configDir.getPath()).getParentFile().getParentFile()));
+        assertEquals(null, WebappConfigLocator.resolveDefaultContextXml(Paths.get(configDir.getPath()).getParent().getParent()));
     }
 }

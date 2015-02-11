@@ -21,8 +21,8 @@
  -->
 <Server>
 
+  <Listener className="org.apache.catalina.startup.VersionLoggerListener" />
   <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
-  <Listener className="org.apache.catalina.core.JasperListener" />
   <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
   <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
 
@@ -35,8 +35,8 @@
     <Connector port="8009" protocol="AJP/1.3" redirectPort="8443" />
 
     <Engine name="Catalina" defaultHost="localhost">
-      <Host name="localhost" deployOnStartup="false" unpackWARs="true"
-            autoDeploy="false" appBase="">
+      <Host name="localhost" deployOnStartup="false" autoDeploy="false"
+            unpackWARs="false" createDirs="false" appBase="">
       </Host>
     </Engine>
   </Service>

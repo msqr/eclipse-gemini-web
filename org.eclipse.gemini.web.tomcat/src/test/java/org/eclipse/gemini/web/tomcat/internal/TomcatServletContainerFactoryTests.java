@@ -1,14 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution. 
+ * and Apache License v2.0 which accompanies this distribution.
  * The Eclipse Public License is available at
  *   http://www.eclipse.org/legal/epl-v10.html
- * and the Apache License v2.0 is available at 
+ * and the Apache License v2.0 is available at
  *   http://www.opensource.org/licenses/apache2.0.php.
- * You may elect to redistribute this code under either of these licenses.  
+ * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
  *   VMware Inc. - initial contribution
@@ -22,7 +22,8 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.eclipse.gemini.web.core.spi.ServletContainerException;
 import org.junit.Before;
@@ -38,7 +39,7 @@ public class TomcatServletContainerFactoryTests {
         this.bundleContext = createMock(BundleContext.class);
         expect(this.bundleContext.getProperty(TomcatConfigLocator.CONFIG_PATH_FRAMEWORK_PROPERTY)).andReturn(null);
         expect(this.bundleContext.getProperty(OsgiAwareEmbeddedTomcat.USE_NAMING)).andReturn(null);
-        expect(this.bundleContext.getProperty(BundleDependenciesJarScanner.SCANNER_SKIP_BUNDLES_PROPERTY_NAME)).andReturn(null);
+        expect(this.bundleContext.getProperty(BundleDependenciesJarScanFilter.SCANNER_SKIP_BUNDLES_PROPERTY_NAME)).andReturn(null);
         expect(this.bundleContext.createFilter("(objectClass=org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer)")).andReturn(null);
         expect(this.bundleContext.createFilter("(objectClass=org.eclipse.gemini.web.tomcat.spi.JarScannerCustomizer)")).andReturn(null);
         expect(this.bundleContext.getBundle()).andReturn(null);
@@ -48,7 +49,7 @@ public class TomcatServletContainerFactoryTests {
     public void testCreateContainerWithConfigFile() throws Exception {
         TomcatServletContainerFactory factory = new TomcatServletContainerFactory();
         replay(this.bundleContext);
-        TomcatServletContainer container = factory.createContainer(new FileInputStream("src/test/resources/server.xml"), this.bundleContext);
+        TomcatServletContainer container = factory.createContainer(Files.newInputStream(Paths.get("src/test/resources/server.xml")), this.bundleContext);
         assertNotNull(container);
         verify(this.bundleContext);
     }
@@ -57,7 +58,7 @@ public class TomcatServletContainerFactoryTests {
     public void testCreateContainerWithInvalidConfigFile() throws Exception {
         TomcatServletContainerFactory factory = new TomcatServletContainerFactory();
         replay(this.bundleContext);
-        TomcatServletContainer container = factory.createContainer(new FileInputStream("src/test/resources/invalid-server.xml"), this.bundleContext);
+        TomcatServletContainer container = factory.createContainer(Files.newInputStream(Paths.get("src/test/resources/invalid-server.xml")), this.bundleContext);
         assertNotNull(container);
         verify(this.bundleContext);
     }

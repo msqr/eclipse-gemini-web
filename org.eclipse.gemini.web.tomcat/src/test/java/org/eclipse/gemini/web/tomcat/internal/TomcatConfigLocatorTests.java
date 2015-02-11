@@ -80,7 +80,7 @@ public class TomcatConfigLocatorTests {
 
         String result = "src" + File.separator + "test" + File.separator + "resources";
 
-        assertTrue(TomcatConfigLocator.resolveConfigDir(mockContext).getAbsolutePath().endsWith(result));
+        assertTrue(TomcatConfigLocator.resolveConfigDir(mockContext).toAbsolutePath().endsWith(result));
         assertEquals(null, TomcatConfigLocator.resolveConfigDir(mockContext));
         assertEquals(null, TomcatConfigLocator.resolveConfigDir(mockContext));
 

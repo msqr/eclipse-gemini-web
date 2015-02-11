@@ -1,14 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 SAP AG
+ * Copyright (c) 2012, 2015 SAP SE
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution. 
+ * and Apache License v2.0 which accompanies this distribution.
  * The Eclipse Public License is available at
  *   http://www.eclipse.org/legal/epl-v10.html
- * and the Apache License v2.0 is available at 
+ * and the Apache License v2.0 is available at
  *   http://www.opensource.org/licenses/apache2.0.php.
- * You may elect to redistribute this code under either of these licenses.  
+ * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
  *   Violeta Georgieva - initial contribution
@@ -36,7 +36,7 @@ import org.apache.catalina.core.StandardContext;
 import org.eclipse.gemini.web.core.spi.ContextPathExistsException;
 import org.eclipse.gemini.web.core.spi.ServletContainerException;
 import org.eclipse.gemini.web.core.spi.WebApplicationHandle;
-import org.eclipse.gemini.web.tomcat.internal.loading.BundleWebappLoader;
+import org.eclipse.gemini.web.tomcat.internal.loader.BundleWebappLoader;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,7 +87,7 @@ public class TomcatServletContainerTests {
         expect(this.bundleContext.createFilter(FILTER_1)).andReturn(this.filter);
         expect(this.bundleContext.createFilter(FILTER_2)).andReturn(this.filter);
         expect(this.bundleContext.getProperty(OsgiAwareEmbeddedTomcat.USE_NAMING)).andReturn(OsgiAwareEmbeddedTomcat.NAMING_DISABLED);
-        expect(this.bundleContext.getProperty(BundleDependenciesJarScanner.SCANNER_SKIP_BUNDLES_PROPERTY_NAME)).andReturn(null);
+        expect(this.bundleContext.getProperty(BundleDependenciesJarScanFilter.SCANNER_SKIP_BUNDLES_PROPERTY_NAME)).andReturn(null);
 
         expect(this.server.findServices()).andReturn(new Service[] { this.service }).anyTimes();
         this.server.init();
@@ -216,7 +216,7 @@ public class TomcatServletContainerTests {
         }
 
         @Override
-        public void setState(LifecycleState lifecycleState) {
+        public synchronized void setState(LifecycleState lifecycleState) {
             this.lifecycleState = lifecycleState;
         }
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 SAP AG
+ * Copyright (c) 2014, 2015 SAP SE
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,7 +16,6 @@
 
 package org.eclipse.gemini.web.tomcat.internal;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,28 +27,18 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Extends the Tomcat {@link StandardContext} to add custom functionality.
- * 
- * 
+ *
+ *
  */
-public class ExtendedStandardContext extends StandardContext {
+class ExtendedStandardContext extends StandardContext {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ExtendedStandardContext.class);
 
     private final Bundle bundle;
 
-    public ExtendedStandardContext(Bundle bundle) {
+    ExtendedStandardContext(Bundle bundle) {
         super();
         this.bundle = bundle;
-    }
-
-    /**
-     * Returns <code>true</code> for exploded bundles.
-     */
-    @Override
-    public boolean isFilesystemBased() {
-        String docBase = getDocBase();
-        File f = new File(docBase);
-        return f.isDirectory();
     }
 
     @Override

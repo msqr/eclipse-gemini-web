@@ -3,12 +3,12 @@
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution. 
+ * and Apache License v2.0 which accompanies this distribution.
  * The Eclipse Public License is available at
  *   http://www.eclipse.org/legal/epl-v10.html
- * and the Apache License v2.0 is available at 
+ * and the Apache License v2.0 is available at
  *   http://www.opensource.org/licenses/apache2.0.php.
- * You may elect to redistribute this code under either of these licenses.  
+ * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
  *   VMware Inc. - initial contribution
@@ -47,12 +47,13 @@ import org.apache.catalina.Valve;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Catalina;
 import org.apache.catalina.startup.ContextConfig;
+import org.apache.catalina.startup.Tomcat;
 import org.apache.naming.java.javaURLContextFactory;
 import org.apache.tomcat.JarScanner;
 import org.apache.tomcat.util.digester.Digester;
 import org.apache.tomcat.util.scan.StandardJarScanner;
 import org.eclipse.gemini.web.core.spi.ServletContainerException;
-import org.eclipse.gemini.web.tomcat.internal.loading.ChainedClassLoader;
+import org.eclipse.gemini.web.tomcat.internal.loader.ChainedClassLoader;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolverFactory;
 import org.eclipse.gemini.web.tomcat.internal.support.PackageAdminBundleDependencyDeterminer;
 import org.eclipse.virgo.util.osgi.ServiceRegistrationTracker;
@@ -63,7 +64,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.Tomcat {
+public final class OsgiAwareEmbeddedTomcat extends Tomcat {
 
     private static final String USER_DIR = "user.dir";
 
@@ -91,7 +92,7 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
 
     private final BundleContext bundleContext;
 
-    private File configDir;
+    private Path configDir;
 
     private String defaultContextXml;
 
@@ -104,7 +105,7 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
     /**
      * Custom mappings of login methods to authenticators
      */
-    protected volatile HashMap<String, Authenticator> authenticators;
+    private volatile HashMap<String, Authenticator> authenticators;
 
     private final Object monitor = new Object();
 
@@ -116,6 +117,8 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
 
     private final JarScanner defaultJarScanner;
 
+    private String hostConfigDir;
+
     OsgiAwareEmbeddedTomcat(BundleContext context) {
         this.bundleContext = context;
         this.bundleDependenciesJarScanner = new BundleDependenciesJarScanner(new PackageAdminBundleDependencyDeterminer(),
@@ -126,7 +129,7 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
 
     /**
      * Start the server.
-     * 
+     *
      * @throws LifecycleException
      */
     @Override
@@ -244,20 +247,19 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
         return addWebapp(path, docBase, null);
     }
 
-    public Context addWebapp(String path, String docBase, Bundle bundle) {
+    Context addWebapp(String path, String docBase, Bundle bundle) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Creating context '" + path + "' with docBase '" + docBase + "'");
+            LOGGER.debug("Creating context [" + path + "] with docBase [" + docBase + "].");
         }
 
         StandardContext context = new ExtendedStandardContext(bundle);
 
-        ExtendedContextConfig config = new ExtendedContextConfig();
+        ContextConfig config = new ExtendedContextConfig();
 
         if (this.configDir == null) {
             // Allocate the tomcat's configuration directory
             this.configDir = TomcatConfigLocator.resolveConfigDir(this.bundleContext);
         }
-        config.setConfigBase(this.configDir);
 
         if (this.defaultWeb == null) {
             // Allocate the default web.xml
@@ -269,21 +271,30 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
         if (this.defaultContextXml == null) {
             this.defaultContextXml = WebappConfigLocator.resolveDefaultContextXml(this.configDir);
         }
-        config.setDefaultContextXml(this.defaultContextXml);
+        context.setDefaultContextXml(this.defaultContextXml);
+
+        Host host = getHost();
+        if (this.hostConfigDir == null) {
+            this.hostConfigDir = TomcatConfigLocator.resolveHostConfigDir(this.configDir, host);
+        }
+        if (this.hostConfigDir != null) {
+            host.setXmlBase(this.hostConfigDir);
+            host.getConfigBaseFile();
+        }
 
         // Allocate the web application's configuration directory
-        Host host = getHost();
-        File configLocation = WebappConfigLocator.resolveWebappConfigDir(this.configDir, host);
+        Path configLocation = WebappConfigLocator.resolveWebappConfigDir(this.configDir, host);
 
         // If web application's context.xml is existing, set it to the StandardContext
         try {
             context.setConfigFile(WebappConfigLocator.resolveWebappContextXml(path, docBase, configLocation, bundle));
         } catch (MalformedURLException e) {
-            throw new ServletContainerException("Cannot resolve web application's context.xml " + docBase, e);
+            throw new ServletContainerException("Cannot resolve web application's context.xml [" + docBase + "].", e);
         }
 
         context.setDocBase(docBase);
         context.setPath(path.equals(ROOT_PATH) ? ROOT_CONTEXT_PATH : path);
+        context.setName(context.getPath());
 
         context.setJarScanner(getJarScanner(bundle));
 
@@ -295,9 +306,7 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
         return context;
     }
 
-    public void configure(InputStream configuration) {
-        initBaseDir();
-
+    void configure(InputStream configuration) {
         Digester digester = this.catalina.createStartDigester();
         digester.push(this);
 
@@ -314,6 +323,8 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
             throw new ServletContainerException("Error parsing Tomcat XML configuration.", e);
         }
 
+        initBaseDir();
+
         // Allocate the tomcat's configuration directory
         this.configDir = TomcatConfigLocator.resolveConfigDir(this.bundleContext);
 
@@ -322,50 +333,73 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
 
         // Allocate the default web.xml
         this.defaultWeb = WebappConfigLocator.resolveDefaultWebXml(this.configDir);
+
+        Host host = getHost();
+        this.hostConfigDir = TomcatConfigLocator.resolveHostConfigDir(this.configDir, host);
+        if (this.hostConfigDir != null) {
+            host.setXmlBase(this.hostConfigDir);
+            host.getConfigBaseFile();
+        }
     }
 
     @Override
     protected void initBaseDir() {
+        String catalinaHome = System.getProperty(Globals.CATALINA_HOME_PROP);
         if (this.basedir == null) {
             this.basedir = System.getProperty(Globals.CATALINA_BASE_PROP);
         }
         if (this.basedir == null) {
-            this.basedir = System.getProperty(Globals.CATALINA_HOME_PROP);
+            this.basedir = catalinaHome;
         }
         if (this.basedir == null) {
             // Create a temp dir.
-            this.basedir = System.getProperty(USER_DIR);
-            Path home = Paths.get(this.basedir);
+            this.basedir = System.getProperty(USER_DIR) + "/tomcat." + this.port;
+        }
+        Path baseFile = Paths.get(this.basedir);
+        try {
+            Files.createDirectories(baseFile);
+        } catch (IOException e1) {
+            throw new IllegalStateException("Cannot create directories for [" + baseFile + "].", e1);
+        }
+        try {
+            this.basedir = baseFile.toRealPath().toString();
+        } catch (IOException e) {
+            this.basedir = baseFile.toAbsolutePath().toString();
+        }
+
+        this.server.setCatalinaBase(new File(this.basedir));
+        this.oldCatalinaBaseDir = System.setProperty(Globals.CATALINA_BASE_PROP, this.basedir);
+
+        if (catalinaHome == null) {
+            this.server.setCatalinaHome(new File(this.basedir));
+        } else {
+            Path homeFile = Paths.get(catalinaHome);
             try {
-                Files.createDirectories(home);
+                Files.createDirectories(homeFile);
             } catch (IOException e1) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Cannot create directory " + home);
-                }
+                throw new IllegalStateException("Cannot create directories for [" + homeFile + "].", e1);
             }
-            if (!home.isAbsolute()) {
-                try {
-                    this.basedir = home.toRealPath().toString();
-                } catch (IOException e) {
-                    this.basedir = home.toAbsolutePath().toString();
-                }
+            try {
+                this.server.setCatalinaHome(homeFile.toRealPath().toFile());
+            } catch (IOException e) {
+                this.server.setCatalinaHome(homeFile.toAbsolutePath().toFile());
             }
         }
+
         this.oldCatalinaHomeDir = System.setProperty(Globals.CATALINA_HOME_PROP, this.basedir);
-        this.oldCatalinaBaseDir = System.setProperty(Globals.CATALINA_BASE_PROP, this.basedir);
     }
 
     /**
      * Maps the specified login method to the specified authenticator, allowing the mappings in
      * org/apache/catalina/startup/Authenticators.properties to be overridden.
-     * 
+     *
      * @param authenticator Authenticator to handle authentication for the specified login method
      * @param loginMethod Login method that maps to the specified authenticator
-     * 
+     *
      * @throws IllegalArgumentException if the specified authenticator does not implement the org.apache.catalina.Valve
      *         interface
      */
-    public void addAuthenticator(Authenticator authenticator, String loginMethod) {
+    void addAuthenticator(Authenticator authenticator, String loginMethod) {
         if (!(authenticator instanceof Valve)) {
             throw new IllegalArgumentException("Specified Authenticator is not a Valve");
         }
@@ -381,8 +415,8 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
 
     /**
      * Overrides {@link Catalina} to provide public access to {@link Catalina#createStartDigester}.
-     * 
-     * 
+     *
+     *
      */
     private static class ExtendCatalina extends Catalina {
 
@@ -396,34 +430,10 @@ public final class OsgiAwareEmbeddedTomcat extends org.apache.catalina.startup.T
     /**
      * Override {@link ContextConfig}. This changes the {@link ClassLoader} used to load the web-embed.xml to the
      * <code>ClassLoader</code> of this bundle.
-     * 
-     * 
+     *
+     *
      */
     private static class ExtendedContextConfig extends ContextConfig {
-
-        private File configDir;
-
-        /**
-         * If there is not configuration directory, return custom configuration directory. It is used to resolve the
-         * context.xml.default
-         */
-        @Override
-        protected File getConfigBase() {
-            File configBase = super.getConfigBase();
-            if (configBase != null) {
-                return configBase;
-            }
-
-            if (this.configDir != null) {
-                return this.configDir;
-            }
-
-            return null;
-        }
-
-        protected void setConfigBase(File configDir) {
-            this.configDir = configDir;
-        }
     }
 
     /**

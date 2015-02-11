@@ -1,14 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 SAP AG
+ * Copyright (c) 2010, 2015 SAP SE
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution. 
+ * and Apache License v2.0 which accompanies this distribution.
  * The Eclipse Public License is available at
  *   http://www.eclipse.org/legal/epl-v10.html
- * and the Apache License v2.0 is available at 
+ * and the Apache License v2.0 is available at
  *   http://www.opensource.org/licenses/apache2.0.php.
- * You may elect to redistribute this code under either of these licenses.  
+ * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
  *   Violeta Georgieva - initial contribution
@@ -16,12 +16,14 @@
 
 package org.eclipse.gemini.web.tomcat.internal;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -31,7 +33,7 @@ import org.apache.catalina.Host;
 import org.eclipse.gemini.web.core.spi.ServletContainerException;
 import org.osgi.framework.Bundle;
 
-public class WebappConfigLocator {
+final class WebappConfigLocator {
 
     static final String DEFAULT_CONFIG_DIRECTORY = "config";
 
@@ -61,19 +63,19 @@ public class WebappConfigLocator {
      * Resolves the default context.xml and returns a relative path to it, if it exists in the main Tomcat's
      * configuration directory, otherwise returns <code>null</code>. The method returns <code>null</code> also in case
      * main Tomcat's configuration directory does not exists.
-     * 
+     *
      * @param configLocation the main Tomcat's configuration directory
      * @return a relative path to default context.xml file, if it exists in the main Tomcat's configuration directory,
      *         otherwise returns <code>null</code>.
      */
-    public static String resolveDefaultContextXml(File configLocation) {
+    static String resolveDefaultContextXml(Path configLocation) {
         if (configLocation == null) {
             return null;
         }
 
-        File defaultContextXml = new File(configLocation, DEFAULT_CONTEXT_XML);
-        if (defaultContextXml.exists()) {
-            return defaultContextXml.getAbsolutePath();
+        Path defaultContextXml = configLocation.resolve(DEFAULT_CONTEXT_XML);
+        if (Files.exists(defaultContextXml)) {
+            return defaultContextXml.toAbsolutePath().toString();
         }
         return null;
     }
@@ -83,19 +85,19 @@ public class WebappConfigLocator {
      * directory, otherwise returns <code>null</code>. The method returns <code>null</code> also in case main Tomcat's
      * configuration directory does not exists. Note: If a default web.xml is not found then web-embed.xml will be used
      * as default web.xml. (web-embed.xml is provided by this bundle)
-     * 
+     *
      * @param configLocation the main Tomcat's configuration directory
      * @return an absolute path to default web.xml file, if it exists in the main Tomcat's configuration directory,
      *         otherwise returns <code>null</code>.
      */
-    public static String resolveDefaultWebXml(File configLocation) {
+    static String resolveDefaultWebXml(Path configLocation) {
         if (configLocation == null) {
             return null;
         }
 
-        File defaultWebXml = new File(configLocation, DEFAULT_WEB_XML);
-        if (defaultWebXml.exists()) {
-            return defaultWebXml.getAbsolutePath();
+        Path defaultWebXml = configLocation.resolve(DEFAULT_WEB_XML);
+        if (Files.exists(defaultWebXml)) {
+            return defaultWebXml.toAbsolutePath().toString();
         }
 
         return null;
@@ -113,7 +115,7 @@ public class WebappConfigLocator {
      * the one in the archive.</li>
      * <li>Return <code>null</code> in other cases.</li>
      * </ol>
-     * 
+     *
      * @param path the context path
      * @param docBase the root directory/file for the web application
      * @param configLocation Host's configuration directory
@@ -121,13 +123,13 @@ public class WebappConfigLocator {
      * @return the context.xml if it is found following the algorithm above, otherwise <code>null</code>
      * @throws MalformedURLException
      */
-    public static URL resolveWebappContextXml(String path, String docBase, File configLocation, Bundle bundle) throws MalformedURLException {
+    static URL resolveWebappContextXml(String path, String docBase, Path configLocation, Bundle bundle) throws MalformedURLException {
         path = formatContextPath(path);
 
         // Try to find the context.xml in the Tomcat's configuration directory
-        File contextXml = new File(configLocation, path + XML_EXTENSION);
-        if (contextXml.exists()) {
-            return contextXml.toURI().toURL();
+        Path contextXml = configLocation.resolve(path + XML_EXTENSION);
+        if (Files.exists(contextXml)) {
+            return contextXml.toUri().toURL();
         }
 
         // Try to find the context.xml in docBase
@@ -138,20 +140,20 @@ public class WebappConfigLocator {
             return null;
         }
 
-        File docBaseFile = new File(docBase);
-        if (docBaseFile.isDirectory()) {
-            contextXml = new File(docBaseFile, CONTEXT_XML);
-            if (contextXml.exists()) {
-                return contextXml.toURI().toURL();
+        Path docBaseFile = Paths.get(docBase);
+        if (Files.isDirectory(docBaseFile)) {
+            contextXml = docBaseFile.resolve(CONTEXT_XML);
+            if (Files.exists(contextXml)) {
+                return contextXml.toUri().toURL();
             }
         } else {
-            try (JarFile jar = new JarFile(docBaseFile);) {
+            try (JarFile jar = new JarFile(docBaseFile.toFile());) {
                 ZipEntry contextXmlEntry = jar.getEntry(CONTEXT_XML);
                 if (contextXmlEntry != null) {
-                    return new URL(JAR_SCHEMA + docBaseFile.toURI().toString() + JAR_TO_ENTRY_SEPARATOR + CONTEXT_XML);
+                    return new URL(JAR_SCHEMA + docBaseFile.toUri().toString() + JAR_TO_ENTRY_SEPARATOR + CONTEXT_XML);
                 }
             } catch (IOException e) {
-                throw new ServletContainerException("Cannot open for reading " + docBaseFile.getAbsolutePath(), e);
+                throw new ServletContainerException("Cannot open for reading [" + docBaseFile.toAbsolutePath().toString() + "].", e);
             }
         }
         return null;
@@ -160,22 +162,22 @@ public class WebappConfigLocator {
     /**
      * Resolves the directory where the web application' context.xml files are placed. Typically this is the Host's
      * configuration directory.
-     * 
+     *
      * @param mainConfigDir the main Tomcat's configuration directory
      * @param host host
      * @return the directory where the web applications' context.xml files are placed.
      */
-    public static File resolveWebappConfigDir(File mainConfigDir, Host host) {
-        mainConfigDir = mainConfigDir != null ? mainConfigDir : new File(DEFAULT_CONFIG_DIRECTORY);
+    static Path resolveWebappConfigDir(Path mainConfigDir, Host host) {
+        mainConfigDir = mainConfigDir != null ? mainConfigDir : Paths.get(DEFAULT_CONFIG_DIRECTORY);
 
-        File configLocation = mainConfigDir;
+        Path configLocation = mainConfigDir;
 
         Container parent = host.getParent();
         if (parent != null && parent instanceof Engine) {
-            configLocation = new File(configLocation, parent.getName());
+            configLocation = configLocation.resolve(parent.getName());
         }
 
-        return new File(configLocation, host.getName());
+        return configLocation.resolve(host.getName());
     }
 
     private static String formatContextPath(String contextPath) {

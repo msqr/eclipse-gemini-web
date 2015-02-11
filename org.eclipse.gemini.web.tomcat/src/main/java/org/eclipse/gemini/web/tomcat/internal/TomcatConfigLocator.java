@@ -1,14 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution. 
+ * and Apache License v2.0 which accompanies this distribution.
  * The Eclipse Public License is available at
  *   http://www.eclipse.org/legal/epl-v10.html
- * and the Apache License v2.0 is available at 
+ * and the Apache License v2.0 is available at
  *   http://www.opensource.org/licenses/apache2.0.php.
- * You may elect to redistribute this code under either of these licenses.  
+ * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
  *   VMware Inc. - initial contribution
@@ -17,13 +17,17 @@
 package org.eclipse.gemini.web.tomcat.internal;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Enumeration;
 
+import org.apache.catalina.Container;
+import org.apache.catalina.Engine;
+import org.apache.catalina.Host;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -40,8 +44,8 @@ import org.slf4j.LoggerFactory;
  * <li>Check this bundle for <code>/META-INF/tomcat/default-server.xml, use if found</code></li>
  * <li>Throw {@link IllegalStateException} if no configuration is found</li>
  * </ol>
- * 
- * 
+ *
+ *
  */
 final class TomcatConfigLocator {
 
@@ -57,7 +61,7 @@ final class TomcatConfigLocator {
 
     static final String USER_CONFIG_PATH = "server.xml";
 
-    public static InputStream resolveConfigFile(BundleContext context) throws BundleException {
+    static InputStream resolveConfigFile(BundleContext context) throws BundleException {
         Bundle bundle = context.getBundle();
 
         InputStream is = lookupConfigInFileSystem(context);
@@ -70,50 +74,71 @@ final class TomcatConfigLocator {
 
     /**
      * Returns the directory where the Tomcat configuration files resides.
-     * 
+     *
      * The location algorithm is as follows:
      * <ol>
      * <li>Check for <code>org.eclipse.gemini.web.tomcat.config.path</code> framework property, use if found</li>
      * <li>Check for <code>config/tomcat-server.xml</code> in the current working directory, use if found</li>
      * <li>If the previous checks do not return a result, return <code>null</code></li>
      * </ol>
-     * 
+     *
      * @param context the bundle context
      * @return the directory where the Tomcat configuration files resides.
      */
-    public static File resolveConfigDir(BundleContext context) {
-        File configFile = null;
+    static Path resolveConfigDir(BundleContext context) {
+        Path configFile = null;
 
         /*
          * Search for the framework property 'org.eclipse.gemini.web.tomcat.config.path'
-         * 
+         *
          * Note: this is supposed to search framework and system properties but appears to ignore system properties
          * which are set after the framework has initialised. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=319679.
          */
         String path = context.getProperty(TomcatConfigLocator.CONFIG_PATH_FRAMEWORK_PROPERTY);
         if (path != null) {
-            configFile = new File(path);
-            if (configFile.exists()) {
-                return configFile.getParentFile();
+            configFile = Paths.get(path);
+            if (Files.exists(configFile)) {
+                return configFile.getParent();
             }
         }
 
         // Search for the system property 'org.eclipse.gemini.web.tomcat.config.path'
         path = System.getProperty(TomcatConfigLocator.CONFIG_PATH_FRAMEWORK_PROPERTY);
         if (path != null) {
-            configFile = new File(path);
-            if (configFile.exists()) {
-                return configFile.getParentFile();
+            configFile = Paths.get(path);
+            if (Files.exists(configFile)) {
+                return configFile.getParent();
             }
         }
 
         // Search for the 'config' directory
-        configFile = new File(TomcatConfigLocator.DEFAULT_CONFIG_FILE_PATH);
-        if (configFile.exists()) {
-            return configFile.getParentFile();
+        configFile = Paths.get(TomcatConfigLocator.DEFAULT_CONFIG_FILE_PATH);
+        if (Files.exists(configFile)) {
+            return configFile.getParent();
         }
 
         return null;
+    }
+
+    static String resolveHostConfigDir(Path configDir, Host host) {
+        if (configDir == null) {
+            return null;
+        }
+
+        StringBuilder xmlDir;
+        try {
+            xmlDir = new StringBuilder(configDir.toRealPath().toString());
+        } catch (IOException e) {
+            return null;
+        }
+        Container parent = host.getParent();
+        if (parent instanceof Engine) {
+            xmlDir.append('/');
+            xmlDir.append(parent.getName());
+        }
+        xmlDir.append('/');
+        xmlDir.append(host.getName());
+        return xmlDir.toString();
     }
 
     private static InputStream lookupConfigInFileSystem(BundleContext context) {
@@ -131,17 +156,16 @@ final class TomcatConfigLocator {
     }
 
     private static InputStream tryGetStreamForFilePath(String filePath) {
-        File configFile = new File(filePath);
-        if (configFile.exists()) {
-
+        Path configFile = Paths.get(filePath);
+        if (Files.exists(configFile)) {
             try {
-                FileInputStream fis = new FileInputStream(configFile);
+                InputStream fis = Files.newInputStream(configFile);
                 if (LOGGER.isInfoEnabled()) {
-                    LOGGER.info("Configuring Tomcat from file '" + configFile + "'");
+                    LOGGER.info("Configuring Tomcat from file [" + configFile + "].");
                 }
                 return fis;
-            } catch (FileNotFoundException e) {
-                LOGGER.warn("Found config file on disk but then received FileNotFoundException when trying to access", e);
+            } catch (IOException e) {
+                LOGGER.warn("Found config file on disk but then received IOException when trying to access.", e);
             }
         }
         return null;
@@ -149,25 +173,26 @@ final class TomcatConfigLocator {
 
     private static InputStream lookupConfigInBundle(Bundle bundle) throws BundleException {
         URL entry = null;
-        Enumeration<?> entries = bundle.findEntries(CONFIG_PATH, USER_CONFIG_PATH, false);
+        Enumeration<URL> entries = bundle.findEntries(CONFIG_PATH, USER_CONFIG_PATH, false);
         if (entries != null && entries.hasMoreElements()) {
-            entry = (URL) entries.nextElement();
+            entry = entries.nextElement();
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Configuring Tomcat from fragment entry '" + entry + "'");
+                LOGGER.info("Configuring Tomcat from fragment entry [" + entry + "].");
             }
         } else {
             entry = bundle.getEntry(DEFAULT_CONFIG_PATH);
             if (entry == null) {
-                throw new IllegalStateException("Unable to locate default Tomcat configuration. Is the '" + bundle + "' bundle corrupt?");
-            } else if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Configuring Tomcat from default config file");
+                throw new IllegalStateException("Unable to locate default Tomcat configuration. Is the [" + bundle + "] bundle corrupt?");
+            }
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Configuring Tomcat from default config file.");
             }
         }
 
         try {
             return entry.openStream();
         } catch (IOException e) {
-            throw new BundleException("Unable to open Tomcat configuration at '" + entry + "'");
+            throw new BundleException("Unable to open Tomcat configuration at [" + entry + "].");
         }
     }
 }
