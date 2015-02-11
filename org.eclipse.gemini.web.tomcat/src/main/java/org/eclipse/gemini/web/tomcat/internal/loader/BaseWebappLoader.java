@@ -1,44 +1,34 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution. 
+ * and Apache License v2.0 which accompanies this distribution.
  * The Eclipse Public License is available at
  *   http://www.eclipse.org/legal/epl-v10.html
- * and the Apache License v2.0 is available at 
+ * and the Apache License v2.0 is available at
  *   http://www.opensource.org/licenses/apache2.0.php.
- * You may elect to redistribute this code under either of these licenses.  
+ * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
  *   VMware Inc. - initial contribution
  *******************************************************************************/
 
-package org.eclipse.gemini.web.tomcat.internal.loading;
+package org.eclipse.gemini.web.tomcat.internal.loader;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-import org.apache.catalina.Container;
 import org.apache.catalina.Context;
 import org.apache.catalina.Loader;
-import org.apache.catalina.core.StandardContext;
-import org.apache.catalina.loader.Constants;
-import org.apache.catalina.mbeans.MBeanUtils;
 import org.apache.catalina.util.LifecycleMBeanBase;
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
-import org.apache.tomcat.util.res.StringManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 abstract class BaseWebappLoader extends LifecycleMBeanBase implements Loader, PropertyChangeListener {
 
-    /**
-     * The string manager for this package.
-     */
-    protected static final StringManager sm = StringManager.getManager(Constants.Package);
-
-    protected final Log log = LogFactory.getLog(getClass());
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * The property change support for this Loader.
@@ -51,9 +41,9 @@ abstract class BaseWebappLoader extends LifecycleMBeanBase implements Loader, Pr
     private boolean delegate = false;
 
     /**
-     * The Container with which this Loader has been associated.
+     * The Context with which this Loader has been associated.
      */
-    private Container container = null;
+    private Context context = null;
 
     /**
      * The reloadable flag for this Loader.
@@ -76,22 +66,18 @@ abstract class BaseWebappLoader extends LifecycleMBeanBase implements Loader, Pr
     protected String getObjectNameKeyProperties() {
         StringBuilder name = new StringBuilder("type=Loader");
 
-        if (this.container instanceof Context) {
-            name.append(",context=");
-            Context context = (Context) this.container;
+        name.append(",host=");
+        name.append(this.context.getParent().getName());
 
-            name.append(getCatalinaContextPath(context));
-
-            name.append(",host=");
-            name.append(context.getParent().getName());
-        }
+        name.append(",context=");
+        name.append(getCatalinaContextPath(this.context));
 
         return name.toString();
     }
 
     @Override
     protected String getDomainInternal() {
-        return MBeanUtils.getDomain(this.container);
+        return this.context.getDomain();
     }
 
     // -------------------------------------------------------------------------
@@ -107,12 +93,12 @@ abstract class BaseWebappLoader extends LifecycleMBeanBase implements Loader, Pr
         if (this.reloadable && modified()) {
             try {
                 Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-                if (getContainer() instanceof StandardContext) {
-                    ((StandardContext) getContainer()).reload();
+                if (this.context != null) {
+                    this.context.reload();
                 }
             } finally {
-                if (getContainer().getLoader() != null) {
-                    Thread.currentThread().setContextClassLoader(getContainer().getLoader().getClassLoader());
+                if (this.context != null && this.context.getLoader() != null) {
+                    Thread.currentThread().setContextClassLoader(this.context.getLoader().getClassLoader());
                 }
             }
         }
@@ -120,7 +106,7 @@ abstract class BaseWebappLoader extends LifecycleMBeanBase implements Loader, Pr
 
     /**
      * Add a property change listener to this component.
-     * 
+     *
      * @param listener The listener to add
      */
     @Override
@@ -129,33 +115,40 @@ abstract class BaseWebappLoader extends LifecycleMBeanBase implements Loader, Pr
     }
 
     /**
-     * Set the Container with which this Logger has been associated.
-     * 
-     * @param container The associated Container
+     * Set the Context with which this Logger has been associated.
+     *
+     * @param context The associated Context
      */
     @Override
-    public void setContainer(Container container) {
+    public void setContext(Context context) {
+        if (this.context == context) {
+            return;
+        }
 
-        // unregister from the old Container (if any)
-        if (this.container != null && this.container instanceof Context) {
-            ((Context) this.container).removePropertyChangeListener(this);
+        if (getState().isAvailable()) {
+            throw new IllegalStateException("Setting the Context is not permitted while the loader is started.");
+        }
+
+        // Deregister from the old Context (if any)
+        if (this.context != null) {
+            this.context.removePropertyChangeListener(this);
         }
 
         // Process this property change
-        Container oldContainer = this.container;
-        this.container = container;
-        this.support.firePropertyChange("container", oldContainer, this.container);
+        Context oldContext = this.context;
+        this.context = context;
+        this.support.firePropertyChange("context", oldContext, this.context);
 
         // Register with the new Container (if any)
-        if (this.container != null && this.container instanceof Context) {
-            setReloadable(((Context) this.container).getReloadable());
-            ((Context) this.container).addPropertyChangeListener(this);
+        if (this.context != null) {
+            setReloadable(this.context.getReloadable());
+            this.context.addPropertyChangeListener(this);
         }
     }
 
     @Override
-    public final Container getContainer() {
-        return this.container;
+    public final Context getContext() {
+        return this.context;
     }
 
     /**
@@ -176,7 +169,7 @@ abstract class BaseWebappLoader extends LifecycleMBeanBase implements Loader, Pr
 
     /**
      * Set the reloadable flag for this Loader.
-     * 
+     *
      * @param reloadable The new reloadable flag
      */
     @Override
@@ -197,7 +190,7 @@ abstract class BaseWebappLoader extends LifecycleMBeanBase implements Loader, Pr
 
     /**
      * Set the "follow standard delegation model" flag used to configure our ClassLoader.
-     * 
+     *
      * @param delegate The new flag
      */
     @Override
@@ -227,7 +220,7 @@ abstract class BaseWebappLoader extends LifecycleMBeanBase implements Loader, Pr
             try {
                 setReloadable(((Boolean) event.getNewValue()).booleanValue());
             } catch (Exception e) {
-                this.log.error(sm.getString("webappLoader.reloadable", event.getNewValue().toString()));
+                this.log.error("Cannot set reloadable property to [" + event.getNewValue().toString() + "].");
             }
         }
     }

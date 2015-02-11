@@ -1,19 +1,19 @@
 /******************************************************************************
- * Copyright (c) 2006, 2011 VMware Inc., Oracle Inc.
+ * Copyright (c) 2006, 2015 VMware Inc., Oracle Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution. 
- * The Eclipse Public License is available at 
+ * and Apache License v2.0 which accompanies this distribution.
+ * The Eclipse Public License is available at
  * http://www.eclipse.org/legal/epl-v10.html and the Apache License v2.0
  * is available at http://www.opensource.org/licenses/apache2.0.php.
- * You may elect to redistribute this code under either of these licenses. 
- * 
+ * You may elect to redistribute this code under either of these licenses.
+ *
  * Contributors:
  *   VMware Inc.
  *   Oracle Inc.
  *****************************************************************************/
 
-package org.eclipse.gemini.web.tomcat.internal.loading;
+package org.eclipse.gemini.web.tomcat.internal.loader;
 
 import java.io.IOException;
 import java.net.URL;
@@ -26,9 +26,9 @@ import org.osgi.framework.Bundle;
 
 /**
  * ClassLoader backed by an OSGi bundle. Provides the ability to use a separate class loader as fall back.
- * 
+ *
  * This class is based on the one provided by Eclipse Gemini Blueprint.
- * 
+ *
  * @author Adrian Colyer
  * @author Andy Piper
  * @author Costin Leau
@@ -42,7 +42,7 @@ public class BundleDelegatingClassLoader extends ClassLoader {
 
     /**
      * Factory method for creating a class loader over the given bundle.
-     * 
+     *
      * @param aBundle bundle to use for class loading and resource acquisition
      * @return class loader adapter over the given bundle
      */
@@ -53,7 +53,7 @@ public class BundleDelegatingClassLoader extends ClassLoader {
     /**
      * Factory method for creating a class loader over the given bundle and with a given class loader as fall-back. In
      * case the bundle cannot find a class or locate a resource, the given class loader will be used as fall back.
-     * 
+     *
      * @param bundle bundle used for class loading and resource acquisition
      * @param bridge class loader used as fall back in case the bundle cannot load a class or find a resource. Can be
      *        <code>null</code>
@@ -71,9 +71,9 @@ public class BundleDelegatingClassLoader extends ClassLoader {
 
     /**
      * Private constructor.
-     * 
+     *
      * Constructs a new <code>BundleDelegatingClassLoader</code> instance.
-     * 
+     *
      * @param bundle
      * @param bridgeLoader
      */
@@ -150,7 +150,7 @@ public class BundleDelegatingClassLoader extends ClassLoader {
 
     /**
      * Returns the bundle to which this class loader delegates calls to.
-     * 
+     *
      * @return the backing bundle
      */
     public Bundle getBundle() {

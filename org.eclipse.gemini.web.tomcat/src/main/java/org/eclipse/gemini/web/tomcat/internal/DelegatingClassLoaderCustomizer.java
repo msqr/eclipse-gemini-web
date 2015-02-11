@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.eclipse.gemini.web.tomcat.internal.loading.ChainedClassLoader;
+import org.eclipse.gemini.web.tomcat.internal.loader.ChainedClassLoader;
 import org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;

@@ -1,22 +1,20 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution. 
+ * and Apache License v2.0 which accompanies this distribution.
  * The Eclipse Public License is available at
  *   http://www.eclipse.org/legal/epl-v10.html
- * and the Apache License v2.0 is available at 
+ * and the Apache License v2.0 is available at
  *   http://www.opensource.org/licenses/apache2.0.php.
- * You may elect to redistribute this code under either of these licenses.  
+ * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
  *   VMware Inc. - initial contribution
  *******************************************************************************/
 
-package org.eclipse.gemini.web.tomcat.internal.loading;
-
-import java.beans.PropertyChangeListener;
+package org.eclipse.gemini.web.tomcat.internal.loader;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -24,22 +22,18 @@ import javax.servlet.ServletContext;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.Globals;
-import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleState;
-import org.apache.catalina.Loader;
-import org.apache.catalina.core.StandardContext;
-import org.apache.catalina.mbeans.MBeanUtils;
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
-import org.apache.naming.resources.DirContextURLStreamHandler;
+import org.apache.tomcat.util.ExceptionUtils;
 import org.apache.tomcat.util.modeler.Registry;
 import org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class BundleWebappLoader extends BaseWebappLoader implements Loader, PropertyChangeListener {
+public class BundleWebappLoader extends BaseWebappLoader {
 
-    private static Log log = LogFactory.getLog(BundleWebappLoader.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * The OSGi {@link Bundle bundle} which will back the {@link ClassLoader} we will create.
@@ -59,12 +53,7 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
     /**
      * The class loader being managed by this Loader.
      */
-    private ClassLoader classLoader = null;
-
-    /**
-     * The descriptive information about this Loader implementation.
-     */
-    private static final String INFO = BaseWebappLoader.class.getName() + "/1.0";
+    private BundleWebappClassLoader classLoader = null;
 
     // -------------------------------------------------------------------------
     // --- Constructors
@@ -84,7 +73,7 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
      * @return
      * @see #getClassLoaderName()
      */
-    private ClassLoader createClassLoader() {
+    private BundleWebappClassLoader createClassLoader() {
         return new BundleWebappClassLoader(this.bundle, this.classLoaderCustomizer);
     }
 
@@ -93,36 +82,11 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
     // -------------------------------------------------------------------------
 
     /**
-     * @throws UnsupportedOperationException always
-     */
-    @Override
-    public void addRepository(String repository) {
-        throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support addRepository(String)");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String[] findRepositories() {
-        return new String[0];
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
     public ClassLoader getClassLoader() {
         return this.classLoader;
-    }
-
-    /**
-     * Return descriptive information about this Loader implementation and the corresponding version number, in the
-     * format <code>&lt;description&gt;/&lt;version&gt;</code>.
-     */
-    @Override
-    public String getInfo() {
-        return INFO;
     }
 
     /**
@@ -153,12 +117,12 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
      */
     @Override
     public void startInternal() throws LifecycleException {
-        if (log.isDebugEnabled()) {
-            log.debug(sm.getString("webappLoader.starting"));
+        if (this.log.isDebugEnabled()) {
+            this.log.debug("Starting this loader.");
         }
 
-        if (getContainer().getResources() == null) {
-            log.info("No resources for " + getContainer());
+        if (getContext().getResources() == null) {
+            this.log.info("No resources for [" + getContext() + "].");
             setState(LifecycleState.STARTING);
             return;
         }
@@ -167,16 +131,14 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
         try {
 
             this.classLoader = createClassLoader();
-            if (this.classLoader instanceof Lifecycle) {
-                ((Lifecycle) this.classLoader).start();
-            }
-
-            DirContextURLStreamHandler.bind(this.classLoader, getContainer().getResources());
+            this.classLoader.start();
 
             registerClassLoaderMBean();
 
         } catch (Throwable t) {
-            log.error("LifecycleException ", t);
+            t = ExceptionUtils.unwrapInvocationTargetException(t);
+            ExceptionUtils.handleThrowable(t);
+            this.log.error("LifecycleException ", t);
             throw new LifecycleException("start: ", t);
         }
 
@@ -188,24 +150,22 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
      */
     @Override
     public void stopInternal() throws LifecycleException {
-        if (log.isDebugEnabled()) {
-            log.debug(sm.getString("webappLoader.stopping"));
+        if (this.log.isDebugEnabled()) {
+            this.log.debug("Stopping this loader.");
         }
 
         setState(LifecycleState.STOPPING);
 
         // Remove context attributes as appropriate
-        if (getContainer() instanceof Context) {
-            ServletContext servletContext = ((Context) getContainer()).getServletContext();
-            servletContext.removeAttribute(Globals.CLASS_PATH_ATTR);
-        }
+        ServletContext servletContext = getContext().getServletContext();
+        servletContext.removeAttribute(Globals.CLASS_PATH_ATTR);
 
         // Throw away our current class loader
-        if (this.classLoader instanceof Lifecycle) {
-            ((Lifecycle) this.classLoader).stop();
+        try {
+            this.classLoader.stop();
+        } finally {
+            this.classLoader.destroy();
         }
-
-        DirContextURLStreamHandler.unbind(this.classLoader);
 
         unregisterClassLoaderMBean();
 
@@ -215,24 +175,22 @@ public class BundleWebappLoader extends BaseWebappLoader implements Loader, Prop
     }
 
     private void registerClassLoaderMBean() throws MalformedObjectNameException, Exception {
-        StandardContext ctx = (StandardContext) getContainer();
-        ObjectName classLoaderObjectName = createClassLoaderObjectName(ctx);
+        ObjectName classLoaderObjectName = createClassLoaderObjectName(getContext());
         Registry.getRegistry(null, null).registerComponent(this.classLoader, classLoaderObjectName, null);
     }
 
     private void unregisterClassLoaderMBean() {
         try {
-            StandardContext ctx = (StandardContext) getContainer();
-            ObjectName classLoaderObjectName = createClassLoaderObjectName(ctx);
+            ObjectName classLoaderObjectName = createClassLoaderObjectName(getContext());
             Registry.getRegistry(null, null).unregisterComponent(classLoaderObjectName);
         } catch (Throwable t) {
-            log.error("LifecycleException ", t);
+            this.log.error("LifecycleException ", t);
         }
     }
 
-    private ObjectName createClassLoaderObjectName(StandardContext ctx) throws MalformedObjectNameException {
-        return new ObjectName(MBeanUtils.getDomain(ctx) + ":type=OsgiWebappClassLoader,context=" + getCatalinaContextPath(ctx) + ",host="
-            + ctx.getParent().getName());
+    private ObjectName createClassLoaderObjectName(Context ctx) throws MalformedObjectNameException {
+        return new ObjectName(ctx.getDomain() + ":type=" + this.classLoader.getClass().getSimpleName() + ",host=" + ctx.getParent().getName()
+            + ",context=" + getCatalinaContextPath(ctx));
     }
 
 }

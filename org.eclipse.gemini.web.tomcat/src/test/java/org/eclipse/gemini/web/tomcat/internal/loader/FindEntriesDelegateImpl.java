@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 SAP AG
+ * Copyright (c) 2014, 2015 SAP SE
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -14,7 +14,7 @@
  *   Violeta Georgieva - initial contribution
  *******************************************************************************/
 
-package org.eclipse.gemini.web.tomcat.internal.loading;
+package org.eclipse.gemini.web.tomcat.internal.loader;
 
 import java.net.URL;
 import java.util.Enumeration;
@@ -24,7 +24,7 @@ import org.osgi.framework.Bundle;
 
 public class FindEntriesDelegateImpl implements FindEntriesDelegate {
 
-    private Bundle testBundle;
+    private final Bundle testBundle;
 
     public FindEntriesDelegateImpl(Bundle testBundle) {
         this.testBundle = testBundle;

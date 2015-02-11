@@ -1,20 +1,20 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2011 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution. 
+ * and Apache License v2.0 which accompanies this distribution.
  * The Eclipse Public License is available at
  *   http://www.eclipse.org/legal/epl-v10.html
- * and the Apache License v2.0 is available at 
+ * and the Apache License v2.0 is available at
  *   http://www.opensource.org/licenses/apache2.0.php.
- * You may elect to redistribute this code under either of these licenses.  
+ * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
  *   VMware Inc. - initial contribution
  *******************************************************************************/
 
-package org.eclipse.gemini.web.tomcat.internal.loading;
+package org.eclipse.gemini.web.tomcat.internal.loader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,21 +34,16 @@ import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.LifecycleState;
-import org.apache.catalina.loader.Constants;
 import org.apache.tomcat.util.IntrospectionUtils;
-import org.apache.tomcat.util.res.StringManager;
 import org.eclipse.gemini.web.tomcat.spi.ClassLoaderCustomizer;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle, BundleReference {
 
-    /**
-     * The string manager for this package.
-     */
-    protected static final StringManager sm = StringManager.getManager(Constants.Package);
-
-    protected static final org.apache.juli.logging.Log log = org.apache.juli.logging.LogFactory.getLog(BundleWebappClassLoader.class);
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * Has this class loader been started?
@@ -63,6 +58,8 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
     private final ClassLoaderCustomizer classLoaderCustomizer;
 
     private final Bundle bundle;
+
+    private volatile LifecycleState state = LifecycleState.NEW;
 
     // ------------------------------------------------------------------------
     // --- Constructors
@@ -150,12 +147,19 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
 
     @Override
     public void destroy() throws LifecycleException {
-        /* no-op */
+        this.state = LifecycleState.DESTROYING;
+
+        try {
+            super.close();
+        } catch (IOException ioe) {
+            this.log.warn("Failure calling close() on super class", ioe);
+        }
+        this.state = LifecycleState.DESTROYED;
     }
 
     @Override
     public LifecycleState getState() {
-        return LifecycleState.NEW;
+        return this.state;
     }
 
     @Override
@@ -165,7 +169,7 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
 
     @Override
     public void init() throws LifecycleException {
-        /* no-op */
+        this.state = LifecycleState.INITIALIZED;
     }
 
     /**
@@ -202,13 +206,13 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
      * <ul>
      * <li>???</li>
      * </ul>
-     * 
+     *
      * @param name Name of the resource to return a URL for
      */
     @Override
     public URL getResource(String name) {
-        if (log.isDebugEnabled()) {
-            log.debug("getResource(" + name + ")");
+        if (this.log.isDebugEnabled()) {
+            this.log.debug("getResource(" + name + ")");
         }
 
         URL url = null;
@@ -219,8 +223,8 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
         }
 
         // Resource was not found
-        if (log.isDebugEnabled()) {
-            log.debug("  --> Resource not found, returning null");
+        if (this.log.isDebugEnabled()) {
+            this.log.debug("Resource not found, returning null.");
         }
 
         return null;
@@ -228,7 +232,7 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
 
     @Override
     public InputStream getResourceAsStream(String name) {
-        return super.getResourceAsStream(name);
+        return this.bundleDelegatingClassLoader.getResourceAsStream(name);
     }
 
     /**
@@ -236,8 +240,8 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
      */
     @Override
     public Enumeration<URL> getResources(String name) throws IOException {
-        if (log.isDebugEnabled()) {
-            log.debug("getResources(" + name + ")");
+        if (this.log.isDebugEnabled()) {
+            this.log.debug("getResources(" + name + ")");
         }
 
         return this.bundleDelegatingClassLoader.getResources(name);
@@ -255,16 +259,16 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
      * </ul>
      * If the class was found using the above steps, and the <code>resolve</code> flag is <code>true</code>, this method
      * will then call <code>resolveClass(Class)</code> on the resulting Class object.
-     * 
+     *
      * @param name Name of the class to be loaded
      * @param resolve If <code>true</code> then resolve the class
-     * 
+     *
      * @exception ClassNotFoundException if the class was not found
      */
     @Override
     public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        if (log.isDebugEnabled()) {
-            log.debug("loadClass(" + name + ", " + resolve + ")");
+        if (this.log.isDebugEnabled()) {
+            this.log.debug("loadClass(" + name + ", " + resolve + ")");
         }
 
         Class<?> clazz = null;
@@ -274,15 +278,17 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
             try {
                 throw new IllegalStateException();
             } catch (IllegalStateException e) {
-                log.info(sm.getString("webappClassLoader.stopped", name), e);
+                this.log.info("Illegal access: this web application instance has been stopped already.  Could not load [" + name
+                    + "].  The eventual following stack trace is caused by an error thrown for debugging purposes"
+                    + "as well as to attempt to terminate the thread which caused the illegal access, and has no functional impact.", e);
             }
         }
 
         // Check our previously loaded class cache
         clazz = findLoadedClass(name);
         if (clazz != null) {
-            if (log.isDebugEnabled()) {
-                log.debug("  Returning class from cache");
+            if (this.log.isDebugEnabled()) {
+                this.log.debug("Returning class from cache.");
             }
             if (resolve) {
                 resolveClass(clazz);
@@ -291,14 +297,14 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
         }
 
         // Search the application's bundle
-        if (log.isDebugEnabled()) {
-            log.debug("  Searching the application's bundle");
+        if (this.log.isDebugEnabled()) {
+            this.log.debug("Searching the application's bundle.");
         }
         try {
             clazz = this.bundleDelegatingClassLoader.loadClass(name);
             if (clazz != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug("  Loading class from the delegating classloader");
+                if (this.log.isDebugEnabled()) {
+                    this.log.debug("Loading class from the delegating classloader.");
                 }
                 if (resolve) {
                     resolveClass(clazz);
@@ -331,7 +337,7 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
                 try {
                     DriverManager.deregisterDriver(driver);
                 } catch (SQLException e) {
-                    log.warn("SQL driver deregistration failed", e);
+                    this.log.warn("SQL driver deregistration failed.", e);
                 }
             }
         }
@@ -351,5 +357,41 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
     @Override
     public Bundle getBundle() {
         return this.bundle;
+    }
+
+    /**
+     * Set the clearReferencesStatic feature for this Context.
+     *
+     * @param clearReferencesStatic The new flag value
+     */
+    public void setClearReferencesStatic(boolean clearReferencesStatic) {
+        // no-op
+    }
+
+    /**
+     * Set the clearReferencesStopThreads feature for this Context.
+     *
+     * @param clearReferencesStopThreads The new flag value
+     */
+    public void setClearReferencesStopThreads(boolean clearReferencesStopThreads) {
+        // no-op
+    }
+
+    /**
+     * Set the clearReferencesStopTimerThreads feature for this Context.
+     *
+     * @param clearReferencesStopTimerThreads The new flag value
+     */
+    public void setClearReferencesStopTimerThreads(boolean clearReferencesStopTimerThreads) {
+        // no-op
+    }
+
+    /**
+     * Set the clearReferencesHttpClientKeepAliveThread feature for this Context.
+     *
+     * @param clearReferencesHttpClientKeepAliveThread The new flag value
+     */
+    public void setClearReferencesHttpClientKeepAliveThread(boolean clearReferencesHttpClientKeepAliveThread) {
+        // no-op
     }
 }
