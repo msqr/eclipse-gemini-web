@@ -20,7 +20,7 @@
 		<dependency org="org.eclipse.virgo.util" name="org.eclipse.virgo.util.osgi" rev="${org.eclipse.virgo.util}" conf="compile->runtime"/>
 		<dependency org="org.eclipse.virgo.util" name="org.eclipse.virgo.util.osgi.manifest" rev="${org.eclipse.virgo.util}" conf="compile->runtime"/>
 		<dependency org="org.eclipse.virgo.util" name="org.eclipse.virgo.util.io" rev="${org.eclipse.virgo.util}" conf="compile->runtime"/>
-		<dependency org="javax.servlet" name="javax.servlet" rev="${javax.servlet}" conf="compile->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="javax.servlet" rev="${javax.servlet}" conf="compile->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="org.slf4j.api" rev="${org.slf4j.api}" conf="compile->runtime"/>
 		
 		<dependency org="org.eclipse.virgo.mirrored" name="org.eclipse.osgi" rev="${org.eclipse.osgi}" conf="compile->compile"/>

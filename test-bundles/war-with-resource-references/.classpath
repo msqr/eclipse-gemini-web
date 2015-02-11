@@ -8,6 +8,6 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="var" path="IVY_CACHE/javax.servlet/javax.servlet/3.0.0.v201103241009/javax.servlet-3.0.0.v201103241009.jar" sourcepath="/IVY_CACHE/javax.servlet/javax.servlet/3.0.0.v201103241009/javax.servlet-sources-3.0.0.v201103241009.jar"/>
+	<classpathentry kind="var" path="IVY_CACHE/org.eclipse.virgo.mirrored/javax.servlet/3.1.0/javax.servlet-3.1.0.jar" sourcepath="/IVY_CACHE/org.eclipse.virgo.mirrored/javax.servlet/3.1.0/javax.servlet-sources-3.1.0.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -18,16 +18,18 @@
 		<dependency org="org.eclipse.virgo.util" name="org.eclipse.virgo.util.math" rev="${org.eclipse.virgo.util}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.util" name="org.eclipse.virgo.util.parser.manifest" rev="${org.eclipse.virgo.util}" conf="dep->runtime"/>
 		
-		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.catalina.ha" rev="${org.apache.catalina.ha}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.catalina.ha" rev="${org.apache.catalina}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.catalina" rev="${org.apache.catalina}" conf="dep->runtime"/>
-		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.catalina.tribes" rev="${org.apache.catalina.tribes}" conf="dep->runtime"/>
-		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.coyote" rev="${org.apache.coyote}" conf="dep->runtime"/>
-		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.el" rev="${org.apache.el}" conf="dep->runtime"/>
-		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.jasper" rev="${org.apache.jasper}" conf="dep->runtime"/>
-		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.juli.extras" rev="${org.apache.juli.extras}" conf="dep->runtime"/>
-		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.api" rev="${org.apache.tomcat.api}" conf="dep->runtime"/>
-		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.util" rev="${org.apache.tomcat.util}" conf="dep->runtime"/>
-		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.websocket" rev="${org.apache.tomcat.websocket}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.catalina.tribes" rev="${org.apache.catalina}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.coyote" rev="${org.apache.catalina}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.el" rev="${org.apache.catalina}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.jasper" rev="${org.apache.catalina}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.juli.extras" rev="${org.apache.catalina}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.api" rev="${org.apache.catalina}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.util" rev="${org.apache.catalina}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.websocket" rev="${org.apache.catalina}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.util.scan" rev="${org.apache.catalina}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.jni" rev="${org.apache.catalina}" conf="dep->runtime"/>
 		
 		<dependency org="org.eclipse.virgo.mirrored" name="org.eclipse.jdt.core.compiler.batch" rev="${org.eclipse.jdt}" conf="dep->runtime"/>
 		
@@ -37,7 +39,7 @@
 		<dependency org="org.eclipse.virgo.mirrored" name="javax.el" rev="${javax.el}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="javax.mail" rev="${javax.mail}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="javax.persistence" rev="${javax.persistence}" conf="dep->runtime"/>
-		<dependency org="javax.servlet" name="javax.servlet" rev="${javax.servlet}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="javax.servlet" rev="${javax.servlet}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="javax.servlet.jsp" rev="${javax.servlet.jsp}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="javax.transaction" rev="${javax.transaction}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="javax.xml.rpc" rev="${javax.xml.rpc}" conf="dep->runtime"/>
