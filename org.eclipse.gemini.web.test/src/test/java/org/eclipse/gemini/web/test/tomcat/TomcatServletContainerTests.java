@@ -3,12 +3,12 @@
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution. 
+ * and Apache License v2.0 which accompanies this distribution.
  * The Eclipse Public License is available at
  *   http://www.eclipse.org/legal/epl-v10.html
- * and the Apache License v2.0 is available at 
+ * and the Apache License v2.0 is available at
  *   http://www.opensource.org/licenses/apache2.0.php.
- * You may elect to redistribute this code under either of these licenses.  
+ * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
  *   VMware Inc. - initial contribution
@@ -105,6 +105,12 @@ public class TomcatServletContainerTests {
     @BeforeClass
     public static void beforeClass() throws Exception {
         System.setProperty("org.eclipse.gemini.web.tomcat.config.path", "target/config/tomcat-server.xml");
+        Path srcFile = Paths.get("src/test/resources/config/tomcat-server.xml");
+        Path dstFile = Paths.get("target/config/tomcat-server.xml");
+        if (Files.notExists(dstFile)) {
+            Files.createDirectories(dstFile.getParent());
+            Files.copy(srcFile, dstFile);
+        }
     }
 
     @Before
@@ -311,10 +317,11 @@ public class TomcatServletContainerTests {
             error = true;
         }
         assertNotNull(stream);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            System.out.println(line);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));) {
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
         }
         assertFalse(error);
     }
@@ -332,11 +339,12 @@ public class TomcatServletContainerTests {
             error = true;
         }
         assertNotNull(stream);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
         StringBuilder stringBuilder = new StringBuilder();
-        String line = null;
-        while ((line = reader.readLine()) != null) {
-            stringBuilder.append(line);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));) {
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
         }
         String content = stringBuilder.toString();
         System.out.println(content);
@@ -389,9 +397,6 @@ public class TomcatServletContainerTests {
             + "<Resource name=\"mail/Session1\" auth=\"Container\" type=\"javax.mail.Session\" mail.smtp.host=\"localhost\"/>" + "</Context>";
         createFileWithContent(defaultHostContextXml, content);
 
-        Path tomcatServerXml = Paths.get("target/config/tomcat-server.xml");
-        createFileWithContent(tomcatServerXml, "");
-
         String location1 = LOCATION_WAR_WITH_CONTEXT_XML_RESOURCES;
         Bundle bundle1 = this.bundleContext.installBundle(location1);
         bundle1.start();
@@ -410,6 +415,9 @@ public class TomcatServletContainerTests {
             // all specified in context.xml
             validateURL("http://localhost:8080/war-with-context-xml-custom-classloader/index.html");
 
+            // tests WEB-INF/classes/META-INF/resources
+            validateURL("http://localhost:8080/war-with-context-xml-custom-classloader/test.jsp");
+
             // tests JNDI resources
             // tests cross context functionality
             validateURL("http://localhost:8080/war-with-context-xml-cross-context/index.jsp");
@@ -423,7 +431,6 @@ public class TomcatServletContainerTests {
 
             Files.delete(defaultContextXml);
             Files.delete(defaultHostContextXml);
-            Files.delete(tomcatServerXml);
         }
     }
 
@@ -535,9 +542,6 @@ public class TomcatServletContainerTests {
 
     @Test
     public void testServletContainerWithCustomDefaultWebXml() throws Exception {
-        Path tomcatServerXml = Paths.get("target/config/tomcat-server.xml");
-        createFileWithContent(tomcatServerXml, "");
-
         // In this custom default web.xml the directory listing is enabled
         // Thus we will ensure that a custom default web.xml is used
         Path defaultWebXml = Paths.get("target/config/web.xml");
@@ -561,16 +565,12 @@ public class TomcatServletContainerTests {
             this.container.stopWebApplication((WebApplicationHandle) result[1]);
             ((Bundle) result[0]).uninstall();
 
-            Files.delete(tomcatServerXml);
             FileUtils.copy(Paths.get("src/test/resources/web.xml"), defaultWebXml);
         }
     }
 
     @Test
     public void testDirectoryListing() throws Exception {
-        Path tomcatServerXml = Paths.get("target/config/tomcat-server.xml");
-        createFileWithContent(tomcatServerXml, "");
-
         // In this custom default web.xml the directory listing is enabled
         // Thus we will ensure that a custom default web.xml is used
         Path defaultWebXml = Paths.get("target/config/web.xml");
@@ -607,7 +607,6 @@ public class TomcatServletContainerTests {
             ((Bundle) result[0]).uninstall();
 
             assertTrue(FileUtils.deleteDirectory(webAppDir));
-            Files.delete(tomcatServerXml);
             FileUtils.copy(Paths.get("src/test/resources/web.xml"), defaultWebXml);
         }
     }
