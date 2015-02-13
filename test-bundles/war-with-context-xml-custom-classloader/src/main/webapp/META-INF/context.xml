@@ -1,4 +1,4 @@
-<Context>
+<Context addWebinfClassesResources="true">
 
    <!--Loader className="org.apache.catalina.loader.WebappLoader"/-->
 

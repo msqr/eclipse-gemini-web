@@ -1,14 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution. 
+ * and Apache License v2.0 which accompanies this distribution.
  * The Eclipse Public License is available at
  *   http://www.eclipse.org/legal/epl-v10.html
- * and the Apache License v2.0 is available at 
+ * and the Apache License v2.0 is available at
  *   http://www.opensource.org/licenses/apache2.0.php.
- * You may elect to redistribute this code under either of these licenses.  
+ * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
  *   VMware Inc. - initial contribution
@@ -29,10 +29,10 @@ import org.eclipse.gemini.web.core.spi.ContextPathExistsException;
 import org.eclipse.gemini.web.core.spi.ServletContainer;
 import org.eclipse.gemini.web.core.spi.ServletContainerException;
 import org.eclipse.gemini.web.core.spi.WebApplicationHandle;
-import org.eclipse.gemini.web.tomcat.internal.loading.BundleDirContext;
-import org.eclipse.gemini.web.tomcat.internal.loading.BundleWebappLoader;
-import org.eclipse.gemini.web.tomcat.internal.loading.ChainedClassLoader;
-import org.eclipse.gemini.web.tomcat.internal.loading.StandardWebBundleClassLoaderFactory;
+import org.eclipse.gemini.web.tomcat.internal.bundleresources.BundleWebResourceRoot;
+import org.eclipse.gemini.web.tomcat.internal.loader.BundleWebappLoader;
+import org.eclipse.gemini.web.tomcat.internal.loader.ChainedClassLoader;
+import org.eclipse.gemini.web.tomcat.internal.loader.StandardWebBundleClassLoaderFactory;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolver;
 import org.eclipse.gemini.web.tomcat.internal.support.BundleFileResolverFactory;
 import org.eclipse.gemini.web.tomcat.spi.WebBundleClassLoaderFactory;
@@ -102,13 +102,13 @@ final class TomcatServletContainer implements ServletContainer {
 
             BundleWebappLoader loader = new BundleWebappLoader(bundle, this.classLoaderCustomizer);
             context.setLoader(loader);
-            context.setResources(new BundleDirContext(bundle));
+            context.setResources(new BundleWebResourceRoot(bundle, docBase));
 
             ServletContext servletContext = context.getServletContext();
 
             return new TomcatWebApplicationHandle(servletContext, context, loader);
         } catch (Exception ex) {
-            throw new ServletContainerException("Unablo te create web application for context path '" + contextPath + "'", ex);
+            throw new ServletContainerException("Unablo te create web application for context path [" + contextPath + "].", ex);
         }
     }
 
@@ -125,12 +125,12 @@ final class TomcatServletContainer implements ServletContainer {
             host.addChild(context);
         } catch (IllegalStateException e) {
             host.removeChild(context);
-            throw new ServletContainerException("Web application at '" + contextPath + "' cannot be added to the host.", e);
+            throw new ServletContainerException("Web application at [" + contextPath + "] cannot be added to the host.", e);
         }
 
         if (!context.getState().isAvailable()) {
             host.removeChild(context);
-            throw new ServletContainerException("Web application at '" + contextPath + "' failed to start. Check the logs for more details.");
+            throw new ServletContainerException("Web application at [" + contextPath + "] failed to start. Check the logs for more details.");
         }
     }
 
@@ -180,7 +180,7 @@ final class TomcatServletContainer implements ServletContainer {
             Host host = this.tomcat.getHost();
             host.removeChild(context);
         } catch (Exception e) {
-            throw new ServletContainerException("Unable to remove web application with context path '" + context.getName() + "'", e);
+            throw new ServletContainerException("Unable to remove web application with context path [" + context.getName() + "].", e);
         }
     }
 
@@ -190,7 +190,7 @@ final class TomcatServletContainer implements ServletContainer {
                 context.stop();
             }
         } catch (Exception e) {
-            throw new ServletContainerException("Error stopping web application with context path '" + context.getName() + "'", e);
+            throw new ServletContainerException("Error stopping web application with context path [" + context.getName() + "].", e);
         }
     }
 
@@ -200,14 +200,14 @@ final class TomcatServletContainer implements ServletContainer {
                 context.destroy();
             }
         } catch (Exception e) {
-            throw new ServletContainerException("Error destroying web application with context path '" + context.getName() + "'", e);
+            throw new ServletContainerException("Error destroying web application with context path [" + context.getName() + "].", e);
         }
     }
 
     /**
      * A context path can only be bound to one application. This method checks to see if a given context path is free,
      * throwing {@link ContextPathExistsException} if not.
-     * 
+     *
      * @param contextPath the context path
      * @param host the {@link Host} to check for duplicate context paths.
      * @throws ContextPathExistsException if the context path is already used.
@@ -227,7 +227,7 @@ final class TomcatServletContainer implements ServletContainer {
 
     private StandardContext extractTomcatContext(WebApplicationHandle handle) {
         if (!(handle instanceof TomcatWebApplicationHandle)) {
-            throw new IllegalStateException("Unrecognized handle type '" + handle.getClass() + "'.");
+            throw new IllegalStateException("Unrecognized handle type [" + handle.getClass() + "].");
         }
         return ((TomcatWebApplicationHandle) handle).getContext();
     }
