@@ -33,7 +33,7 @@
            
            <dependency org="javax.activation" name="com.springsource.javax.activation" rev="${javax.activation}" />
            
-           <dependency org="org.apache.taglibs" name="com.springsource.org.apache.taglibs.standard" rev="${org.apache.taglibs}" conf="test->runtime"/>
+           <dependency org="org.eclipse.virgo.mirrored" name="com.springsource.org.apache.taglibs.standard" rev="${org.apache.taglibs}" conf="test->runtime"/>
            <dependency org="org.eclipse.virgo.mirrored" name="javax.servlet.jsp.jstl" rev="${javax.servlet.jstl}" conf="test->runtime"/>
            <dependency org="org.eclipse.virgo.mirrored" name="javax.xml.soap" rev="${javax.xml.soap}" conf="test->runtime"/>
            <dependency org="org.eclipse.virgo.mirrored" name="javax.mail" rev="${javax.mail}" conf="test->runtime"/>

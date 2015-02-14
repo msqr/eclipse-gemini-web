@@ -24,7 +24,7 @@
 		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.coyote" rev="${org.apache.catalina}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.el" rev="${org.apache.catalina}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.jasper" rev="${org.apache.catalina}" conf="dep->runtime"/>
-		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.juli.extras" rev="${org.apache.catalina}" conf="dep->runtime"/>
+		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.juli" rev="${org.apache.catalina}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.api" rev="${org.apache.catalina}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.util" rev="${org.apache.catalina}" conf="dep->runtime"/>
 		<dependency org="org.eclipse.virgo.mirrored" name="org.apache.tomcat.websocket" rev="${org.apache.catalina}" conf="dep->runtime"/>
