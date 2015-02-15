@@ -87,21 +87,23 @@ public class BundleWebResourceRoot extends StandardRoot {
             }
         }
 
-        switch (type) {
-            case PRE:
-                addPreResources(resourceSet);
-                break;
-            case CLASSES_JAR:
-                addClassResources(resourceSet);
-                break;
-            case RESOURCE_JAR:
-                addJarResources(resourceSet);
-                break;
-            case POST:
-                addPostResources(resourceSet);
-                break;
-            default:
-                throw new IllegalArgumentException("Unable to create WebResourceSet of unknown type [" + type + "].");
+        if (resourceSet != null) {
+            switch (type) {
+                case PRE:
+                    addPreResources(resourceSet);
+                    break;
+                case CLASSES_JAR:
+                    addClassResources(resourceSet);
+                    break;
+                case RESOURCE_JAR:
+                    addJarResources(resourceSet);
+                    break;
+                case POST:
+                    addPostResources(resourceSet);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unable to create WebResourceSet of unknown type [" + type + "].");
+            }
         }
     }
 

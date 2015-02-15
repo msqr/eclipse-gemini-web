@@ -378,9 +378,6 @@ final class BundleWebResource extends AbstractResource {
                 pos += n;
             }
         } catch (IOException ioe) {
-            if (getLog().isDebugEnabled()) {
-                getLog().debug("Unable to return [" + getWebappPath() + "] as a byte array", ioe);
-            }
         }
 
         return result;

@@ -65,7 +65,7 @@ final class BundleJarResource extends JarResource {
             }
             return null;
         } finally {
-            if (entry == null) {
+            if (entry == null && jarIs != null) {
                 try {
                     jarIs.close();
                 } catch (IOException ioe) {
