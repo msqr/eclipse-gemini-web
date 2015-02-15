@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.Certificate;
@@ -61,12 +60,6 @@ final class BundleWebResource extends AbstractResource {
 
     private static final String DOT = ".";
 
-    private static final long TIME_NOT_SET = -1L;
-
-    private static final int CREATION_DATE_UNKNOWN = 0;
-
-    private static final long CONTENT_LENGTH_NOT_SET = -1;
-
     private final WebResourceRoot root;
 
     private final String path;
@@ -83,13 +76,9 @@ final class BundleWebResource extends AbstractResource {
 
     private boolean isBundleLocationDirectory;
 
-    private long lastModified = TIME_NOT_SET;
-
-    private long creation = TIME_NOT_SET;
-
-    private long contentLength = CONTENT_LENGTH_NOT_SET;
-
     private URL url;
+
+    private BundleWebResourceAttributes attributes;
 
     BundleWebResource(Bundle bundle, WebResourceRoot root) {
         super(root, "");
@@ -265,22 +254,6 @@ final class BundleWebResource extends AbstractResource {
         return String.format("BundleWebResource [bundle=%s,path=%s]", this.bundle, this.path);
     }
 
-    /**
-     * Returns the bundle entry size. If the BundleFileResolver is EquinoxBundleFileResolver then we will use equinox
-     * specific functionality to get BundleEntry and its size. If the BundleFileResolver is NoOpBundleFileResolver we
-     * will use URLConnection.getContentLength(). Note: URLConnection.getContentLength() returns "int", if the bundle
-     * entry size exceeds max "int", then the content length will not be correct.
-     *
-     * @return the bundle entry size
-     */
-    private long determineContentLength(URLConnection urlConnection) {
-        long size = this.bundleFileResolver.resolveBundleEntrySize(this.bundle, this.path);
-        if (size == -1 && urlConnection != null) {
-            size = urlConnection.getContentLength();
-        }
-        return size;
-    }
-
     private List<Bundle> getFragments(Bundle bundle) {
         List<Bundle> fragments = new ArrayList<Bundle>();
         BundleRevision bundleRevision = bundle.adapt(BundleRevision.class);
@@ -385,80 +358,17 @@ final class BundleWebResource extends AbstractResource {
 
     @Override
     public long getContentLength() {
-        return getContentLength(null);
-    }
-
-    private long getContentLength(URLConnection urlConnection) {
-        if (this.contentLength == CONTENT_LENGTH_NOT_SET) {
-            if (urlConnection == null) {
-                urlConnection = getURLConnection();
-            }
-
-            if (urlConnection != null) {
-                this.contentLength = determineContentLength(urlConnection);
-            }
-        }
-
-        return this.contentLength;
-    }
-
-    private URLConnection getURLConnection() {
-        try {
-            URL url = getURL();
-            if (url != null) {
-                return url.openConnection();
-            } else {
-                return null;
-            }
-        } catch (IOException e) {
-            return null;
-        }
+        return getAttributes().getContentLength(null);
     }
 
     @Override
     public long getCreation() {
-        return getCreation(null, TIME_NOT_SET);
-    }
-
-    private long getCreation(URLConnection urlConnection, long lastModified) {
-        if (this.creation == TIME_NOT_SET) {
-            if (urlConnection == null) {
-                urlConnection = getURLConnection();
-            }
-
-            if (urlConnection != null) {
-                this.creation = urlConnection.getDate();
-
-                if (this.creation == CREATION_DATE_UNKNOWN) {
-                    if (lastModified == TIME_NOT_SET) {
-                        lastModified = urlConnection.getLastModified();
-                    }
-
-                    this.creation = lastModified;
-                }
-            }
-        }
-
-        return this.creation;
+        return getAttributes().getCreation(null);
     }
 
     @Override
     public long getLastModified() {
-        return getLastModified(null);
-    }
-
-    private long getLastModified(URLConnection urlConnection) {
-        if (this.lastModified == TIME_NOT_SET) {
-            if (urlConnection == null) {
-                urlConnection = getURLConnection();
-            }
-
-            if (urlConnection != null) {
-                this.lastModified = urlConnection.getLastModified();
-            }
-        }
-
-        return this.lastModified;
+        return getAttributes().getLastModified(null);
     }
 
     @Override
@@ -500,6 +410,10 @@ final class BundleWebResource extends AbstractResource {
         return getEntry(name);
     }
 
+    long resolveBundleWebResourceSize() {
+        return this.bundleFileResolver.resolveBundleEntrySize(this.bundle, this.path);
+    }
+
     private void checkCanLookup(String name) {
         if (getBundle().getState() == Bundle.UNINSTALLED) {
             throw new IllegalArgumentException("Resource not found [" + name + "].");
@@ -516,5 +430,12 @@ final class BundleWebResource extends AbstractResource {
         if (name.startsWith(prefix)) {
             throw new IllegalArgumentException("Resource cannot be obtained from [" + prefix + "].");
         }
+    }
+
+    private BundleWebResourceAttributes getAttributes() {
+        if (this.attributes == null) {
+            this.attributes = new BundleWebResourceAttributes(this);
+        }
+        return this.attributes;
     }
 }
