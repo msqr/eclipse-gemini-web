@@ -3,12 +3,12 @@
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution. 
+ * and Apache License v2.0 which accompanies this distribution.
  * The Eclipse Public License is available at
  *   http://www.eclipse.org/legal/epl-v10.html
- * and the Apache License v2.0 is available at 
+ * and the Apache License v2.0 is available at
  *   http://www.opensource.org/licenses/apache2.0.php.
- * You may elect to redistribute this code under either of these licenses.  
+ * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
  *   VMware Inc. - initial contribution
@@ -51,7 +51,7 @@ public class UrlBasedExtenderTests extends ExtenderBase {
     }
 
     @Test
-    public void installWithDuplicateContextRoots() throws BundleException, Exception {
+    public void testInstallWithDuplicateContextRoots() throws BundleException, Exception {
         super.installWithDuplicateContextRoots();
     }
 
@@ -126,10 +126,12 @@ public class UrlBasedExtenderTests extends ExtenderBase {
         super.installWar2("?Bundle-ManifestVersion=2&Web-ContextPath=/simple-war", REQUEST_URL);
     }
 
+    @Override
     protected Bundle installWarBundle(String suffix) throws BundleException {
         return installBundle(null, "webbundle:file:../org.eclipse.gemini.web.core/target/resources/simple-war.war", suffix);
     }
 
+    @Override
     protected Bundle installBundle(String location, String bundleUrl, String suffix) throws BundleException {
         return getBundleContext().installBundle(bundleUrl + suffix);
     }
