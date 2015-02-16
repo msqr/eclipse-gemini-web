@@ -25,8 +25,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
-import javax.naming.NamingException;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleState;
 import org.apache.catalina.WebResource;
@@ -65,7 +63,7 @@ public class BundleWebResourceSetTests {
     }
 
     @Test
-    public void testGetAttributesOfDirectory() throws NamingException {
+    public void testGetAttributesOfDirectory() {
         replay(this.root, this.context);
 
         this.bundleWebResourceSet = new BundleWebResourceSet(new BundleWebResource(this.testBundle, this.root), this.root, "/", null, "/");
@@ -84,7 +82,7 @@ public class BundleWebResourceSetTests {
     }
 
     @Test
-    public void testGetAttributesOfFile() throws NamingException {
+    public void testGetAttributesOfFile() {
         replay(this.root, this.context);
 
         this.bundleWebResourceSet = new BundleWebResourceSet(new BundleWebResource(this.testBundle, this.root), this.root, "/", null, "/");

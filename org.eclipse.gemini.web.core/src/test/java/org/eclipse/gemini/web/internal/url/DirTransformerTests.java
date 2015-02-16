@@ -161,7 +161,7 @@ public class DirTransformerTests {
         assertTrue(FileUtils.deleteDirectory(webAppDir));
     }
 
-    private void assertDirsSame(Path webAppDir, Path tempWebAppDir) throws IOException {
+    private void assertDirsSame(Path webAppDir, Path tempWebAppDir) {
         assertEquals(webAppDir.getFileName(), tempWebAppDir.getFileName());
         assertEquals(webAppDir.toFile().length(), tempWebAppDir.toFile().length());
 
