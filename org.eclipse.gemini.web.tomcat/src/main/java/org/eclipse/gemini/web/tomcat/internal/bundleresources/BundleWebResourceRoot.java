@@ -71,7 +71,7 @@ public class BundleWebResourceRoot extends StandardRoot {
                     }
                 }
 
-                if (type.equals(ResourceSetType.CLASSES_JAR)) {
+                if (type.equals(ResourceSetType.CLASSES_JAR) && resourceSet != null) {
                     resourceSet.setClassLoaderOnly(true);
                 }
             }
