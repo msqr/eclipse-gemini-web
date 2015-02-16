@@ -16,26 +16,48 @@
 
 package org.eclipse.gemini.web.tomcat.internal.bundleresources;
 
-import java.io.File;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.catalina.LifecycleException;
 import org.apache.catalina.WebResource;
 import org.apache.catalina.WebResourceRoot;
+import org.apache.catalina.WebResourceRoot.ResourceSetType;
 import org.apache.catalina.util.ResourceSet;
-import org.apache.catalina.webresources.DirResourceSet;
 import org.apache.catalina.webresources.EmptyResource;
 
-final class BundleWebResourceSet extends DirResourceSet {
+final class BundleWebResourceSet extends AbstractReadOnlyResourceSet {
 
     private final WebResource bundleEntry;
 
     BundleWebResourceSet(WebResource bundleEntry, WebResourceRoot root, String webAppMount, String base, String internalPath) {
-        super(root, webAppMount, base, internalPath);
+        setRoot(root);
+        setWebAppMount(webAppMount);
+        setBase(base);
+        setInternalPath(internalPath);
         this.bundleEntry = bundleEntry;
+
+        if (root.getContext().getAddWebinfClassesResources()) {
+            Path f = Paths.get(base, internalPath, "/WEB-INF/classes/META-INF/resources");
+
+            if (Files.isDirectory(f)) {
+                root.createWebResourceSet(ResourceSetType.RESOURCE_JAR, "/", f.toAbsolutePath().toString(), null, "/");
+            }
+        }
+
+        if (getRoot().getState().isAvailable()) {
+            try {
+                start();
+            } catch (LifecycleException e) {
+                throw new IllegalStateException(e);
+            }
+        }
     }
 
     @Override
@@ -86,7 +108,7 @@ final class BundleWebResourceSet extends DirResourceSet {
                 return new String[] { webAppMount.substring(path.length(), i) };
             }
         }
-        return EMPTY_STRING_ARRAY;
+        return new String[0];
     }
 
     @Override
@@ -133,12 +155,12 @@ final class BundleWebResourceSet extends DirResourceSet {
     }
 
     @Override
-    public boolean isReadOnly() {
-        return true;
+    public URL getBaseUrl() {
+        return this.bundleEntry.getURL();
     }
 
     @Override
-    protected void checkType(File file) {
+    protected void initInternal() throws LifecycleException {
         // no-op
     }
 
