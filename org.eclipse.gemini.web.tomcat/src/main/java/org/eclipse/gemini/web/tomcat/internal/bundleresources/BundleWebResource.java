@@ -150,7 +150,7 @@ final class BundleWebResource extends AbstractResource {
     private Set<String> getEntryPathsFromBundle(Bundle bundle) {
         final Enumeration<String> ep = bundle.getEntryPaths(this.path);
 
-        Set<String> paths = new HashSet<String>();
+        Set<String> paths = new HashSet<>();
         if (ep != null) {
             while (ep.hasMoreElements()) {
                 paths.add(ep.nextElement());
@@ -167,9 +167,8 @@ final class BundleWebResource extends AbstractResource {
             Map<BundleWebResource, URL> result = new HashMap<>();
             result.put(createBundleEntry(finalPath), entryURL);
             return result.entrySet().iterator().next();
-        } else {
-            return null;
         }
+        return null;
     }
 
     /**
@@ -230,11 +229,10 @@ final class BundleWebResource extends AbstractResource {
             name = name.substring(index + 1);
         }
 
-        if (name.length() == 0) {
-            return PATH_SEPARATOR;
-        } else {
+        if (name.length() != 0) {
             return name;
         }
+        return PATH_SEPARATOR;
     }
 
     @Override
@@ -255,7 +253,7 @@ final class BundleWebResource extends AbstractResource {
     }
 
     private List<Bundle> getFragments(Bundle bundle) {
-        List<Bundle> fragments = new ArrayList<Bundle>();
+        List<Bundle> fragments = new ArrayList<>();
         BundleRevision bundleRevision = bundle.adapt(BundleRevision.class);
         if (bundleRevision != null) {
             BundleWiring bundleWiring = bundleRevision.getWiring();

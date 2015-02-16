@@ -47,17 +47,12 @@ final class BundleWebResourceSet extends DirResourceSet {
             Entry<BundleWebResource, URL> entry = getNamedEntry(path.substring(webAppMount.length()));
             if (entry != null) {
                 WebResource bundleEntry = entry.getKey();
-                if (bundleEntry == null) {
-                    return new EmptyResource(root, path);
+                if (bundleEntry != null) {
+                    return bundleEntry;
                 }
-
-                return bundleEntry;
-            } else {
-                return new EmptyResource(root, path);
             }
-        } else {
-            return new EmptyResource(root, path);
         }
+        return new EmptyResource(root, path);
     }
 
     @Override
@@ -68,25 +63,16 @@ final class BundleWebResourceSet extends DirResourceSet {
             Entry<BundleWebResource, URL> entry = getNamedEntry(path.substring(webAppMount.length()));
             if (entry != null) {
                 BundleWebResource bundleEntry = entry.getKey();
-                if (bundleEntry == null) {
-                    return EMPTY_STRING_ARRAY;
-                }
-                List<BundleWebResource> list = bundleEntry.list();
-                String[] result = null;
-                if (list != null) {
-                    List<String> resources = new ArrayList<String>();
-                    for (BundleWebResource resource : list) {
-                        resources.add(resource.getName());
+                if (bundleEntry != null) {
+                    List<BundleWebResource> list = bundleEntry.list();
+                    if (list != null) {
+                        List<String> resources = new ArrayList<>();
+                        for (BundleWebResource resource : list) {
+                            resources.add(resource.getName());
+                        }
+                        return resources.toArray(new String[resources.size()]);
                     }
-                    result = resources.toArray(new String[resources.size()]);
                 }
-                if (result == null) {
-                    return EMPTY_STRING_ARRAY;
-                } else {
-                    return result;
-                }
-            } else {
-                return EMPTY_STRING_ARRAY;
             }
         } else {
             if (!path.endsWith("/")) {
@@ -96,12 +82,11 @@ final class BundleWebResourceSet extends DirResourceSet {
                 int i = webAppMount.indexOf('/', path.length());
                 if (i == -1) {
                     return new String[] { webAppMount.substring(path.length()) };
-                } else {
-                    return new String[] { webAppMount.substring(path.length(), i) };
                 }
+                return new String[] { webAppMount.substring(path.length(), i) };
             }
-            return EMPTY_STRING_ARRAY;
         }
+        return EMPTY_STRING_ARRAY;
     }
 
     @Override
