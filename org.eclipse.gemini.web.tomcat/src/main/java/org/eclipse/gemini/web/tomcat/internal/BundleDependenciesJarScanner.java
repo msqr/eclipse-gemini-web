@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Set;
@@ -129,16 +131,25 @@ final class BundleDependenciesJarScanner implements JarScanner {
         try {
             bundleUrl = new URL(bundleLocation);
             if (REFERENCE_URL_PREFIX.equals(bundleUrl.getProtocol())) {
-                bundleUrl = new URL(JAR_URL_PREFIX + bundleUrl.getFile() + JAR_URL_SUFFIX);
+                bundleUrl = new URL(JAR_URL_PREFIX + transformBundleLocation(bundleUrl.getFile()) + JAR_URL_SUFFIX);
             } else {
-                bundleUrl = new URL(JAR_URL_PREFIX + bundleLocation + JAR_URL_SUFFIX);
+                bundleUrl = new URL(JAR_URL_PREFIX + transformBundleLocation(bundleLocation) + JAR_URL_SUFFIX);
             }
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException | URISyntaxException e) {
             LOGGER.warn("Failed to create jar: url for bundle location [" + bundleLocation + "].");
             return;
         }
 
         scanBundleUrl(bundleUrl, callback, isWebapp);
+    }
+
+    private String transformBundleLocation(String location) throws URISyntaxException {
+        URI url = new URI(location);
+        if (!url.isOpaque()) {
+            return location;
+        }
+        String scheme = url.getScheme();
+        return scheme + ":/" + location.substring(scheme.length() + 1);
     }
 
     private void scanBundleFile(File bundleFile, JarScannerCallback callback, boolean isWebapp) {
