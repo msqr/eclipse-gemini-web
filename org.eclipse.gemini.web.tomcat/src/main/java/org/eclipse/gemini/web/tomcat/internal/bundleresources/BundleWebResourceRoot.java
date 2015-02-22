@@ -25,7 +25,6 @@ import java.util.Locale;
 import org.apache.catalina.Host;
 import org.apache.catalina.WebResource;
 import org.apache.catalina.WebResourceSet;
-import org.apache.catalina.webresources.EmptyResourceSet;
 import org.apache.catalina.webresources.StandardRoot;
 import org.osgi.framework.Bundle;
 
@@ -37,16 +36,9 @@ public class BundleWebResourceRoot extends StandardRoot {
 
     private Path docBase;
 
-    public BundleWebResourceRoot(Bundle bundle, String docBaseStr) {
+    public BundleWebResourceRoot(Bundle bundle) {
         this.bundle = bundle;
         this.main = new BundleWebResource(this.bundle, this);
-
-        if (docBaseStr != null) {
-            this.docBase = Paths.get(docBaseStr);
-            if (!this.docBase.isAbsolute()) {
-                this.docBase = Paths.get(((Host) getContext().getParent()).getAppBaseFile().getPath()).resolve(this.docBase);
-            }
-        }
     }
 
     @Override
@@ -59,31 +51,18 @@ public class BundleWebResourceRoot extends StandardRoot {
     public void createWebResourceSet(ResourceSetType type, String webAppMount, String base, String archivePath, String internalPath) {
         WebResourceSet resourceSet = null;
 
-        if (base.startsWith("bundleentry")) {
-            if (archivePath != null) {
-                if (archivePath.toLowerCase(Locale.ENGLISH).endsWith(".jar")) {
-                    resourceSet = new BundleJarResourceSet(this, webAppMount, base + archivePath, internalPath);
-                } else {
-                    WebResource entry = ((BundleWebResource) this.main).getNamedEntry(archivePath).getKey();
-                    if (entry != null) {
-                        resourceSet = new BundleWebResourceSet(entry, this, webAppMount, this.docBase.toAbsolutePath().toString() + archivePath,
-                            internalPath);
-                    }
-                }
-
-                if (type.equals(ResourceSetType.CLASSES_JAR) && resourceSet != null) {
-                    resourceSet.setClassLoaderOnly(true);
+        if (archivePath != null) {
+            if (archivePath.toLowerCase(Locale.ENGLISH).endsWith(".jar")) {
+                resourceSet = new BundleJarResourceSet(this, webAppMount, base + archivePath, internalPath);
+            } else {
+                WebResource entry = ((BundleWebResource) this.main).getNamedEntry(archivePath).getKey();
+                if (entry != null) {
+                    resourceSet = new BundleWebResourceSet(entry, this, webAppMount, base + archivePath, internalPath);
                 }
             }
-        } else {
-            // TODO need additional testing
-            WebResource entry = ((BundleWebResource) this.main).getNamedEntry(base).getKey();
-            if (entry != null) {
-                resourceSet = new BundleWebResourceSet(entry, this, webAppMount, base, internalPath);
 
-                if (type.equals(ResourceSetType.CLASSES_JAR)) {
-                    resourceSet.setClassLoaderOnly(true);
-                }
+            if (type.equals(ResourceSetType.CLASSES_JAR) && resourceSet != null) {
+                resourceSet.setClassLoaderOnly(true);
             }
         }
 
@@ -122,16 +101,15 @@ public class BundleWebResourceRoot extends StandardRoot {
 
     @Override
     protected WebResourceSet createMainResourceSet() {
-        WebResourceSet mainResourceSet;
-
-        if (this.docBase == null) {
-            // TODO When we are in not Equinox case the docBase will be null
-            // we need to handle this case also
-            mainResourceSet = new EmptyResourceSet(this);
-        } else {
-            mainResourceSet = new BundleWebResourceSet(this.main, this, "/", this.docBase.toAbsolutePath().toString(), "/");
+        String docBaseStr = getContext().getDocBase();
+        if (docBaseStr != null) {
+            this.docBase = Paths.get(docBaseStr);
+            if (!this.docBase.isAbsolute()) {
+                this.docBase = Paths.get(((Host) getContext().getParent()).getAppBaseFile().getPath()).resolve(this.docBase);
+            }
         }
-        return mainResourceSet;
+
+        return new BundleWebResourceSet(this.main, this, "/", this.docBase != null ? this.docBase.toAbsolutePath().toString() : null, "/");
     }
 
     private static class BaseLocation {

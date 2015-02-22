@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
-import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleState;
 import org.apache.catalina.WebResource;
 import org.apache.catalina.WebResourceRoot;
@@ -46,8 +45,6 @@ public class BundleWebResourceSetTests {
 
     private WebResourceRoot root;
 
-    private Context context;
-
     @Before
     public void setUp() throws Exception {
         this.testBundle.addEntry("", new File("src/test/resources/").toURI().toURL());
@@ -56,15 +53,12 @@ public class BundleWebResourceSetTests {
         this.testBundle.setFindEntriesDelegate(new FindEntriesDelegateImpl(this.testBundle));
 
         this.root = createMock(WebResourceRoot.class);
-        this.context = createMock(Context.class);
-        expect(this.root.getContext()).andReturn(this.context);
-        expect(this.context.getAddWebinfClassesResources()).andReturn(false);
         expect(this.root.getState()).andReturn(LifecycleState.STARTED);
     }
 
     @Test
     public void testGetAttributesOfDirectory() {
-        replay(this.root, this.context);
+        replay(this.root);
 
         this.bundleWebResourceSet = new BundleWebResourceSet(new BundleWebResource(this.testBundle, this.root), this.root, "/", null, "/");
         WebResource webResource = this.bundleWebResourceSet.getResource(DIRECTORY_NAME);
@@ -78,12 +72,12 @@ public class BundleWebResourceSetTests {
 
         assertTrue(webResource.getContentLength() != -1);
 
-        verify(this.root, this.context);
+        verify(this.root);
     }
 
     @Test
     public void testGetAttributesOfFile() {
-        replay(this.root, this.context);
+        replay(this.root);
 
         this.bundleWebResourceSet = new BundleWebResourceSet(new BundleWebResource(this.testBundle, this.root), this.root, "/", null, "/");
         WebResource webResource = this.bundleWebResourceSet.getResource(FILE_NAME);
@@ -97,7 +91,7 @@ public class BundleWebResourceSetTests {
 
         assertTrue(webResource.getContentLength() != -1);
 
-        verify(this.root, this.context);
+        verify(this.root);
     }
 
 }

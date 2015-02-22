@@ -102,7 +102,7 @@ final class TomcatServletContainer implements ServletContainer {
 
             BundleWebappLoader loader = new BundleWebappLoader(bundle, this.classLoaderCustomizer);
             context.setLoader(loader);
-            context.setResources(new BundleWebResourceRoot(bundle, docBase));
+            context.setResources(new BundleWebResourceRoot(bundle));
 
             ServletContext servletContext = context.getServletContext();
 
