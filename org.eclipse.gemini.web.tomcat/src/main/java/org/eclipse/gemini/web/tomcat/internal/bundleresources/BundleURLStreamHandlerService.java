@@ -25,7 +25,7 @@ import org.osgi.service.url.AbstractURLStreamHandlerService;
 
 public class BundleURLStreamHandlerService extends AbstractURLStreamHandlerService {
 
-    private static final String WAR_BUNDLE_ENTRY_SCHEMA = "war:bundleentry";
+    private static final String WAR_BUNDLE_ENTRY_SCHEMA = "war:bundle";
 
     private static final String WAR_TO_ENTRY_SEPARATOR = "\\^/";
 

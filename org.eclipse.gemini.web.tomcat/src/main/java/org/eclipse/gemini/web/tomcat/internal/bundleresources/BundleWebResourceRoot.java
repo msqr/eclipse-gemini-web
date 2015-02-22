@@ -119,11 +119,12 @@ public class BundleWebResourceRoot extends StandardRoot {
         private String archivePath = "";
 
         BaseLocation(URL url) {
-            if ("jar".equals(url.getProtocol())) {
+            String protocol = url.getProtocol();
+            if ("jar".equals(protocol)) {
                 String jarUrl = url.toString();
                 int endOfFileUrl = jarUrl.indexOf("!/");
                 String fileUrl = jarUrl.substring(4, endOfFileUrl);
-                if (fileUrl.startsWith("bundleentry")) {
+                if (fileUrl.startsWith("bundle")) {
                     URL file = null;
                     try {
                         file = new URL(fileUrl);
@@ -133,13 +134,12 @@ public class BundleWebResourceRoot extends StandardRoot {
                     this.archivePath = file.getFile();
                     this.basePath = fileUrl.substring(0, fileUrl.indexOf(this.archivePath));
                 }
-            } else if ("bundleentry".equals(url.getProtocol())) {
+            } else if (protocol != null && protocol.startsWith("bundle")) {
                 this.archivePath = url.getFile();
                 String fileUrl = url.toString();
                 this.basePath = fileUrl.substring(0, fileUrl.indexOf(this.archivePath));
             } else {
-                throw new IllegalArgumentException("The URL protocol [" + url.getProtocol()
-                    + "] is not supported by this web resources implementation");
+                throw new IllegalArgumentException("The URL protocol [" + protocol + "] is not supported by this web resources implementation");
             }
         }
 
