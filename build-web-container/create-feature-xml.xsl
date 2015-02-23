@@ -7,7 +7,7 @@
 
 	<xsl:template match="/">
 
-		<feature id="org.eclipse.gemini.web.feature" label="%featureName" provider-name="%providerName" image="eclipse_update_120.jpg">
+		<feature id="org.eclipse.gemini.web.feature" label="%featureName" provider-name="%providerName">
 
 			<xsl:attribute name="version"><xsl:value-of select="$GW.VERSION"/></xsl:attribute>
 
