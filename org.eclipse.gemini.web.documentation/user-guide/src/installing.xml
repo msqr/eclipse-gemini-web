@@ -5,7 +5,7 @@
 	<section id="installation-prereqs">
 		<title>Prerequisites</title>
 		<para>
-			The @product.name@, or @short.product.name@ for short, requires Java SE 6 or later to be installed. Java is available from
+			The @product.name@, or @short.product.name@ for short, requires Java SE 7 or later to be installed. Java is available from
 			<ulink url="http://www.java.com/">http://www.java.com/</ulink> and elsewhere.
 		</para>
 	</section>
@@ -14,8 +14,22 @@
 		<itemizedlist>
 			<listitem>
 				<para>
-					<ulink url="http://download.eclipse.org/equinox/">Download</ulink> the Equinox JAR, for example <ulink url="http://download.eclipse.org/equinox/drops/R-3.8.1-201209141800/download.php?dropFile=org.eclipse.osgi_3.8.1.v20120830-144521.jar">org.eclipse.osgi_3.8.1.v20120830-144521.jar</ulink>, and move it to a suitable directory (e.g. ~/gemini-web-test). 
-					On the <ulink url="http://download.eclipse.org/equinox/">Download</ulink> page, first choose the desired Release or Build, then download the JAR from the Framework section. 
+					<ulink url="http://download.eclipse.org/equinox/">Download</ulink> the Equinox JAR, for example <ulink url="http://download.eclipse.org/equinox/drops/R-LunaSR1-201409250400/download.php?dropFile=org.eclipse.osgi_3.10.1.v20140909-1633.jar">org.eclipse.osgi_3.10.1.v20140909-1633.jar</ulink>, and move it to a suitable directory (e.g. ~/gemini-web-test).
+					On the <ulink url="http://download.eclipse.org/equinox/">Download</ulink> page, first choose the desired Release or Build, then download the JAR from the 'Framework Only' section.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					<ulink url="http://download.eclipse.org/equinox/">Download</ulink> the Equinox Console, for example <ulink url="http://download.eclipse.org/equinox/drops/R-LunaSR1-201409250400/download.php?dropFile=equinox-SDK-LunaSR1.zip">equinox-SDK-LunaSR1.zip</ulink>.
+					You will need the bundles listed below:
+					<itemizedlist>
+						<listitem>org.apache.felix.gogo.command_0.10.0.v201209301215.jar</listitem>
+						<listitem>org.apache.felix.gogo.runtime_0.10.0.v201209301036.jar</listitem>
+						<listitem>org.apache.felix.gogo.shell_0.10.0.v201212101605.jar</listitem>
+						<listitem>org.eclipse.equinox.console_1.1.0.v20140131-1639.jar</listitem>
+					</itemizedlist>
+					Move them to a suitable directory (e.g. ~/gemini-web-test).
+					On the <ulink url="http://download.eclipse.org/equinox/">Download</ulink> page, first choose the desired Release or Build, then download the ZIP from the 'All of Equinox' section. Bundles can be found in the plugins folder.
 				</para>
 			</listitem>
 			<listitem>
@@ -27,14 +41,14 @@
 			<listitem>
 				<para>
 					Configure Equinox by creating a directory ~/gemini-web-test/configuration and create a file config.ini in the configuration directory. 
-					Example file which works with 2.2.0.RELEASE is available in <ulink url="http://wiki.eclipse.org/images/0/03/Config.ini.2.2.0.zip">config.ini.zip</ulink>. 
+					Example file which works with 3.0.0.M01 is available in <ulink url="http://wiki.eclipse.org/images/0/03/Config.ini.2.2.0.zip">config.ini.zip</ulink>.
 					Essentially config.ini ensures that the dependencies of @product.name@, which come in the dep directory, are installed and then the @product.name@ bundles are installed and started. 
 				</para>
 			</listitem>
 			<listitem>
 				<para>
 					Start Equinox as follows:
-					<programlisting language="xml"><![CDATA[java -jar org.eclipse.osgi_3.8.1.v20120830-144521.jar -console]]></programlisting></para>
+					<programlisting language="xml"><![CDATA[java -jar org.eclipse.osgi_3.10.1.v20140909-1633.jar -console]]></programlisting></para>
 			</listitem>
 			<listitem>
 				<para>
