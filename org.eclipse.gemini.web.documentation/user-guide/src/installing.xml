@@ -41,7 +41,7 @@
 			<listitem>
 				<para>
 					Configure Equinox by creating a directory ~/gemini-web-test/configuration and create a file config.ini in the configuration directory. 
-					Example file which works with 3.0.0.M01 is available in <ulink url="http://wiki.eclipse.org/images/0/03/Config.ini.2.2.0.zip">config.ini.zip</ulink>.
+					Example file which works with 3.0.0.M01 is available in <ulink url="https://wiki.eclipse.org/images/f/f5/Config.ini.3.0.0.M01.zip">config.ini.zip</ulink>.
 					Essentially config.ini ensures that the dependencies of @product.name@, which come in the dep directory, are installed and then the @product.name@ bundles are installed and started. 
 				</para>
 			</listitem>
@@ -52,8 +52,8 @@
 			</listitem>
 			<listitem>
 				<para>
-					You can then deploy WAR files (a trivial example is available in <ulink url="http://wiki.eclipse.org/images/a/a0/Simple-war.war.zip">Simple-war.war.zip</ulink>) and web bundles using the install and start commands from the console.
-					<programlisting language="xml"><![CDATA[osgi> install file:simple-war.war
+					You can then deploy WAR files (a trivial example is available in <ulink url="https://wiki.eclipse.org/images/a/a0/Simple-war.war.zip">Simple-war.war.zip</ulink>) and web bundles using the install and start commands from the console.
+					<programlisting language="xml"><![CDATA[osgi> install webbundle:file:simple-war.war
 Bundle id is 40
 osgi> start 40]]></programlisting></para>
 			</listitem>
