@@ -71,4 +71,18 @@ public class ExtendedStandardContext extends StandardContext {
 
     }
 
+    @Override
+    public ClassLoader getParentClassLoader() {
+        if (this.parentClassLoader != null) {
+            return this.parentClassLoader;
+        }
+
+        this.parentClassLoader = getLoader().getClassLoader();
+        if (this.parentClassLoader != null) {
+            return this.parentClassLoader;
+        }
+
+        return super.getParentClassLoader();
+    }
+
 }
