@@ -52,7 +52,7 @@ public final class WebContainerUtils {
 
     static final String ENTRY_WEB_XML = "/WEB-INF/web.xml";
 
-    static final String WAR_EXTENSION = ".war";
+    private static final String WAR_EXTENSION = ".war";
 
     static final String OSGI_WEB_VERSION = "osgi.web.version";
 
@@ -67,7 +67,7 @@ public final class WebContainerUtils {
     private WebContainerUtils() {
     }
 
-    public static boolean isWebBundle(Bundle bundle) {
+    static boolean isWebBundle(Bundle bundle) {
         return hasWarExtension(bundle) || hasWarScheme(bundle) || hasWebContextPath(bundle) || hasWebXml(bundle);
     }
 
@@ -95,7 +95,7 @@ public final class WebContainerUtils {
         return bundle.getEntry(ENTRY_WEB_XML) != null;
     }
 
-    public static String getContextPath(Bundle bundle) {
+    static String getContextPath(Bundle bundle) {
         String contextPath = getWebContextPathHeader(bundle);
 
         if (contextPath == null) {
@@ -165,7 +165,7 @@ public final class WebContainerUtils {
         return result;
     }
 
-    public static void setServletContextBundleProperties(Dictionary<String, String> properties, Bundle bundle) {
+    static void setServletContextBundleProperties(Dictionary<String, String> properties, Bundle bundle) {
         setServletContextOsgiWebSymbolicNameProperty(properties, bundle);
         setServletContextOsgiWebVersionProperty(properties, bundle);
     }

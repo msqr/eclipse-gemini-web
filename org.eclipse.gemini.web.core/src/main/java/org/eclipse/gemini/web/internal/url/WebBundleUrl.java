@@ -44,7 +44,7 @@ public class WebBundleUrl {
 
     private static final String DEFAULT_CHARACTER_ENCODING = "UTF-8";
 
-    public final Object monitor = new Object();
+    private final Object monitor = new Object();
 
     private final URL url;
 
@@ -52,13 +52,13 @@ public class WebBundleUrl {
 
     private volatile Map<String, String> options;
 
-    public WebBundleUrl(String location, Map<String, String> options) throws MalformedURLException {
+    WebBundleUrl(String location, Map<String, String> options) throws MalformedURLException {
         this.url = createURL(location, options);
         this.location = location;
         this.options = options == null ? Collections.<String, String> emptyMap() : unmodifiableMap(new HashMap<>(options));
     }
 
-    public WebBundleUrl(URL url) {
+    WebBundleUrl(URL url) {
         String protocol = url.getProtocol();
         if (!SCHEME.equals(protocol)) {
             throw new IllegalArgumentException("URL '" + url + "' is not a valid WAR URL");
@@ -102,7 +102,7 @@ public class WebBundleUrl {
         return this.url.toString();
     }
 
-    public final URL toURL() {
+    final URL toURL() {
         return this.url;
     }
 

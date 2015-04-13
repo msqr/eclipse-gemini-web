@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 abstract class BaseWebappLoader extends LifecycleMBeanBase implements Loader, PropertyChangeListener {
 
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * The property change support for this Loader.

@@ -111,7 +111,7 @@ final class BundleWebResource extends AbstractResource {
         this.isBundleLocationDirectory = isBundleLocationDirectory;
     }
 
-    Bundle getBundle() {
+    private Bundle getBundle() {
         return this.bundle;
     }
 
@@ -241,10 +241,6 @@ final class BundleWebResource extends AbstractResource {
             this.url = getEntryFromBundle(this.path);
         }
         return this.url;
-    }
-
-    void setURL(URL url) {
-        this.url = url;
     }
 
     @Override

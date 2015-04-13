@@ -53,7 +53,7 @@ final class TomcatConfigLocator {
 
     static final String CONFIG_PATH_FRAMEWORK_PROPERTY = "org.eclipse.gemini.web.tomcat.config.path";
 
-    static final String DEFAULT_CONFIG_FILE_PATH = "config" + File.separator + "tomcat-server.xml";
+    private static final String DEFAULT_CONFIG_FILE_PATH = "config" + File.separator + "tomcat-server.xml";
 
     static final String CONFIG_PATH = "META-INF/tomcat";
 

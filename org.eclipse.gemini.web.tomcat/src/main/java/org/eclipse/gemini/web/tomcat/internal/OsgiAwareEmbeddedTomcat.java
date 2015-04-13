@@ -82,9 +82,9 @@ public final class OsgiAwareEmbeddedTomcat extends Tomcat {
 
     static final String CATALINA_USE_NAMING = "catalina.useNaming";
 
-    static final String JNDI_URLSCHEME = "osgi.jndi.url.scheme";
+    private static final String JNDI_URLSCHEME = "osgi.jndi.url.scheme";
 
-    static final String JAVA_JNDI_URLSCHEME = "java";
+    private static final String JAVA_JNDI_URLSCHEME = "java";
 
     private final static Logger LOGGER = LoggerFactory.getLogger(OsgiAwareEmbeddedTomcat.class);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -44,7 +44,7 @@ public final class SystemBundleExportsImportingWebBundleManifestTransformer impl
         }
     }
 
-    protected void addImportsForSystemBundleExports(BundleManifest bundleManifest, Set<String> packagesInWar) {
+    private void addImportsForSystemBundleExports(BundleManifest bundleManifest, Set<String> packagesInWar) {
         for (Entry<String, VersionRange> exportedPackage : this.systemBundleExports.entrySet()) {
             String packageName = exportedPackage.getKey();
             if (!packagesInWar.contains(packageName) && PackageMergeUtils.findImportedPackage(bundleManifest, packageName) == null) {

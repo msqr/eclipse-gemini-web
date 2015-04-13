@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -38,7 +38,7 @@ public class TomcatConnectorDescriptor implements ConnectorDescriptor {
 
     private final boolean sslEnabled;
 
-    public TomcatConnectorDescriptor(String protocol, String scheme, int port, boolean sslEnabled) {
+    TomcatConnectorDescriptor(String protocol, String scheme, int port, boolean sslEnabled) {
         this.protocol = protocol;
         this.scheme = scheme;
         this.port = port;

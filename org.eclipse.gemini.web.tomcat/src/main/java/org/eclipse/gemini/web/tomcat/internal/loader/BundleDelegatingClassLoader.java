@@ -34,7 +34,7 @@ import org.osgi.framework.Bundle;
  * @author Costin Leau
  * @author Violeta Georgieva
  */
-public class BundleDelegatingClassLoader extends ClassLoader {
+class BundleDelegatingClassLoader extends ClassLoader {
 
     private final ClassLoader bridge;
 
@@ -46,7 +46,7 @@ public class BundleDelegatingClassLoader extends ClassLoader {
      * @param aBundle bundle to use for class loading and resource acquisition
      * @return class loader adapter over the given bundle
      */
-    public static BundleDelegatingClassLoader createBundleClassLoaderFor(Bundle aBundle) {
+    static BundleDelegatingClassLoader createBundleClassLoaderFor(Bundle aBundle) {
         return createBundleClassLoaderFor(aBundle, null);
     }
 
@@ -59,7 +59,7 @@ public class BundleDelegatingClassLoader extends ClassLoader {
      *        <code>null</code>
      * @return class loader adapter over the given bundle and class loader
      */
-    public static BundleDelegatingClassLoader createBundleClassLoaderFor(final Bundle bundle, final ClassLoader bridge) {
+    static BundleDelegatingClassLoader createBundleClassLoaderFor(final Bundle bundle, final ClassLoader bridge) {
         return AccessController.doPrivileged(new PrivilegedAction<BundleDelegatingClassLoader>() {
 
             @Override
@@ -77,7 +77,7 @@ public class BundleDelegatingClassLoader extends ClassLoader {
      * @param bundle
      * @param bridgeLoader
      */
-    protected BundleDelegatingClassLoader(Bundle bundle, ClassLoader bridgeLoader) {
+    private BundleDelegatingClassLoader(Bundle bundle, ClassLoader bridgeLoader) {
         super(null);
         Assert.notNull(bundle, "bundle should be non-null");
         this.backingBundle = bundle;

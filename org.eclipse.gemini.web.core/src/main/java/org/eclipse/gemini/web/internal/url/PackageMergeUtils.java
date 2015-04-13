@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2010 VMware Inc.
+ * Copyright (c) 2009, 2015 VMware Inc.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -25,9 +25,12 @@ import org.eclipse.virgo.util.osgi.manifest.ImportedPackage;
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
-public class PackageMergeUtils {
+final class PackageMergeUtils {
 
-    public static void mergeImportPackage(BundleManifest manifest, String name, Map<String, String> attributes, Map<String, String> directives) {
+    private PackageMergeUtils() {
+    }
+
+    static void mergeImportPackage(BundleManifest manifest, String name, Map<String, String> attributes, Map<String, String> directives) {
         ImportedPackage packageImport = findImportedPackage(manifest, name);
 
         if (packageImport == null) {
@@ -41,7 +44,7 @@ public class PackageMergeUtils {
         packageImport.getDirectives().putAll(directives);
     }
 
-    public static void mergeExportPackage(BundleManifest manifest, String name, Map<String, String> attributes, Map<String, String> directives) {
+    static void mergeExportPackage(BundleManifest manifest, String name, Map<String, String> attributes, Map<String, String> directives) {
         String versionAttribute = attributes.get(Constants.VERSION_ATTRIBUTE);
         Version version = versionAttribute == null ? Version.emptyVersion : new Version(versionAttribute);
 

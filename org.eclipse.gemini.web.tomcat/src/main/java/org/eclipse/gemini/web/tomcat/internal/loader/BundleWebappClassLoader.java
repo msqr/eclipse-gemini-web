@@ -325,7 +325,7 @@ public class BundleWebappClassLoader extends URLClassLoader implements Lifecycle
     /**
      * Clear references.
      */
-    protected void clearReferences() {
+    private void clearReferences() {
         // TODO think about more references that have to be cleared
         // Bug 345938 - BundleWebappClassLoader.clearReferences() - extend current functionality
 
