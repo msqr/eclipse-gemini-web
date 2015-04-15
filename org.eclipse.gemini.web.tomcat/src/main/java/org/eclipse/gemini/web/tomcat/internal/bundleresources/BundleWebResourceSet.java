@@ -155,4 +155,9 @@ final class BundleWebResourceSet extends AbstractReadOnlyResourceSet {
     private Entry<BundleWebResource, URL> getNamedEntry(String name) {
         return ((BundleWebResource) this.bundleEntry).getNamedEntry(name);
     }
+
+    @Override
+    public void gc() {
+        // no-op
+    }
 }

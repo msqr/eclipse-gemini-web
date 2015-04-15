@@ -21,17 +21,15 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
-import java.util.jar.Manifest;
 
-import org.apache.catalina.WebResourceRoot;
+import org.apache.catalina.webresources.AbstractArchiveResourceSet;
 import org.apache.catalina.webresources.JarResource;
 
 final class BundleJarResource extends JarResource {
 
-    BundleJarResource(WebResourceRoot root, String webAppPath, String base, String baseUrl, JarEntry jarEntry, String internalPath, Manifest manifest) {
-        super(root, webAppPath, base, baseUrl, jarEntry, internalPath, manifest);
+    BundleJarResource(AbstractArchiveResourceSet archiveResourceSet, String webAppPath, String baseUrl, JarEntry jarEntry) {
+        super(archiveResourceSet, webAppPath, baseUrl, jarEntry);
     }
 
     @Override
@@ -54,7 +52,7 @@ final class BundleJarResource extends JarResource {
             }
 
             if (entry != null) {
-                return new ExtendedJarInputStreamWrapper(null, entry, jarIs);
+                return new ExtendedJarInputStreamWrapper(entry, jarIs);
             } else {
                 return null;
             }
@@ -79,8 +77,8 @@ final class BundleJarResource extends JarResource {
 
         private final InputStream is;
 
-        public ExtendedJarInputStreamWrapper(JarFile jarFile, JarEntry jarEntry, InputStream is) {
-            super(jarFile, jarEntry, is);
+        public ExtendedJarInputStreamWrapper(JarEntry jarEntry, InputStream is) {
+            super(jarEntry, is);
             this.is = is;
         }
 

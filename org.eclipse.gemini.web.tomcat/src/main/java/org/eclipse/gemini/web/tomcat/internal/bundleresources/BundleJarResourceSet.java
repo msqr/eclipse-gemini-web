@@ -36,7 +36,7 @@ final class BundleJarResourceSet extends JarResourceSet {
 
     @Override
     protected WebResource createArchiveResource(JarEntry jarEntry, String webAppPath, Manifest manifest) {
-        return new BundleJarResource(getRoot(), webAppPath, getBase(), getBaseUrlString(), jarEntry, getInternalPath(), manifest);
+        return new BundleJarResource(this, webAppPath, getBaseUrlString(), jarEntry);
     }
 
     @Override
