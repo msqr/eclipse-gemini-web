@@ -31,6 +31,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Socket;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -38,8 +39,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletContext;
+import javax.websocket.ClientEndpointConfig;
+import javax.websocket.ContainerProvider;
+import javax.websocket.Endpoint;
+import javax.websocket.EndpointConfig;
+import javax.websocket.MessageHandler;
+import javax.websocket.Session;
+import javax.websocket.WebSocketContainer;
 
 import org.eclipse.gemini.web.core.spi.ServletContainer;
 import org.eclipse.gemini.web.core.spi.WebApplicationHandle;
@@ -95,6 +105,8 @@ public class TomcatServletContainerTests {
     private static final String LOCATION_BUNDLE_CUSTOMIZER = "file:../org.eclipse.gemini.web.test/target/resources/customizer-bundle.jar";
 
     private static final String LOCATION_WAR_WITH_RESOURCE_REFERENCES = "../org.eclipse.gemini.web.test/target/resources/war-with-resource-references.war?Web-ContextPath=/war-with-resource-references";
+
+    private static final String LOCATION_WEBSOCKET = "../org.eclipse.gemini.web.test/target/resources/websocket.war?Web-ContextPath=/websocket";
 
     private BundleContext bundleContext;
 
@@ -609,6 +621,57 @@ public class TomcatServletContainerTests {
             assertTrue(FileUtils.deleteDirectory(webAppDir));
             FileUtils.copy(Paths.get("src/test/resources/web.xml"), defaultWebXml);
         }
+    }
+
+    /**
+     * Test case for https://bugs.eclipse.org/bugs/show_bug.cgi?id=463163
+     */
+    @Test
+    public void testServerEndpointInOrderedWebFragment() throws Exception {
+        Object[] result = startWebApplicationWith(LOCATION_PREFIX + LOCATION_WEBSOCKET, "/websocket");
+
+        try {
+            validateURL("http://localhost:8080/websocket/index.html");
+
+            try (Session wsSession = connectToServer("ws://localhost:8080/websocket/endpoint");) {
+                final CountDownLatch latch = new CountDownLatch(1);
+                final String expectedMessage = "Return: text";
+                wsSession.addMessageHandler(new MessageHandler.Whole<String>() {
+
+                    @Override
+                    public void onMessage(String message) {
+                        System.out.println("Message received: " + message);
+                        assertEquals(expectedMessage, message);
+                        latch.countDown();
+                    }
+
+                });
+                wsSession.getBasicRemote().sendText("text");
+                boolean latchResult = latch.await(10, TimeUnit.SECONDS);
+                assertTrue(latchResult);
+            }
+        } finally {
+            this.container.stopWebApplication((WebApplicationHandle) result[1]);
+            ((Bundle) result[0]).uninstall();
+        }
+    }
+
+    private Session connectToServer(String uri) throws Exception {
+        WebSocketContainer wsContainer = ContainerProvider.getWebSocketContainer();
+        Session wsSession = wsContainer.connectToServer(new Endpoint() {
+
+            @Override
+            public void onError(Session session, Throwable t) {
+                System.err.println("onError: " + t);
+            }
+
+            @Override
+            public void onOpen(Session session, EndpointConfig config) {
+                session.getUserProperties().put("endpoint", this);
+            }
+
+        }, ClientEndpointConfig.Builder.create().build(), new URI(uri));
+        return wsSession;
     }
 
     private void createFileWithContent(Path file, String content) throws Exception {

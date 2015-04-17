@@ -36,6 +36,7 @@
 		<pathelement location="../test-bundles/war-with-context-xml-cross-context"/>
 		<pathelement location="../test-bundles/war-with-annotations"/>
 		<pathelement location="../test-bundles/war-with-resource-references"/>
+		<pathelement location="../test-bundles/websocket"/>
 	</path>
 
 	<path id="doc.bundles">
