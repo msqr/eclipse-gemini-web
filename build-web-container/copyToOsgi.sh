@@ -1,12 +1,12 @@
 # copies the results of a web container build (ant clean collect) to the relevant directories of the given OSGi trunk
 REPO=$1/licensed/repo
 SRC=target/bundles
-cp $SRC/org.eclipse.virgo.util.osgi-3.6.0.*.jar $REPO/org.eclipse.virgo.util.osgi/org.eclipse.virgo.util.osgi-3.6.0.jar
-cp $SRC/org.eclipse.virgo.util.osgi.manifest-3.6.0.*.jar $REPO/org.eclipse.virgo.util.osgi/org.eclipse.virgo.util.osgi.manifest-3.6.0.jar
-cp $SRC/org.eclipse.virgo.util.common-3.6.0.*.jar $REPO/org.eclipse.virgo.util.common/org.eclipse.virgo.util.common-3.6.0.jar
-cp $SRC/org.eclipse.virgo.util.io-3.6.0.*.jar $REPO/org.eclipse.virgo.util.io/org.eclipse.virgo.util.io-3.6.0.jar
-cp $SRC/org.eclipse.virgo.util.math-3.6.0.*.jar $REPO/org.eclipse.virgo.util.math/org.eclipse.virgo.util.math-3.6.0.jar
-cp $SRC/org.eclipse.virgo.util.parser.manifest-3.6.0.*.jar $REPO/org.eclipse.virgo.util.parser.manifest/org.eclipse.virgo.util.parser.manifest-3.6.0.jar
+cp $SRC/org.eclipse.virgo.util.osgi-3.6.3.*.jar $REPO/org.eclipse.virgo.util.osgi/org.eclipse.virgo.util.osgi-3.6.3.jar
+cp $SRC/org.eclipse.virgo.util.osgi.manifest-3.6.3.*.jar $REPO/org.eclipse.virgo.util.osgi/org.eclipse.virgo.util.osgi.manifest-3.6.3.jar
+cp $SRC/org.eclipse.virgo.util.common-3.6.3.*.jar $REPO/org.eclipse.virgo.util.common/org.eclipse.virgo.util.common-3.6.3.jar
+cp $SRC/org.eclipse.virgo.util.io-3.6.3.*.jar $REPO/org.eclipse.virgo.util.io/org.eclipse.virgo.util.io-3.6.3.jar
+cp $SRC/org.eclipse.virgo.util.math-3.6.3.*.jar $REPO/org.eclipse.virgo.util.math/org.eclipse.virgo.util.math-3.6.3.jar
+cp $SRC/org.eclipse.virgo.util.parser.manifest-3.6.3.*.jar $REPO/org.eclipse.virgo.util.parser.manifest/org.eclipse.virgo.util.parser.manifest-3.6.3.jar
 cp $SRC/org.apache.catalina.ha-8.0.21.jar $REPO/org.apache.catalina.ha/org.apache.catalina.ha-8.0.21.jar
 cp $SRC/org.apache.catalina-8.0.21.jar $REPO/org.apache.catalina/org.apache.catalina-8.0.21.jar
 cp $SRC/org.apache.catalina.tribes-8.0.21.jar $REPO/org.apache.catalina.tribes/org.apache.catalina.tribes-8.0.21.jar
