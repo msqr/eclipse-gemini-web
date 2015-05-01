@@ -29,6 +29,8 @@ public class BundleURLStreamHandlerService extends AbstractURLStreamHandlerServi
 
     private static final String WAR_TO_ENTRY_SEPARATOR = "\\^/";
 
+    private static final String WAR_TO_ENTRY_SEPARATOR_NEW = "\\*/";
+
     private final ExtendedWarURLStreamHandler handler = new ExtendedWarURLStreamHandler();
 
     @Override
@@ -43,7 +45,11 @@ public class BundleURLStreamHandlerService extends AbstractURLStreamHandlerServi
             // Only the path needs to be changed
             if (spec.startsWith(WAR_BUNDLE_ENTRY_SCHEMA)) {
                 String path = spec.substring(4);
-                path = path.replaceFirst(WAR_TO_ENTRY_SEPARATOR, "");
+                if (path.contains("*/")) {
+                    path = path.replaceFirst(WAR_TO_ENTRY_SEPARATOR_NEW, "");
+                } else {
+                    path = path.replaceFirst(WAR_TO_ENTRY_SEPARATOR, "");
+                }
                 setURL(u, u.getProtocol(), "", -1, null, null, path, null, null);
             } else {
                 super.parseURL(u, spec, start, limit);
